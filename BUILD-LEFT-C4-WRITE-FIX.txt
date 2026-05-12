@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:56:52
+Base: month-spread-left-c4-sync-v2-20260512-175313.zip
+Fix: adds capture-phase delegated input/change/focusout listeners for #leftAmount so edits write back to Left!C4 even after the field is re-rendered.
+JS syntax ok: True
+

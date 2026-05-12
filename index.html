@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Left!C4 sync v2 after-render build: 2026-05-12 17:53:13 -->
+<!-- visible Left!C4 write fix build: 2026-05-12 18:02:21 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -898,6 +898,12 @@ input[name="amount"] {
   appearance: none !important;
 }
 
+
+/* === visible Left!C4 write fix 2026-05-12 18:02:21 === */
+#leftC4SyncStatus {
+  line-height: 1.3 !important;
+}
+
 </style>
 </head>
 <body>
@@ -1638,39 +1644,7 @@ async function msReadLeftAmountFromSheet() {
   return data.values && data.values[0] && data.values[0][0] != null ? String(data.values[0][0]) : '';
 }
 
-async function msWriteLeftAmountToSheet(value) {
-  const { fileId } = getConfig();
-  const token = getToken();
-  if (!token) throw new Error('Not signed in');
-
-  const amount = typeof msParseLooseMoney === 'function' ? msParseLooseMoney(value) : parseFloat(String(value || '').replace(/,/g,'').replace(/£/g,'').replace(/[^0-9.]/g,'')) || 0;
-
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(MS_LEFT_AMOUNT_RANGE)}?valueInputOption=USER_ENTERED`;
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      Authorization: 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      range: MS_LEFT_AMOUNT_RANGE,
-      majorDimension: 'ROWS',
-      values: [[amount]]
-    })
-  });
-
-  if (res.status === 401) {
-    clearToken();
-    throw new Error('Session expired — sign in again.');
-  }
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
-  }
-
-  return res.json();
-}
+async function msWriteLeftAmountToSheet(value){ return msWriteLeftC4Visible(value, true); }
 
 async function msPullLeftAmountC4(){ return msApplyLeftC4ToInputStrong(); }
 
@@ -1764,6 +1738,7 @@ async function msApplyLeftC4ToInputStrong() {
 
     input.value = cleaned;
     input.dataset.syncedFromLeftC4 = cleaned;
+    msLeftC4LastWrittenValue = cleaned;
 
     if (typeof msUpdateLeftAmountPerDay === 'function') msUpdateLeftAmountPerDay();
     if (typeof msRecalcLeftAmountPerDay === 'function') msRecalcLeftAmountPerDay();
@@ -1785,43 +1760,7 @@ function msWaitAndApplyLeftC4Strong() {
   }, 250);
 }
 
-async function msWriteLeftC4Strong(value) {
-  const { fileId } = getConfig();
-  const token = getToken();
-  if (!token) throw new Error('Not signed in');
-
-  const range = 'Left!C4';
-  const amount = typeof msParseLooseMoney === 'function'
-    ? msParseLooseMoney(value)
-    : parseFloat(String(value || '').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.]/g,'')) || 0;
-
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
-
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      Authorization: 'Bearer ' + token,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      range,
-      majorDimension: 'ROWS',
-      values: [[amount]]
-    })
-  });
-
-  if (res.status === 401) {
-    clearToken();
-    throw new Error('Session expired — sign in again.');
-  }
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
-  }
-
-  return res.json();
-}
+async function msWriteLeftC4Strong(value){ return msWriteLeftC4Visible(value, true); }
 
 function msWireLeftC4Strong() {
   const input = document.getElementById('leftAmount');
@@ -1848,7 +1787,227 @@ function msAfterRenderLeftC4Strong() {
   msWaitAndApplyLeftC4Strong();
 }
 
+
+// Strong delegated write-back for Amount Left -> Left!C4.
+// Works even if #leftAmount is re-rendered after spreadsheet refresh.
+let msLeftC4WriteTimer = null;
+let msLeftC4LastWrittenValue = null;
+
+function msNormaliseLeftC4WriteValue(value) {
+  const cleaned = String(value || '')
+    .replace(/,/g, '')
+    .replace(/£/g, '')
+    .replace(/[^\d.]/g, '');
+
+  const dot = cleaned.indexOf('.');
+  const normalised = dot === -1
+    ? cleaned
+    : cleaned.slice(0, dot + 1) + cleaned.slice(dot + 1).replace(/\./g, '');
+
+  return normalised;
+}
+
+async function msWriteLeftC4Now(value, showErrors = false) {
+  const normalised = msNormaliseLeftC4WriteValue(value);
+  if (normalised === '') return;
+
+  // Avoid hammering the API if nothing changed.
+  if (normalised === msLeftC4LastWrittenValue) return;
+
+  try {
+    if (typeof msWriteLeftC4Strong === 'function') {
+      await msWriteLeftC4Strong(normalised);
+    } else if (typeof msWriteLeftAmountToSheet === 'function') {
+      await msWriteLeftAmountToSheet(normalised);
+    } else {
+      const { fileId } = getConfig();
+      const token = getToken();
+      if (!token) throw new Error('Not signed in');
+
+      const range = 'Left!C4';
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          range,
+          majorDimension: 'ROWS',
+          values: [[parseFloat(normalised)]]
+        })
+      });
+
+      if (res.status === 401) {
+        clearToken();
+        throw new Error('Session expired — sign in again.');
+      }
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+      }
+    }
+
+    msLeftC4LastWrittenValue = normalised;
+    const input = document.getElementById('leftAmount');
+    if (input) input.dataset.lastSyncedToLeftC4 = normalised;
+  } catch (err) {
+    console.warn('Left!C4 delegated write failed:', err);
+    if (showErrors) alert('Could not update Left!C4: ' + (err.message || err));
+  }
+}
+
+function msQueueLeftC4Write(value) {
+  clearTimeout(msLeftC4WriteTimer);
+  msLeftC4WriteTimer = setTimeout(() => {
+    msWriteLeftC4Now(value, false);
+  }, 650);
+}
+
+// Capture-phase delegated listeners. These catch updates even if other handlers exist.
+document.addEventListener('input', function(event) {
+  if (!event.target || event.target.id !== 'leftAmount') return;
+  const cleaned = msNormaliseLeftC4WriteValue(event.target.value);
+  msQueueLeftC4Write(cleaned);
+}, true);
+
+document.addEventListener('change', function(event) {
+  if (!event.target || event.target.id !== 'leftAmount') return;
+  clearTimeout(msLeftC4WriteTimer);
+  msWriteLeftC4Now(event.target.value, true);
+}, true);
+
+document.addEventListener('focusout', function(event) {
+  if (!event.target || event.target.id !== 'leftAmount') return;
+  clearTimeout(msLeftC4WriteTimer);
+  msWriteLeftC4Now(event.target.value, true);
+}, true);
+
+
+// Visible Left!C4 write fix.
+// Reading can work with an old readonly token, but writing requires the full Sheets scope.
+// If a write fails, this shows the reason and lets the user re-auth.
+function msLeftC4Status(message, kind = 'info') {
+  let el = document.getElementById('leftC4SyncStatus');
+  const input = document.getElementById('leftAmount');
+  if (!el && input && input.parentElement) {
+    el = document.createElement('div');
+    el.id = 'leftC4SyncStatus';
+    el.style.cssText = 'margin-top:6px;font-size:11px;font-weight:700;color:#6b7280;';
+    input.parentElement.appendChild(el);
+  }
+  if (!el) return;
+  el.textContent = message;
+  el.style.color = kind === 'error' ? '#b91c1c' : kind === 'success' ? '#15803d' : '#6b7280';
+}
+
+function msLeftC4NumericValue(value) {
+  const cleaned = String(value || '')
+    .replace(/,/g, '')
+    .replace(/£/g, '')
+    .replace(/[^\d.]/g, '');
+  const dot = cleaned.indexOf('.');
+  const normalised = dot === -1 ? cleaned : cleaned.slice(0, dot + 1) + cleaned.slice(dot + 1).replace(/\./g, '');
+  const n = parseFloat(normalised);
+  return Number.isFinite(n) ? n : 0;
+}
+
+async function msWriteLeftC4Visible(value, showAlert = false) {
+  const { fileId } = getConfig();
+  const token = getToken();
+  if (!token) {
+    msLeftC4Status('Sign in required to save Amount Left', 'error');
+    if (showAlert) alert('Please sign in again so the app can save to Google Sheets.');
+    throw new Error('Not signed in');
+  }
+
+  const amount = msLeftC4NumericValue(value);
+  const range = 'Left!C4';
+
+  msLeftC4Status('Saving Amount Left…');
+
+  const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+
+  const doFetch = async () => fetch(updateUrl, {
+    method: 'PUT',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      range,
+      majorDimension: 'ROWS',
+      values: [[amount]]
+    })
+  });
+
+  let res = await doFetch();
+
+  if (res.status === 401 || res.status === 403) {
+    const text = await res.text();
+
+    // Most common cause: old readonly token. Clear it so next sign-in asks for writable scope.
+    clearToken();
+    msLeftC4Status('Please sign in again to allow saving', 'error');
+    if (showAlert) {
+      alert('Google needs you to sign in again so the app can save changes to the spreadsheet. After signing in, try updating Amount Left again.');
+    }
+    showSignIn();
+    throw new Error(`Google permission issue ${res.status}: ${text.slice(0, 220)}`);
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    msLeftC4Status('Amount Left save failed', 'error');
+    if (showAlert) alert(`Could not save Amount Left: Sheets API ${res.status}: ${text.slice(0, 220)}`);
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+  }
+
+  msLeftC4Status('Amount Left saved ✓', 'success');
+  if (typeof msApplyLeftC4ToInputStrong === 'function') {
+    setTimeout(msApplyLeftC4ToInputStrong, 500);
+  }
+  return res.json();
+}
+
+function msWireLeftC4VisibleWrite() {
+  const input = document.getElementById('leftAmount');
+  if (!input || input.dataset.visibleLeftC4Wired) return;
+  input.dataset.visibleLeftC4Wired = '1';
+
+  let timer = null;
+  input.addEventListener('input', function() {
+    if (typeof msUpdateLeftAmountPerDay === 'function') msUpdateLeftAmountPerDay();
+
+    clearTimeout(timer);
+    const value = input.value;
+    timer = setTimeout(() => {
+      msWriteLeftC4Visible(value, false).catch(err => console.warn('Amount Left autosave failed:', err));
+    }, 900);
+  });
+
+  input.addEventListener('change', function() {
+    clearTimeout(timer);
+    msWriteLeftC4Visible(input.value, true).catch(err => console.warn('Amount Left change save failed:', err));
+  });
+
+  input.addEventListener('blur', function() {
+    clearTimeout(timer);
+    msWriteLeftC4Visible(input.value, true).catch(err => console.warn('Amount Left blur save failed:', err));
+  });
+
+  msLeftC4Status('Amount Left sync ready');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(msWireLeftC4VisibleWrite, 500);
+  setTimeout(msWireLeftC4VisibleWrite, 1500);
+});
+
 start();
+setTimeout(msWireLeftC4VisibleWrite, 500);
 setTimeout(msAfterRenderLeftC4Strong, 500);
 setTimeout(() => { msWireLeftAmountC4Sync(); msPullLeftAmountC4(); }, 300);
 msWireLeftAmountUpdate();

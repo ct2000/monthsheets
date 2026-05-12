@@ -1,0 +1,5 @@
+Built: 2026-05-12 18:02:21
+Base: month-spread-left-c4-write-fix-20260512-175652.zip
+Fix: visible Left!C4 write-back with permission error handling. If Google returns 401/403, token is cleared and user is asked to sign in again with writable Sheets scope.
+JS syntax ok: True
+
