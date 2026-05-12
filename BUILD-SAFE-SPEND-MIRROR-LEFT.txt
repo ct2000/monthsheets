@@ -1,0 +1,5 @@
+Built: 2026-05-12 21:20:36
+Base: money-leftamount-shim-fix-20260512-211236.zip
+Fix: Safe to spend today now mirrors the primary Money Left per day / left-to-pay display directly instead of using an independent calculation.
+JS syntax ok: True
+

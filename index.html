@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- msWireLeftAmountUpdate shim fix build: 2026-05-12 21:12:36 -->
+<!-- Safe spend mirrors primary Money Left per day build: 2026-05-12 21:20:36 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4142,7 +4142,7 @@ function moneyBuildDashboardHTML() {
     <section class="money-hero">
       <div class="money-hero-top">
         <div class="money-hero-kicker">Safe to spend today</div>
-        <div class="money-hero-amount">${moneySafeSpendCurrentValue ? (moneySafeSpendCurrentValue() || moneyGetDisplayedPerDayValue() || moneyFmt(m.safeToSpend)) : (moneyGetDisplayedPerDayValue() || moneyFmt(m.safeToSpend))}</div>
+        <div class="money-hero-amount">${(moneyFindPrimaryLeftPerDayValue && moneyFindPrimaryLeftPerDayValue()) ? moneyFindPrimaryLeftPerDayValue().textContent.trim() : moneyFmt(m.safeToSpend)}</div>
         <div class="money-hero-sub">${moneyReadCorrectDaysText ? (moneyReadCorrectDaysText() || `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`) : `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`} · ${moneyFmt(m.unpaidTotal)} still to pay</div>
       </div>
       <div class="money-hero-row">
@@ -5125,7 +5125,152 @@ function msWireLeftAmountUpdate() {
   }
 }
 
+
+// Safe to spend today mirror fix.
+// The hero card no longer calculates its own amount.
+// It mirrors the existing Money Left per day / left-to-pay display directly.
+function moneyFindPrimaryLeftPerDayValue() {
+  return (
+    document.getElementById('perDayValue') ||
+    document.getElementById('perDayValueEl') ||
+    document.querySelector('[data-per-day-value]') ||
+    document.querySelector('.per-day .big')
+  );
+}
+
+function moneyFindPrimaryLeftPerDayMeta() {
+  return (
+    document.getElementById('perDayMeta') ||
+    document.querySelector('[data-per-day-meta]') ||
+    document.querySelector('.per-day .meta')
+  );
+}
+
+function moneyMirrorSafeSpendFromPrimary() {
+  const valueEl = moneyFindPrimaryLeftPerDayValue();
+  const metaEl = moneyFindPrimaryLeftPerDayMeta();
+
+  const value = valueEl ? String(valueEl.textContent || '').trim() : '';
+  const meta = metaEl ? String(metaEl.textContent || '').trim() : '';
+
+  if (value) {
+    document.querySelectorAll('.money-hero-amount').forEach(el => {
+      el.textContent = value;
+      el.dataset.mirrorsPrimaryPerDay = '1';
+    });
+
+    document.querySelectorAll('.money-insight').forEach(insight => {
+      const text = String(insight.textContent || '').toLowerCase();
+      if (text.includes('safe to spend') || text.includes('short by')) {
+        const target = insight.querySelector('span:not(.money-insight-icon)') || insight;
+        target.textContent = `Safe to spend: ${value} per day.`;
+      }
+    });
+  }
+
+  if (meta) {
+    document.querySelectorAll('.money-hero-sub').forEach(el => {
+      const oldText = String(el.textContent || '');
+      const stillToPayMatch = oldText.match(/·\s*(.*still to pay)/i);
+      const stillToPay = stillToPayMatch ? stillToPayMatch[1] : '';
+      el.textContent = stillToPay ? `${meta} · ${stillToPay}` : meta;
+    });
+  }
+}
+
+function moneyPatchDashboardHeroMirror() {
+  if (window.__moneyHeroMirrorPatched) return;
+  if (typeof moneyBuildDashboardHTML !== 'function') return;
+
+  window.__moneyHeroMirrorPatched = true;
+  const original = moneyBuildDashboardHTML;
+
+  moneyBuildDashboardHTML = function(...args) {
+    let out = String(original.apply(this, args));
+
+    const valueEl = moneyFindPrimaryLeftPerDayValue();
+    const metaEl = moneyFindPrimaryLeftPerDayMeta();
+
+    const value = valueEl ? String(valueEl.textContent || '').trim() : '';
+    const meta = metaEl ? String(metaEl.textContent || '').trim() : '';
+
+    if (value) {
+      out = out.replace(
+        /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
+        `$1${value}$3`
+      );
+
+      out = out.replace(
+        /(Safe to spend: )[^<]+?( per day\.)/,
+        `$1${value}$2`
+      );
+
+      out = out.replace(
+        /(You are short by )[^<]+?( per day\.)/,
+        `Safe to spend: ${value} per day.`
+      );
+    }
+
+    if (meta) {
+      out = out.replace(
+        /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? still to pay<\/div>)/,
+        `$1${meta}$3`
+      );
+
+      out = out.replace(
+        /(<div class="money-hero-sub">)([\s\S]*?)(<\/div>)/,
+        (match, start, middle, end) => {
+          if (String(middle).includes('still to pay')) return match;
+          return `${start}${meta}${end}`;
+        }
+      );
+    }
+
+    return out;
+  };
+}
+
+function moneyWireSafeSpendMirror() {
+  moneyPatchDashboardHeroMirror();
+  moneyMirrorSafeSpendFromPrimary();
+
+  [moneyFindPrimaryLeftPerDayValue(), moneyFindPrimaryLeftPerDayMeta()].forEach(el => {
+    if (!el || el.dataset.safeSpendMirrorObserver) return;
+    el.dataset.safeSpendMirrorObserver = '1';
+
+    new MutationObserver(() => {
+      setTimeout(moneyMirrorSafeSpendFromPrimary, 0);
+      setTimeout(() => {
+        if (typeof moneyInsertDashboard === 'function') moneyInsertDashboard();
+        moneyMirrorSafeSpendFromPrimary();
+      }, 120);
+    }).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyWireSafeSpendMirror();
+  setTimeout(moneyWireSafeSpendMirror, 400);
+  setTimeout(moneyWireSafeSpendMirror, 1000);
+  setTimeout(moneyWireSafeSpendMirror, 1800);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyWireSafeSpendMirror, 80);
+    setTimeout(moneyWireSafeSpendMirror, 350);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker')) {
+    setTimeout(moneyWireSafeSpendMirror, 250);
+    setTimeout(moneyWireSafeSpendMirror, 850);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireSafeSpendMirror, 800);
 setTimeout(moneyLeftPerDayRebuiltWire, 800);
 setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 800);
 setTimeout(moneyApplySafeSpendOptionB, 800);
