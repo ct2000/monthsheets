@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- bottom bar + sort pill patch: 2026-05-12 15:41:10 -->
+<!-- VERIFIED paid toggle build: 2026-05-12 15:47:01 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -180,6 +180,102 @@ body.dark .sort-pill[data-sort="paid"].active,
   color: #86efac !important;
 }
 
+
+/* === paid toggle + two-button bottom bar + active sort colours 2026-05-12 15:46:40 === */
+.bottom-nav {
+  position:fixed !important;
+  left:50% !important;
+  bottom:max(0px, env(safe-area-inset-bottom)) !important;
+  transform:translateX(-50%) !important;
+  width:min(430px, 100vw) !important;
+  height:72px !important;
+  padding:8px 24px max(8px, env(safe-area-inset-bottom)) !important;
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:12px !important;
+  background:rgba(255,255,255,.94) !important;
+  border-top:1px solid rgba(17,24,39,.08) !important;
+  border-radius:24px 24px 0 0 !important;
+  box-shadow:0 -12px 34px rgba(16,24,40,.08) !important;
+  backdrop-filter:blur(24px) !important;
+  -webkit-backdrop-filter:blur(24px) !important;
+  z-index:60 !important;
+}
+body.dark .bottom-nav, [data-theme="dark"] .bottom-nav {
+  background:rgba(20,24,32,.94) !important;
+  border-top-color:rgba(255,255,255,.08) !important;
+}
+.nav-btn {
+  border:0 !important;
+  background:transparent !important;
+  color:#6b7280 !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:3px !important;
+}
+.nav-btn strong {
+  width:34px !important;
+  height:34px !important;
+  border-radius:15px !important;
+  display:grid !important;
+  place-items:center !important;
+  background:#f4f6f8 !important;
+  color:#6b7280 !important;
+  font-size:20px !important;
+}
+#addItemBarBtn strong {
+  background:#80e45e !important;
+  color:#102012 !important;
+  box-shadow:0 12px 26px rgba(60,190,80,.28) !important;
+}
+#addItemBarBtn { color:#20a451 !important; }
+.sort-pill-row {
+  display:inline-flex !important;
+  gap:6px !important;
+  padding:4px !important;
+  border-radius:999px !important;
+  background:#fff !important;
+  border:1px solid #edf0f4 !important;
+  box-shadow:0 8px 22px rgba(16,24,40,.06) !important;
+}
+.sort-pill {
+  border:0 !important;
+  border-radius:999px !important;
+  padding:7px 12px !important;
+  font-size:12px !important;
+  font-weight:850 !important;
+  background:#fff !important;
+  color:#6b7280 !important;
+}
+.sort-pill[data-sort="unpaid"].active {
+  background:#ef4444 !important;
+  color:#fff !important;
+}
+.sort-pill[data-sort="paid"].active {
+  background:#22c55e !important;
+  color:#fff !important;
+}
+.sort-pill[data-sort="date"].active,
+.sort-pill[data-sort="amount"].active {
+  background:#4f46e5 !important;
+  color:#fff !important;
+}
+.status-pill.paid-toggle {
+  border:0 !important;
+  cursor:pointer !important;
+  font-family:inherit !important;
+  -webkit-appearance:none !important;
+  appearance:none !important;
+}
+.status-pill.paid-toggle:disabled {
+  opacity:.65 !important;
+  cursor:wait !important;
+}
+
 </style>
 </head>
 <body>
@@ -199,7 +295,7 @@ body.dark .sort-pill[data-sort="paid"].active,
 <script>
 const DEFAULT_CLIENT_ID='';
 const DEFAULT_FILE_ID='1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw';
-const SCOPE='https://www.googleapis.com/auth/spreadsheets';
+const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
 const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTH_SHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 let CACHED_TABLES=[], TOKEN_CLIENT=null, CURRENT_SORT=localStorage.getItem('ms.sort')||'unpaid';
@@ -229,7 +325,7 @@ function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase()
       <button type="button" class="sort-pill" data-sort="paid">Paid</button>
       <button type="button" class="sort-pill" data-sort="date">Date</button>
       <button type="button" class="sort-pill" data-sort="amount">Amount</button>
-    </div></div><section class="bill-list">${rows.map(r=>{const paid=isRowPaid(r);return `<article class="bill-card ${paid?'paid':'unpaid'}"><div class="bill-icon">£</div><div><div class="bill-name">${escapeHtml(r.name)}</div><div class="bill-meta">Due ${escapeHtml(r.dueDate||'—')}</div></div><div class="bill-right"><div class="bill-amount">${fmtMoney(r.due)}</div><button class="status-pill ${paid?'pill-paid':'pill-due'}" data-row="${r.sheetRow}">${paid?'Paid':'Outstanding'}</button></div></article>`}).join('')}</section>`;sortBills.value=CURRENT_SORT;sortBills.onchange=()=>{CURRENT_SORT=sortBills.value;localStorage.setItem('ms.sort',CURRENT_SORT);renderMonth(table)};document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{CURRENT_SORT=b.dataset.sort;localStorage.setItem('ms.sort',CURRENT_SORT);renderMonth(table)});document.querySelectorAll('[data-row]').forEach(b=>b.onclick=()=>togglePaid(b.dataset.row));leftAmount.oninput=()=>{setLeft(table,{amount:parseFloat(leftAmount.value)||0,endDate:leftUntil.value||defaultEndDate()});renderMonth(table)};leftUntil.onchange=()=>{setLeft(table,{amount:parseFloat(leftAmount.value)||0,endDate:leftUntil.value||defaultEndDate()});renderMonth(table)}}
+    </div></div><section class="bill-list">${rows.map(r=>{const paid=isRowPaid(r);return `<article class="bill-card ${paid?'paid':'unpaid'}"><div class="bill-icon">£</div><div><div class="bill-name">${escapeHtml(r.name)}</div><div class="bill-meta">Due ${escapeHtml(r.dueDate||'—')}</div></div><div class="bill-right"><div class="bill-amount">${fmtMoney(r.due)}</div><button class="status-pill ${paid?'pill-paid':'pill-due'}" data-paid-row="${r.sheetRow}">${paid?'Paid':'Outstanding'}</button></div></article>`}).join('')}</section>`;sortBills.value=CURRENT_SORT;sortBills.onchange=()=>{CURRENT_SORT=sortBills.value;localStorage.setItem('ms.sort',CURRENT_SORT);renderMonth(table)};document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{CURRENT_SORT=b.dataset.sort;localStorage.setItem('ms.sort',CURRENT_SORT);renderMonth(table)});document.querySelectorAll('[data-row]').forEach(b=>b.onclick=()=>togglePaid(b.dataset.row));leftAmount.oninput=()=>{setLeft(table,{amount:parseFloat(leftAmount.value)||0,endDate:leftUntil.value||defaultEndDate()});renderMonth(table)};leftUntil.onchange=()=>{setLeft(table,{amount:parseFloat(leftAmount.value)||0,endDate:leftUntil.value||defaultEndDate()});renderMonth(table)}}
 async function togglePaid(sheetRow){const table=CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0];const row=table.rows.find(r=>String(r.sheetRow)===String(sheetRow));if(!row)return;await updateValues(`${colLetter(row.paidCol)}${row.sheetRow}`,[[isRowPaid(row)?row.due:0]]);await loadSpreadsheet()}
 async function appendBill(){const table=CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0];if(!table)return;const name=newName.value.trim(),dueDate=newDueDate.value.trim(),amount=parseMoney(newAmount.value);if(!name||!amount)return;const row=Math.max(...table.rows.map(r=>r.sheetRow||0))+1;await updateValues(`${colLetter(table.labelCol)}${row}:${colLetter(table.paidCol)}${row}`,[[name,dueDate,amount,amount]]);closeAdd();await loadSpreadsheet()}
 async function loadSpreadsheet(){content.innerHTML='<div class="spinner">Fetching your spreadsheet…</div>';try{CACHED_TABLES=parseTablesFromGrid(await fetchSheet());render()}catch(e){if(String(e.message).toLowerCase().includes('sign')){showSignIn();return}content.innerHTML=`<div class="error"><strong>Couldn’t load spreadsheet:</strong><br>${escapeHtml(e.message||e)}</div>`}}
@@ -271,14 +367,89 @@ function wireBottomBarActions() {
   }
 }
 
+
+// Verified paid/outstanding write-back handler
+function msColLetter(n) {
+  let s = '';
+  n++;
+  while (n > 0) {
+    const m = (n - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    n = Math.floor((n - m) / 26);
+  }
+  return s;
+}
+
+async function msSheetsUpdate(range, values) {
+  const { fileId } = getConfig();
+  const token = getToken();
+  if (!token) throw new Error('Not signed in');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ range, majorDimension: 'ROWS', values })
+  });
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired — sign in again.');
+  }
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+  }
+  return res.json();
+}
+
+async function msTogglePaid(sheetRow) {
+  try {
+    const picker = document.getElementById('monthPicker');
+    const tableIndex = picker && picker.value !== '' ? picker.value : 0;
+    const table = CACHED_TABLES[tableIndex] || CACHED_TABLES[0];
+    if (!table) throw new Error('No selected month table loaded.');
+
+    const row = table.rows.find(r => String(r.sheetRow) === String(sheetRow));
+    if (!row) throw new Error('Could not find that bill row. Refresh and try again.');
+    if (row.paidCol == null || row.sheetRow == null) throw new Error('This row is missing spreadsheet coordinates.');
+
+    // Sheet convention: Paid column is actually outstanding.
+    // 0 = paid, full due amount = outstanding.
+    const nextOutstanding = isRowPaid(row) ? row.due : 0;
+    const range = `${msColLetter(row.paidCol)}${row.sheetRow}`;
+
+    const btn = document.querySelector(`[data-paid-row="${sheetRow}"], [data-row="${sheetRow}"]`);
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+    }
+
+    await msSheetsUpdate(range, [[nextOutstanding]]);
+    await loadSpreadsheet();
+  } catch (err) {
+    alert('Could not update paid status: ' + (err.message || err));
+    try { await loadSpreadsheet(); } catch(e) {}
+  }
+}
+
+document.addEventListener('click', function(event) {
+  const btn = event.target.closest('[data-paid-row], .paid-toggle');
+  if (!btn) return;
+  const rowId = btn.dataset.paidRow || btn.dataset.row;
+  if (!rowId) return;
+  event.preventDefault();
+  event.stopPropagation();
+  msTogglePaid(rowId);
+});
+
 start();
 wireBottomBarActions();
 </script>
 <nav class="bottom-nav" id="bottomNav" style="display:none">
-  <button class="nav-btn active" type="button"><strong>⌂</strong>Home</button>
   <button class="nav-btn" id="addItemBarBtn" type="button"><strong>＋</strong>Add</button>
   <button class="nav-btn" id="reloadBarBtn" type="button"><strong>↻</strong>Refresh</button>
-  <button class="nav-btn" id="settingsBarBtn" type="button"><strong>⚙</strong>Settings</button>
 </nav>
 </body>
 </html>
