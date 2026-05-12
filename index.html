@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- safe addFab removal build: 2026-05-12 16:10:31 -->
+<!-- remove nav-mini build: 2026-05-12 16:15:07 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -587,6 +587,17 @@ body.dark .bottom-nav .nav-btn strong,
   pointer-events: none !important;
 }
 
+
+/* === remove nav-mini 2026-05-12 16:15:07 === */
+.nav-mini,
+[class*="nav-mini"],
+#navMini,
+[data-nav-mini] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -599,7 +610,7 @@ body.dark .bottom-nav .nav-btn strong,
   <main id="content"><div class="spinner">Fetching your spreadsheet…</div></main>
 </div>
 <div id="signin" class="signin" style="display:none"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
-<div class="bottom-bar" id="bottomBar" style="display:none"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
+<div class="bottom-bar" id="bottomBar" style="display:none">Home</button>Refresh</button>Settings</button></div>
 <div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" inputmode="decimal" placeholder="0.00"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
