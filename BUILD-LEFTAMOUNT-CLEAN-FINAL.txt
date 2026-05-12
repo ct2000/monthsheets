@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:22:49
+Base: month-spread-leftamount-decimal-fix-20260512-171749.zip
+Fix: removed old conflicting leftAmount handlers and added one clean money input handler. Allows 1092.33 without cursor jumping and recalculates per-day.
+JS syntax ok: True
+
