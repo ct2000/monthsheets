@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:16:07
+Base: money-ios-bottom-sheets-20260512-201243.zip
+Added Apple Wallet-style hero card, smart bill insights, swipe gestures for bill cards, and animated chart snapshot.
+JS syntax ok: True
+

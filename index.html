@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Premium iOS polish build: 2026-05-12 20:03:22 -->
+<!-- Hero + insights + swipe + charts build: 2026-05-12 20:16:07 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1761,6 +1761,485 @@ main {
   }
 }
 
+
+/* === iOS native-style bottom sheets 2026-05-12 20:12:43 === */
+.config-modal,
+.modal {
+  align-items: flex-end !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  background: rgba(0,0,0,.34) !important;
+  backdrop-filter: blur(18px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.2) !important;
+}
+
+.config-modal.open,
+.modal.open {
+  display: flex !important;
+}
+
+.config-box,
+.sheet,
+.config-modal .config-box,
+.modal .sheet {
+  width: min(430px, 100vw) !important;
+  max-width: 430px !important;
+  max-height: min(82vh, 720px) !important;
+  overflow-y: auto !important;
+  margin: 0 auto !important;
+  padding: 34px 18px calc(22px + env(safe-area-inset-bottom)) !important;
+  border-radius: 30px 30px 0 0 !important;
+  background: rgba(255,255,255,.88) !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  border-bottom: 0 !important;
+  box-shadow: 0 -22px 64px rgba(15,23,42,.20) !important;
+  backdrop-filter: blur(28px) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.35) !important;
+  transform: translateY(0) !important;
+  animation: moneySheetSlideUp .28s cubic-bezier(.2,.85,.2,1) both !important;
+  overscroll-behavior: contain !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+body.dark .config-box,
+body.dark .sheet,
+body.dark .config-modal .config-box,
+body.dark .modal .sheet,
+[data-theme="dark"] .config-box,
+[data-theme="dark"] .sheet,
+[data-theme="dark"] .config-modal .config-box,
+[data-theme="dark"] .modal .sheet {
+  background: rgba(22,27,36,.90) !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow: 0 -22px 64px rgba(0,0,0,.52) !important;
+}
+
+.config-box::before,
+.sheet::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 42px !important;
+  height: 5px !important;
+  border-radius: 999px !important;
+  background: rgba(17,24,39,.22) !important;
+}
+
+body.dark .config-box::before,
+body.dark .sheet::before,
+[data-theme="dark"] .config-box::before,
+[data-theme="dark"] .sheet::before {
+  background: rgba(255,255,255,.28) !important;
+}
+
+.config-box,
+.sheet {
+  position: relative !important;
+}
+
+.config-box h2,
+.config-box h3,
+.sheet h2,
+.sheet h3 {
+  text-align: center !important;
+  margin-top: 0 !important;
+  margin-bottom: 16px !important;
+  font-size: 18px !important;
+  letter-spacing: -0.03em !important;
+}
+
+.config-box label,
+.sheet label {
+  font-size: 12px !important;
+  font-weight: 850 !important;
+  color: var(--ios-muted, #6b7280) !important;
+  margin: 12px 0 6px !important;
+  display: block !important;
+}
+
+.config-box input,
+.config-box select,
+.config-box textarea,
+.sheet input,
+.sheet select,
+.sheet textarea {
+  width: 100% !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  border-radius: 16px !important;
+  font-size: 16px !important;
+}
+
+.config-box .actions,
+.sheet .actions,
+.config-actions {
+  position: sticky !important;
+  bottom: 0 !important;
+  margin: 18px -4px -4px !important;
+  padding-top: 10px !important;
+  background: linear-gradient(to top, rgba(255,255,255,.92), rgba(255,255,255,0)) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+body.dark .config-box .actions,
+body.dark .sheet .actions,
+body.dark .config-actions,
+[data-theme="dark"] .config-box .actions,
+[data-theme="dark"] .sheet .actions,
+[data-theme="dark"] .config-actions {
+  background: linear-gradient(to top, rgba(22,27,36,.94), rgba(22,27,36,0)) !important;
+}
+
+.modal-close,
+[data-close-modal] {
+  position: absolute !important;
+  top: 12px !important;
+  right: 14px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 999px !important;
+  border: 0 !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text, #111827) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 22px !important;
+  z-index: 3 !important;
+}
+
+body.dark .modal-close,
+body.dark [data-close-modal],
+[data-theme="dark"] .modal-close,
+[data-theme="dark"] [data-close-modal] {
+  background: rgba(255,255,255,.10) !important;
+  color: #f8fafc !important;
+}
+
+@keyframes moneySheetSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(36px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (min-width: 700px) {
+  .config-modal,
+  .modal {
+    align-items: center !important;
+    padding: 24px !important;
+  }
+
+  .config-box,
+  .sheet,
+  .config-modal .config-box,
+  .modal .sheet {
+    border-radius: 30px !important;
+    border-bottom: 1px solid rgba(15,23,42,.08) !important;
+    max-height: 82vh !important;
+    animation: moneySheetPop .22s ease both !important;
+  }
+
+  @keyframes moneySheetPop {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(.985);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+}
+
+
+/* === Hero + insights + swipe + charts 2026-05-12 20:16:07 === */
+.money-hero {
+  position: relative;
+  margin: 12px 0 16px;
+  padding: 18px;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.96), rgba(255,255,255,.45) 36%, transparent 66%),
+    radial-gradient(circle at 96% 8%, rgba(0,122,255,.20), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.86), rgba(242,246,252,.70));
+  border: 1px solid rgba(15,23,42,.08);
+  box-shadow:
+    0 24px 70px rgba(15,23,42,.13),
+    inset 0 1px 0 rgba(255,255,255,.78);
+  overflow: hidden;
+  backdrop-filter: blur(30px) saturate(1.35);
+  -webkit-backdrop-filter: blur(30px) saturate(1.35);
+}
+
+.money-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255,255,255,.28), transparent 44%, rgba(255,255,255,.12) 70%, transparent);
+  pointer-events: none;
+}
+
+.money-hero-top,
+.money-hero-row {
+  position: relative;
+  z-index: 1;
+}
+
+.money-hero-kicker {
+  font-size: 12px;
+  font-weight: 850;
+  color: var(--ios-muted, #6b7280);
+  letter-spacing: -.01em;
+  margin-bottom: 6px;
+}
+
+.money-hero-amount {
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -.055em;
+  color: var(--ios-text, #111827);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 8px;
+}
+
+.money-hero-sub {
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--ios-muted, #6b7280);
+}
+
+.money-hero-row {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.money-hero-stat {
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.58);
+  border: 1px solid rgba(15,23,42,.06);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.65);
+}
+
+.money-hero-stat strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--ios-text, #111827);
+  font-variant-numeric: tabular-nums;
+}
+
+.money-hero-stat span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 850;
+  color: var(--ios-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
+
+.money-chart-card,
+.money-insights-card,
+.money-upcoming-card {
+  margin: 12px 0;
+  padding: 14px;
+  border-radius: 26px;
+  background: rgba(255,255,255,.72);
+  border: 1px solid rgba(15,23,42,.07);
+  box-shadow: 0 12px 34px rgba(15,23,42,.08);
+  backdrop-filter: blur(24px) saturate(1.25);
+  -webkit-backdrop-filter: blur(24px) saturate(1.25);
+}
+
+.money-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--ios-text, #111827);
+  letter-spacing: -.02em;
+}
+
+.money-insight-list {
+  display: grid;
+  gap: 8px;
+}
+
+.money-insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.58);
+  border: 1px solid rgba(15,23,42,.055);
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--ios-text, #111827);
+}
+
+.money-insight-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: rgba(0,122,255,.12);
+  color: #007aff;
+  font-size: 13px;
+}
+
+.money-chart-bars {
+  display: grid;
+  gap: 10px;
+}
+
+.money-chart-row {
+  display: grid;
+  grid-template-columns: 74px 1fr 58px;
+  gap: 8px;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 850;
+  color: var(--ios-muted, #6b7280);
+}
+
+.money-chart-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(17,24,39,.07);
+  overflow: hidden;
+}
+
+.money-chart-fill {
+  height: 100%;
+  border-radius: inherit;
+  width: 0%;
+  transition: width .55s cubic-bezier(.2,.85,.2,1);
+}
+
+.money-chart-fill.paid { background: #34c759; }
+.money-chart-fill.unpaid { background: #ff3b30; }
+.money-chart-fill.left { background: #007aff; }
+
+.money-upcoming-list {
+  display: grid;
+  gap: 8px;
+}
+
+.money-upcoming-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.56);
+  border: 1px solid rgba(15,23,42,.055);
+}
+
+.money-upcoming-item strong {
+  font-size: 13px;
+  color: var(--ios-text, #111827);
+}
+
+.money-upcoming-item span {
+  font-size: 12px;
+  font-weight: 850;
+  color: var(--ios-muted, #6b7280);
+}
+
+.money-swipe-wrap {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.money-swipe-actions {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.money-swipe-action {
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff;
+}
+
+.money-swipe-action.pay {
+  justify-content: flex-start;
+  background: #34c759;
+}
+
+.money-swipe-action.more {
+  justify-content: flex-end;
+  background: #007aff;
+}
+
+.money-swipe-wrap > .bill-card,
+.money-swipe-wrap > article,
+.money-swipe-wrap > .item-card,
+.money-swipe-wrap > .row-card {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 0 !important;
+  touch-action: pan-y;
+  transition: transform .22s cubic-bezier(.2,.85,.2,1), box-shadow .18s ease !important;
+}
+
+.money-swipe-wrap.swiping > .bill-card,
+.money-swipe-wrap.swiping > article,
+.money-swipe-wrap.swiping > .item-card,
+.money-swipe-wrap.swiping > .row-card {
+  box-shadow: 0 16px 38px rgba(15,23,42,.12) !important;
+}
+
+body.dark .money-hero {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.10), rgba(255,255,255,.03) 38%, transparent 66%),
+    radial-gradient(circle at 96% 8%, rgba(0,122,255,.18), transparent 34%),
+    linear-gradient(145deg, rgba(28,34,45,.88), rgba(15,19,28,.74)) !important;
+  border-color: rgba(255,255,255,.10);
+  box-shadow: 0 24px 70px rgba(0,0,0,.44), inset 0 1px 0 rgba(255,255,255,.07);
+}
+
+body.dark .money-hero-stat,
+body.dark .money-chart-card,
+body.dark .money-insights-card,
+body.dark .money-upcoming-card,
+body.dark .money-insight,
+body.dark .money-upcoming-item {
+  background: rgba(22,27,36,.68);
+  border-color: rgba(255,255,255,.08);
+}
+
+body.dark .money-chart-track {
+  background: rgba(255,255,255,.08);
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -1782,7 +2261,19 @@ main {
 <div class="bottom-bar" id="bottomBar"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
 <div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" placeholder="0.00" inputmode="decimal" autocomplete="off"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer>
+document.addEventListener('input', event => {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyInsertDashboard, 0);
+  }
+});
+document.addEventListener('click', event => {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn')) {
+    setTimeout(moneyWireSmartFeatures, 500);
+  }
+});
+
+</script>
 <script>
 
 window.addEventListener('error', function(event) {
@@ -3161,7 +3652,333 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(moneyWirePremiumUI, 800);
 });
 
+
+// Native-feeling bottom sheet helpers.
+function moneyCloseOpenSheets() {
+  document.querySelectorAll('.config-modal.open, .modal.open').forEach(modal => {
+    modal.classList.remove('open');
+  });
+}
+
+function moneyWireBottomSheets() {
+  document.querySelectorAll('.config-modal, .modal').forEach(modal => {
+    if (!modal.dataset.moneySheetWired) {
+      modal.dataset.moneySheetWired = '1';
+      modal.addEventListener('click', event => {
+        if (event.target === modal) moneyCloseOpenSheets();
+      });
+    }
+
+    const sheet = modal.querySelector('.config-box, .sheet');
+    if (sheet && !sheet.dataset.moneySheetPrepared) {
+      sheet.dataset.moneySheetPrepared = '1';
+
+      if (!sheet.querySelector('.money-sheet-handle')) {
+        const handle = document.createElement('div');
+        handle.className = 'money-sheet-handle';
+        handle.setAttribute('aria-hidden', 'true');
+        sheet.prepend(handle);
+      }
+
+      if (!sheet.querySelector('[data-close-modal]')) {
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'modal-close';
+        close.setAttribute('data-close-modal', '1');
+        close.setAttribute('aria-label', 'Close');
+        close.textContent = '×';
+        close.addEventListener('click', event => {
+          event.preventDefault();
+          event.stopPropagation();
+          moneyCloseOpenSheets();
+        });
+        sheet.appendChild(close);
+      }
+
+      let startY = 0;
+      let currentY = 0;
+      let dragging = false;
+
+      sheet.addEventListener('touchstart', event => {
+        if (!event.touches || !event.touches[0]) return;
+        startY = event.touches[0].clientY;
+        currentY = startY;
+        dragging = true;
+      }, { passive: true });
+
+      sheet.addEventListener('touchmove', event => {
+        if (!dragging || !event.touches || !event.touches[0]) return;
+        currentY = event.touches[0].clientY;
+        const delta = Math.max(0, currentY - startY);
+        if (delta > 0 && sheet.scrollTop <= 0) {
+          sheet.style.transform = `translateY(${Math.min(delta, 120)}px)`;
+        }
+      }, { passive: true });
+
+      sheet.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+        const delta = Math.max(0, currentY - startY);
+        sheet.style.transform = '';
+        if (delta > 96 && sheet.scrollTop <= 0) {
+          moneyCloseOpenSheets();
+        }
+      }, { passive: true });
+    }
+  });
+}
+
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape') moneyCloseOpenSheets();
+});
+
+document.addEventListener('click', event => {
+  const close = event.target.closest('[data-close-modal]');
+  if (close) {
+    event.preventDefault();
+    moneyCloseOpenSheets();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  moneyWireBottomSheets();
+  setInterval(moneyWireBottomSheets, 1200);
+});
+
+
+// Hero, insights, swipe gestures and charts.
+function moneyParseAmountText(text) {
+  const cleaned = String(text || '').replace(/,/g, '').replace(/£/g, '').replace(/[^\d.-]/g, '');
+  const n = parseFloat(cleaned);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function moneyFmt(n) {
+  if (typeof fmtMoney === 'function') return fmtMoney(n || 0);
+  return '£' + (n || 0).toFixed(2);
+}
+
+function moneyCurrentTable() {
+  try {
+    const picker = document.getElementById('monthPicker');
+    return CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+  } catch (e) {
+    return null;
+  }
+}
+
+function moneyDueDay(row) {
+  const raw = String(row && row.dueDate != null ? row.dueDate : '').trim();
+  const m = raw.match(/(\d{1,2})/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+function moneyDaysUntilDue(row) {
+  const day = moneyDueDay(row);
+  if (!day) return null;
+  const now = new Date();
+  const due = new Date(now.getFullYear(), now.getMonth(), day, 23, 59, 59);
+  return Math.ceil((due - now) / 86400000);
+}
+
+function moneyMetrics() {
+  const table = moneyCurrentTable();
+  const rows = table && table.rows ? table.rows : [];
+  const unpaid = rows.filter(r => !isRowPaid(r));
+  const paid = rows.filter(r => isRowPaid(r));
+
+  const unpaidTotal = unpaid.reduce((s, r) => s + (r.paid || r.due || 0), 0);
+  const paidTotal = paid.reduce((s, r) => s + (r.due || 0), 0);
+  const allTotal = rows.reduce((s, r) => s + (r.due || 0), 0);
+
+  const leftInput = document.getElementById('leftAmount');
+  const left = leftInput ? moneyParseAmountText(leftInput.value) : 0;
+
+  const daysLeft = (() => {
+    const now = new Date();
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    return Math.max(1, Math.ceil((end - now) / 86400000));
+  })();
+
+  const safeToSpend = (left - unpaidTotal) / daysLeft;
+  const upcoming = unpaid
+    .map(r => ({ ...r, daysUntil: moneyDaysUntilDue(r) }))
+    .filter(r => r.daysUntil != null && r.daysUntil >= 0 && r.daysUntil <= 7)
+    .sort((a, b) => a.daysUntil - b.daysUntil)
+    .slice(0, 4);
+
+  const largest = unpaid.slice().sort((a, b) => (b.paid || b.due || 0) - (a.paid || a.due || 0))[0];
+
+  return { rows, unpaid, paid, unpaidTotal, paidTotal, allTotal, left, daysLeft, safeToSpend, upcoming, largest };
+}
+
+function moneyBuildDashboardHTML() {
+  const m = moneyMetrics();
+  const paidPct = m.allTotal ? Math.min(100, (m.paidTotal / m.allTotal) * 100) : 0;
+  const unpaidPct = m.allTotal ? Math.min(100, (m.unpaidTotal / m.allTotal) * 100) : 0;
+  const leftPct = m.left ? Math.max(0, Math.min(100, ((m.left - m.unpaidTotal) / m.left) * 100)) : 0;
+
+  const insightA = m.upcoming.length
+    ? `${m.upcoming.length} bill${m.upcoming.length === 1 ? '' : 's'} due in the next 7 days.`
+    : 'No unpaid bills due in the next 7 days.';
+
+  const insightB = m.largest
+    ? `Largest unpaid bill: ${escapeHtml(m.largest.name)} at ${moneyFmt(m.largest.paid || m.largest.due || 0)}.`
+    : 'No unpaid bills left. Nice.';
+
+  const insightC = m.safeToSpend >= 0
+    ? `Safe to spend: ${moneyFmt(m.safeToSpend)} per day.`
+    : `You are short by ${moneyFmt(Math.abs(m.safeToSpend))} per day.`;
+
+  const upcomingHTML = m.upcoming.length
+    ? m.upcoming.map(r => `
+      <div class="money-upcoming-item">
+        <strong>${escapeHtml(r.name)}</strong>
+        <span>${r.daysUntil === 0 ? 'Today' : `in ${r.daysUntil} day${r.daysUntil === 1 ? '' : 's'}`} · ${moneyFmt(r.paid || r.due || 0)}</span>
+      </div>
+    `).join('')
+    : `<div class="money-upcoming-item"><strong>Nothing urgent</strong><span>Next 7 days clear</span></div>`;
+
+  return `
+    <section class="money-hero">
+      <div class="money-hero-top">
+        <div class="money-hero-kicker">Safe to spend today</div>
+        <div class="money-hero-amount">${moneyFmt(m.safeToSpend)}</div>
+        <div class="money-hero-sub">${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left · ${moneyFmt(m.unpaidTotal)} still to pay</div>
+      </div>
+      <div class="money-hero-row">
+        <div class="money-hero-stat"><strong>${m.unpaid.length}</strong><span>Unpaid</span></div>
+        <div class="money-hero-stat"><strong>${m.paid.length}</strong><span>Paid</span></div>
+        <div class="money-hero-stat"><strong>${moneyFmt(m.left)}</strong><span>Left</span></div>
+      </div>
+    </section>
+
+    <section class="money-insights-card">
+      <div class="money-section-title">Smart insights <span>✨</span></div>
+      <div class="money-insight-list">
+        <div class="money-insight"><span class="money-insight-icon">⏱</span><span>${insightA}</span></div>
+        <div class="money-insight"><span class="money-insight-icon">💡</span><span>${insightB}</span></div>
+        <div class="money-insight"><span class="money-insight-icon">£</span><span>${insightC}</span></div>
+      </div>
+    </section>
+
+    <section class="money-chart-card">
+      <div class="money-section-title">Month snapshot <span>${Math.round(paidPct)}% paid</span></div>
+      <div class="money-chart-bars">
+        <div class="money-chart-row"><span>Paid</span><div class="money-chart-track"><div class="money-chart-fill paid" data-width="${paidPct}"></div></div><span>${moneyFmt(m.paidTotal)}</span></div>
+        <div class="money-chart-row"><span>Unpaid</span><div class="money-chart-track"><div class="money-chart-fill unpaid" data-width="${unpaidPct}"></div></div><span>${moneyFmt(m.unpaidTotal)}</span></div>
+        <div class="money-chart-row"><span>Buffer</span><div class="money-chart-track"><div class="money-chart-fill left" data-width="${leftPct}"></div></div><span>${Math.round(leftPct)}%</span></div>
+      </div>
+    </section>
+
+    <section class="money-upcoming-card" data-section="upcoming">
+      <div class="money-section-title">Upcoming this week <span>📅</span></div>
+      <div class="money-upcoming-list">${upcomingHTML}</div>
+    </section>
+  `;
+}
+
+function moneyInsertDashboard() {
+  const app = document.getElementById('app');
+  const content = document.getElementById('content') || app;
+  if (!content || !moneyCurrentTable()) return;
+
+  let dash = document.getElementById('moneySmartDashboard');
+  if (!dash) {
+    dash = document.createElement('div');
+    dash.id = 'moneySmartDashboard';
+
+    const tabs = content.querySelector('.tabs');
+    if (tabs && tabs.parentNode) {
+      tabs.parentNode.insertBefore(dash, tabs);
+    } else {
+      content.prepend(dash);
+    }
+  }
+
+  dash.innerHTML = moneyBuildDashboardHTML();
+
+  requestAnimationFrame(() => {
+    dash.querySelectorAll('.money-chart-fill').forEach(el => {
+      el.style.width = `${el.dataset.width || 0}%`;
+    });
+  });
+}
+
+function moneyWrapSwipeCards() {
+  document.querySelectorAll('.bill-card, article[class*="bill"]').forEach(card => {
+    if (card.closest('.money-swipe-wrap')) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'money-swipe-wrap';
+    wrap.innerHTML = `
+      <div class="money-swipe-actions">
+        <div class="money-swipe-action pay">Paid</div>
+        <div class="money-swipe-action more">Refresh</div>
+      </div>
+    `;
+    card.parentNode.insertBefore(wrap, card);
+    wrap.appendChild(card);
+
+    let startX = 0;
+    let startY = 0;
+    let currentX = 0;
+    let dragging = false;
+
+    card.addEventListener('touchstart', event => {
+      const t = event.touches && event.touches[0];
+      if (!t) return;
+      startX = t.clientX;
+      startY = t.clientY;
+      currentX = startX;
+      dragging = true;
+      wrap.classList.add('swiping');
+    }, { passive: true });
+
+    card.addEventListener('touchmove', event => {
+      if (!dragging) return;
+      const t = event.touches && event.touches[0];
+      if (!t) return;
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+      if (Math.abs(dy) > Math.abs(dx)) return;
+      currentX = t.clientX;
+      const clamped = Math.max(-92, Math.min(92, dx));
+      card.style.transform = `translateX(${clamped}px)`;
+    }, { passive: true });
+
+    card.addEventListener('touchend', () => {
+      if (!dragging) return;
+      dragging = false;
+      wrap.classList.remove('swiping');
+      const dx = currentX - startX;
+      card.style.transform = '';
+
+      if (dx > 74) {
+        const paidBtn = card.querySelector('.paid-toggle, [data-paid-row], [data-row]');
+        if (paidBtn) paidBtn.click();
+        if (typeof moneyToast === 'function') moneyToast('Marked paid');
+      } else if (dx < -74) {
+        if (typeof loadSpreadsheet === 'function') loadSpreadsheet();
+        if (typeof moneyToast === 'function') moneyToast('Refreshed');
+      }
+    }, { passive: true });
+  });
+}
+
+function moneyWireSmartFeatures() {
+  moneyInsertDashboard();
+  moneyWrapSwipeCards();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(moneyWireSmartFeatures, 800);
+  setInterval(moneyWrapSwipeCards, 1600);
+});
+
 start();
+setTimeout(moneyWireSmartFeatures, 1000);
+setTimeout(moneyWireBottomSheets, 300);
 setTimeout(moneyWirePremiumUI, 500);
 msWireMoneyLeftCloneFix();
 setTimeout(msWireLeftC4VisibleWrite, 500);

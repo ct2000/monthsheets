@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:12:43
+Base: money-premium-polish-20260512-200322.zip
+Added native iOS-style bottom sheets: slide-up modal presentation, drag handle, tap backdrop/Escape close, close button, and swipe-down-to-dismiss gesture.
+JS syntax ok: True
+
