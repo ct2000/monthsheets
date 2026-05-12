@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Hero + insights + swipe + charts build: 2026-05-12 20:16:07 -->
+<!-- Bill logos + blur/layer refinement build: 2026-05-12 20:25:57 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2240,6 +2240,166 @@ body.dark .money-chart-track {
   background: rgba(255,255,255,.08);
 }
 
+
+/* === Bill icons + Liquid Glass layer refinement 2026-05-12 20:25:57 === */
+
+/* Refined layered glass */
+.money-hero,
+.money-insights-card,
+.money-chart-card,
+.money-upcoming-card,
+.summary-card,
+.card,
+.bill-card,
+.item-card,
+.row-card,
+article[class*="bill"]{
+  backdrop-filter: blur(32px) saturate(1.42) !important;
+  -webkit-backdrop-filter: blur(32px) saturate(1.42) !important;
+}
+
+.bill-card,
+.item-card,
+.row-card,
+article[class*="bill"]{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.86), rgba(255,255,255,.62)) !important;
+  border: 1px solid rgba(15,23,42,.065) !important;
+  box-shadow:
+    0 14px 34px rgba(15,23,42,.075),
+    inset 0 1px 0 rgba(255,255,255,.76) !important;
+}
+
+.bill-card::after,
+.item-card::after,
+.row-card::after,
+article[class*="bill"]::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:inherit !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.42), transparent 34%),
+    linear-gradient(120deg, rgba(255,255,255,.18), transparent 52%) !important;
+  pointer-events:none !important;
+  opacity:.8 !important;
+}
+
+body.dark .bill-card,
+body.dark .item-card,
+body.dark .row-card,
+body.dark article[class*="bill"],
+[data-theme="dark"] .bill-card,
+[data-theme="dark"] .item-card,
+[data-theme="dark"] .row-card,
+[data-theme="dark"] article[class*="bill"]{
+  background:
+    linear-gradient(145deg, rgba(31,38,50,.82), rgba(20,25,34,.66)) !important;
+  border-color: rgba(255,255,255,.085) !important;
+  box-shadow:
+    0 16px 42px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.07) !important;
+}
+
+body.dark .bill-card::after,
+body.dark .item-card::after,
+body.dark .row-card::after,
+body.dark article[class*="bill"]::after,
+[data-theme="dark"] .bill-card::after,
+[data-theme="dark"] .item-card::after,
+[data-theme="dark"] .row-card::after,
+[data-theme="dark"] article[class*="bill"]::after{
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.09), transparent 36%),
+    linear-gradient(120deg, rgba(255,255,255,.045), transparent 52%) !important;
+}
+
+/* Smart bill icons */
+.money-bill-logo,
+.bill-icon{
+  flex:0 0 42px !important;
+  width:42px !important;
+  height:42px !important;
+  border-radius:16px !important;
+  display:grid !important;
+  place-items:center !important;
+  font-size:20px !important;
+  font-weight:900 !important;
+  letter-spacing:-.04em !important;
+  color:#111827 !important;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255,255,255,.95), rgba(255,255,255,.45) 44%, transparent 70%),
+    linear-gradient(145deg, var(--logo-a, #e0f2fe), var(--logo-b, #bfdbfe)) !important;
+  border:1px solid rgba(255,255,255,.68) !important;
+  box-shadow:
+    0 8px 20px rgba(15,23,42,.10),
+    inset 0 1px 0 rgba(255,255,255,.82) !important;
+  position:relative !important;
+  z-index:2 !important;
+  overflow:hidden !important;
+}
+
+.money-bill-logo::after,
+.bill-icon::after{
+  content:"" !important;
+  position:absolute !important;
+  inset:1px !important;
+  border-radius:15px !important;
+  background:linear-gradient(135deg, rgba(255,255,255,.28), transparent 48%) !important;
+  pointer-events:none !important;
+}
+
+.money-bill-logo[data-kind="home"],
+.bill-icon[data-kind="home"]{ --logo-a:#fef3c7; --logo-b:#fde68a; }
+
+.money-bill-logo[data-kind="utility"],
+.bill-icon[data-kind="utility"]{ --logo-a:#dbeafe; --logo-b:#93c5fd; }
+
+.money-bill-logo[data-kind="media"],
+.bill-icon[data-kind="media"]{ --logo-a:#fce7f3; --logo-b:#f9a8d4; }
+
+.money-bill-logo[data-kind="phone"],
+.bill-icon[data-kind="phone"]{ --logo-a:#dcfce7; --logo-b:#86efac; }
+
+.money-bill-logo[data-kind="car"],
+.bill-icon[data-kind="car"]{ --logo-a:#fee2e2; --logo-b:#fca5a5; }
+
+.money-bill-logo[data-kind="insurance"],
+.bill-icon[data-kind="insurance"]{ --logo-a:#ede9fe; --logo-b:#c4b5fd; }
+
+.money-bill-logo[data-kind="food"],
+.bill-icon[data-kind="food"]{ --logo-a:#ffedd5; --logo-b:#fdba74; }
+
+.money-bill-logo[data-kind="finance"],
+.bill-icon[data-kind="finance"]{ --logo-a:#ccfbf1; --logo-b:#5eead4; }
+
+.money-bill-logo[data-kind="health"],
+.bill-icon[data-kind="health"]{ --logo-a:#ffe4e6; --logo-b:#fda4af; }
+
+.money-bill-logo[data-kind="default"],
+.bill-icon[data-kind="default"]{ --logo-a:#f1f5f9; --logo-b:#cbd5e1; }
+
+body.dark .money-bill-logo,
+body.dark .bill-icon,
+[data-theme="dark"] .money-bill-logo,
+[data-theme="dark"] .bill-icon{
+  color:#f8fafc !important;
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.10) !important;
+  filter:saturate(.95) brightness(.92) !important;
+}
+
+/* Make row content layer above shine */
+.bill-card > *,
+.item-card > *,
+.row-card > *,
+article[class*="bill"] > *{
+  position:relative !important;
+  z-index:2 !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -3976,7 +4136,148 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(moneyWrapSwipeCards, 1600);
 });
 
+
+// Keeps premium dashboard sections visible after Paid/Unpaid/Due sorting rerenders.
+function moneyRefreshPremiumDashboardSoon() {
+  clearTimeout(window.__moneyDashboardRefreshTimer);
+  window.__moneyDashboardRefreshTimer = setTimeout(() => {
+    if (typeof moneyWireSmartFeatures === 'function') {
+      moneyWireSmartFeatures();
+    }
+    if (typeof moneyInsertDashboard === 'function') {
+      moneyInsertDashboard();
+    }
+  }, 80);
+}
+
+function moneyPatchRenderForDashboardPersistence() {
+  if (window.__moneyDashboardRenderPatched) return;
+  window.__moneyDashboardRenderPatched = true;
+
+  if (typeof renderMonth === 'function') {
+    const originalRenderMonth = renderMonth;
+    renderMonth = function(...args) {
+      const result = originalRenderMonth.apply(this, args);
+      moneyRefreshPremiumDashboardSoon();
+      return result;
+    };
+  }
+
+  if (typeof render === 'function') {
+    const originalRender = render;
+    render = function(...args) {
+      const result = originalRender.apply(this, args);
+      moneyRefreshPremiumDashboardSoon();
+      return result;
+    };
+  }
+}
+
+// Capture tab/sort clicks before the app rerenders, then rebuild after.
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs .tab, [data-sort], .sort-pill')) {
+    setTimeout(moneyRefreshPremiumDashboardSoon, 120);
+    setTimeout(moneyRefreshPremiumDashboardSoon, 350);
+  }
+}, true);
+
+// Watch the content area because some handlers replace innerHTML.
+document.addEventListener('DOMContentLoaded', function() {
+  moneyPatchRenderForDashboardPersistence();
+  moneyRefreshPremiumDashboardSoon();
+
+  const target = document.getElementById('content') || document.getElementById('app');
+  if (target && !target.dataset.moneyDashboardObserver) {
+    target.dataset.moneyDashboardObserver = '1';
+    const observer = new MutationObserver(() => {
+      const hasRows = !!document.querySelector('.bill-card, article[class*="bill"]');
+      const hasDashboard = !!document.getElementById('moneySmartDashboard');
+      if (hasRows && !hasDashboard) {
+        moneyRefreshPremiumDashboardSoon();
+      }
+    });
+    observer.observe(target, { childList: true, subtree: true });
+  }
+
+  setTimeout(moneyPatchRenderForDashboardPersistence, 500);
+  setTimeout(moneyRefreshPremiumDashboardSoon, 700);
+});
+
+
+// Smart bill icons/logos.
+function moneyBillIconForName(name) {
+  const n = String(name || '').toLowerCase();
+
+  const rules = [
+    { kind: 'home', icon: '⌂', words: ['rent', 'mortgage', 'council', 'service charge', 'ground rent'] },
+    { kind: 'utility', icon: '⚡', words: ['electric', 'electricity', 'gas', 'water', 'utility', 'octopus', 'edf', 'eon', 'british gas', 'bulb'] },
+    { kind: 'media', icon: '▶', words: ['netflix', 'spotify', 'prime', 'amazon', 'disney', 'apple', 'tv', 'now', 'youtube', 'subscription'] },
+    { kind: 'phone', icon: '◉', words: ['phone', 'mobile', 'vodafone', 'ee', 'o2', 'three', 'broadband', 'internet', 'wifi', 'bt', 'virgin'] },
+    { kind: 'car', icon: '◆', words: ['car', 'fuel', 'petrol', 'insurance car', 'road tax', 'mot', 'parking'] },
+    { kind: 'insurance', icon: '◇', words: ['insurance', 'life cover', 'policy', 'protection'] },
+    { kind: 'food', icon: '●', words: ['food', 'tesco', 'sainsbury', 'aldi', 'lidl', 'ocado', 'groceries'] },
+    { kind: 'finance', icon: '£', words: ['loan', 'credit', 'card', 'bank', 'savings', 'isa', 'paypal', 'klarna'] },
+    { kind: 'health', icon: '+', words: ['gym', 'health', 'dental', 'doctor', 'medical', 'therapy'] }
+  ];
+
+  for (const rule of rules) {
+    if (rule.words.some(w => n.includes(w))) return rule;
+  }
+
+  const trimmed = String(name || '').trim();
+  const initial = trimmed ? trimmed[0].toUpperCase() : '•';
+  return { kind: 'default', icon: initial, words: [] };
+}
+
+function moneyApplyBillLogos() {
+  document.querySelectorAll('.bill-card, article[class*="bill"], .item-card, .row-card').forEach(card => {
+    const nameEl =
+      card.querySelector('.bill-name') ||
+      card.querySelector('[class*="name"]') ||
+      card.querySelector('strong') ||
+      card.querySelector('h3');
+
+    const name = nameEl ? nameEl.textContent.trim() : card.textContent.trim();
+
+    let icon = card.querySelector('.bill-icon, .money-bill-logo');
+    if (!icon) {
+      icon = document.createElement('div');
+      icon.className = 'money-bill-logo';
+
+      const firstContent = Array.from(card.children).find(el => !el.classList.contains('money-swipe-actions'));
+      if (firstContent) card.insertBefore(icon, firstContent);
+      else card.prepend(icon);
+    }
+
+    const match = moneyBillIconForName(name);
+    icon.classList.add('money-bill-logo');
+    icon.dataset.kind = match.kind;
+    icon.textContent = match.icon;
+    icon.setAttribute('aria-label', `${match.kind} bill icon`);
+  });
+}
+
+function moneyWireBillLogoObserver() {
+  if (window.__moneyBillLogoObserverWired) return;
+  window.__moneyBillLogoObserverWired = true;
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  const observer = new MutationObserver(() => {
+    clearTimeout(window.__moneyBillLogoTimer);
+    window.__moneyBillLogoTimer = setTimeout(moneyApplyBillLogos, 80);
+  });
+  observer.observe(root, { childList: true, subtree: true });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  moneyApplyBillLogos();
+  moneyWireBillLogoObserver();
+  setTimeout(moneyApplyBillLogos, 700);
+});
+
 start();
+setTimeout(moneyApplyBillLogos, 500);
+moneyRefreshPremiumDashboardSoon();
 setTimeout(moneyWireSmartFeatures, 1000);
 setTimeout(moneyWireBottomSheets, 300);
 setTimeout(moneyWirePremiumUI, 500);
