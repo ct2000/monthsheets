@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:37:47
+Base: month-spread-rollback-working-shell-20260512-172742.zip
+Safe repair: restored showApp, kept existing load/render flow, made Sheets fetch no-store, preserved updateValues/togglePaid/appendBill, rewired Add/Refresh/Paid buttons safely.
+JS syntax ok: True
+

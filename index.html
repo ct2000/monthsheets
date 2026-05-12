@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Google Sheets sync fix build: 2026-05-12 17:32:13 -->
+<!-- SAFE sync repair build: 2026-05-12 17:37:47 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -875,16 +875,12 @@ input[name="amount"] {
 }
 
 
-/* === sync fix 2026-05-12 17:32:13 === */
+/* === safe sync repair 2026-05-12 17:37:47 === */
 .status-pill.paid-toggle {
   border: 0 !important;
   cursor: pointer !important;
   -webkit-appearance: none !important;
   appearance: none !important;
-}
-.status-pill.paid-toggle:disabled {
-  opacity: .65 !important;
-  cursor: wait !important;
 }
 
 </style>
@@ -937,9 +933,19 @@ function clearToken(){localStorage.removeItem('ms.token')}
 function colLetter(n){let s='';n++;while(n>0){let m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-m)/26)}return s}
 function initTokenClient(){const {clientId}=getConfig();if(!clientId||!window.google?.accounts?.oauth2)return null;TOKEN_CLIENT=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:SCOPE,callback:r=>{if(r?.access_token){setToken(r.access_token,r.expires_in);showApp();loadSpreadsheet()}else showSignInError(r?.error_description||r?.error||'Google sign-in failed')}});return TOKEN_CLIENT}
 function requestSignIn(silent=false){const c=TOKEN_CLIENT||initTokenClient();if(!c){showSignInError('Set your Google OAuth Client ID in Settings first.');return}c.requestAccessToken(silent?{prompt:''}:{prompt:'consent'})}
-async function sheetsRequest(url,opts={}){const token=getToken();if(!token)throw new Error('Not signed in');const res=await fetch(url,{...opts,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',...(opts.headers||{})}});if(res.status===401){clearToken();throw new Error('Session expired — sign in again.')}if(!res.ok)throw new Error(`Sheets API ${res.status}: ${(await res.text()).slice(0,220)}`);return res.status===204?{}:res.json()}
-async function fetchSheet() {
-  return msReadSheetFresh();
+async function sheetsRequest(url,opts={}){const token=getToken();if(!token)throw new Error('Not signed in');const res=await fetch(url,{cache:'no-store',...opts,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json','Cache-Control':'no-cache',...(opts.headers||{})}});if(res.status===401){clearToken();throw new Error('Session expired — sign in again.')}if(!res.ok)throw new Error(`Sheets API ${res.status}: ${(await res.text()).slice(0,220)}`);return res.status===204?{}:res.json()}
+async function fetchSheet(){const {fileId}=getConfig();const range=encodeURIComponent('A1:ZZ2000');const url=`https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${range}?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING`;return (await sheetsRequest(url,{method:'GET'})).values||[]}
+async function updateValues(range,values){const {fileId}=getConfig();const url=`https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;return sheetsRequest(url,{method:'PUT',body:JSON.stringify({range,majorDimension:'ROWS',values})})}
+function parseTablesFromGrid(grid){const tables=[];for(let r=0;r<grid.length;r++){const row=grid[r]||[];for(let c=0;c<=row.length-3;c++){if(normalize(row[c])==='date due'&&normalize(row[c+1])==='due'&&normalize(row[c+2])==='paid'){const labelCol=c-1;if(labelCol<0)continue;const label=String(row[labelCol]||'').trim();if(!label||normalize(label)==='date due')continue;const rows=[];let blanks=0;for(let dr=r+1;dr<grid.length;dr++){const drow=grid[dr]||[];const name=String(drow[labelCol]||'').trim();if(!name){blanks++;if(blanks>=2)break;continue}blanks=0;rows.push({name,dueDate:String(drow[c]??'').trim(),due:parseMoney(drow[c+1]),paid:parseMoney(drow[c+2]),sheetRow:dr+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2})}if(rows.length)tables.push({label,headerRow:r+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2,rows})}}}return tables}
+function isRowPaid(r){return r.due<=0||r.paid===0}function outstandingAmount(r){return r.due<=0?0:r.paid}function effectivePaidAmount(r){return r.due<=0?0:(r.paid===0?r.due:0)}function defaultEndDate(){const n=new Date();const last=new Date(n.getFullYear(),n.getMonth()+1,0);return `${last.getFullYear()}-${String(last.getMonth()+1).padStart(2,'0')}-${String(last.getDate()).padStart(2,'0')}`}function todayISO(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`}function daysBetween(a,b){return Math.max(1,Math.floor((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)-1)}
+function pickBestTable(tables){const now=new Date(),full=MONTH_NAMES[now.getMonth()].toLowerCase(),short=MONTH_SHORT[now.getMonth()].toLowerCase();const found=tables.findIndex(t=>normalize(t.label).includes(full)||normalize(t.label).includes(short));return found>=0?found:0}
+function showApp(){
+  const signInEl = document.getElementById('signin');
+  const appEl = document.getElementById('app');
+  const navEl = document.getElementById('bottomNav');
+  if (signInEl) signInEl.style.display='none';
+  if (appEl) appEl.style.display='';
+  if (navEl) navEl.style.display='grid';
 }
 function showSignIn(){
   const appEl = document.getElementById('app');
@@ -1432,202 +1438,46 @@ function msNormaliseLeftAmountWholeNumber() {
 
 
 
-// Robust Google Sheets sync layer.
-// Reads always bypass cache. Writes update the Sheet and then refresh the PWA.
-function msGetSelectedTable() {
-  const picker = document.getElementById('monthPicker');
-  const tableIndex = picker && picker.value !== '' ? picker.value : 0;
-  return CACHED_TABLES[tableIndex] || CACHED_TABLES[0];
-}
-
-function msCol(n) {
-  let s = '';
-  n++;
-  while (n > 0) {
-    const m = (n - 1) % 26;
-    s = String.fromCharCode(65 + m) + s;
-    n = Math.floor((n - m) / 26);
-  }
-  return s;
-}
-
-async function msSheetsFetch(url, opts = {}) {
-  const token = getToken();
-  if (!token) throw new Error('Not signed in');
-
-  const res = await fetch(url, {
-    cache: 'no-store',
-    ...opts,
-    headers: {
-      Authorization: 'Bearer ' + token,
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      ...(opts.headers || {})
-    }
-  });
-
-  if (res.status === 401) {
-    clearToken();
-    throw new Error('Session expired — sign in again.');
-  }
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 300)}`);
-  }
-
-  return res.status === 204 ? {} : res.json();
-}
-
-async function msReadSheetFresh() {
-  const { fileId } = getConfig();
-  const cacheBust = Date.now();
-  const range = encodeURIComponent('A1:ZZ2000');
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${range}?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING&t=${cacheBust}`;
-  const data = await msSheetsFetch(url, { method: 'GET' });
-  return data.values || [];
-}
-
-async function msWriteValues(range, values) {
-  const { fileId } = getConfig();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
-  return msSheetsFetch(url, {
-    method: 'PUT',
-    body: JSON.stringify({ range, majorDimension: 'ROWS', values })
-  });
-}
-
-async function msRefreshFromSheet() {
-  const content = document.getElementById('content');
-  if (content) content.innerHTML = '<div class="spinner">Fetching your spreadsheet…</div>';
-
-  try {
-    const grid = await msReadSheetFresh();
-    CACHED_TABLES = parseTablesFromGrid(grid);
-    render();
-    if (typeof msWireSyncButtons === 'function') setTimeout(msWireSyncButtons, 50);
-  } catch (err) {
-    if (String(err.message || err).toLowerCase().includes('not signed in')) {
-      showSignIn();
-      return;
-    }
-    if (content) {
-      content.innerHTML = `<div class="error"><strong>Couldn’t load spreadsheet:</strong><br>${escapeHtml(err.message || err)}</div>`;
-    }
-  }
-}
-
-async function msTogglePaidStatus(sheetRow) {
-  try {
-    const table = msGetSelectedTable();
-    if (!table) throw new Error('No month table loaded.');
-    const row = table.rows.find(r => String(r.sheetRow) === String(sheetRow));
-    if (!row) throw new Error('Could not find selected row. Tap Refresh and try again.');
-    if (row.paidCol == null || row.sheetRow == null) throw new Error('Row is missing spreadsheet coordinates.');
-
-    // Sheet convention used by this PWA: paid column stores outstanding value.
-    // 0 means paid. Due amount means outstanding.
-    const nextOutstanding = isRowPaid(row) ? row.due : 0;
-    const range = `${msCol(row.paidCol)}${row.sheetRow}`;
-
-    const btn = document.querySelector(`[data-paid-row="${sheetRow}"], [data-row="${sheetRow}"], .paid-toggle[data-row="${sheetRow}"]`);
-    if (btn) {
-      btn.disabled = true;
-      btn.textContent = 'Saving…';
-    }
-
-    await msWriteValues(range, [[nextOutstanding]]);
-    await msRefreshFromSheet();
-  } catch (err) {
-    alert('Could not update paid status: ' + (err.message || err));
-    try { await msRefreshFromSheet(); } catch(e) {}
-  }
-}
-
-async function msAddItemToSheet() {
-  try {
-    const table = msGetSelectedTable();
-    if (!table) throw new Error('No month table loaded.');
-
-    const nameEl = document.getElementById('msNewItemName') || document.getElementById('newBillName') || document.getElementById('newName');
-    const dateEl = document.getElementById('msNewItemDate') || document.getElementById('newBillDate') || document.getElementById('newDueDate');
-    const amountEl = document.getElementById('msNewItemAmount') || document.getElementById('newBillAmount') || document.getElementById('newAmount');
-
-    const name = nameEl ? nameEl.value.trim() : '';
-    const dueDate = dateEl ? dateEl.value.trim() : '';
-    const amount = parseMoney(amountEl ? amountEl.value : '0');
-
-    if (!name) throw new Error('Please enter an item name.');
-    if (!amount || amount <= 0) throw new Error('Please enter an amount.');
-
-    const nextRow = Math.max(...table.rows.map(r => r.sheetRow || 0)) + 1;
-    const labelCol = table.labelCol ?? table.rows[0]?.labelCol ?? 0;
-    const paidCol = table.paidCol ?? table.rows[0]?.paidCol ?? 3;
-    const range = `${msCol(labelCol)}${nextRow}:${msCol(paidCol)}${nextRow}`;
-
-    await msWriteValues(range, [[name, dueDate, amount, amount]]);
-
-    document.querySelectorAll('.config-modal.open, .modal.open').forEach(m => m.classList.remove('open'));
-    await msRefreshFromSheet();
-  } catch (err) {
-    alert('Could not add item: ' + (err.message || err));
-  }
-}
-
-function msWireSyncButtons() {
-  const refreshBtn = document.getElementById('reloadBarBtn') || document.getElementById('reloadBtn') || document.getElementById('refreshInline');
-  if (refreshBtn && !refreshBtn.dataset.msSyncWired) {
-    refreshBtn.dataset.msSyncWired = '1';
-    refreshBtn.onclick = (event) => {
+function msSafeWireSyncControls() {
+  const refresh = document.getElementById('reloadBarBtn') || document.getElementById('refreshNav') || document.getElementById('refreshBtn');
+  if (refresh && !refresh.dataset.safeRefreshWired) {
+    refresh.dataset.safeRefreshWired = '1';
+    refresh.onclick = function(event) {
       event.preventDefault();
-      msRefreshFromSheet();
+      loadSpreadsheet();
     };
   }
 
-  document.querySelectorAll('[data-paid-row], .paid-toggle, [data-row]').forEach(btn => {
+  const addBar = document.getElementById('addItemBarBtn');
+  if (addBar && !addBar.dataset.safeAddWired) {
+    addBar.dataset.safeAddWired = '1';
+    addBar.onclick = function(event) {
+      event.preventDefault();
+      if (typeof openAdd === 'function') openAdd();
+      else if (document.getElementById('msAddItemModal')) document.getElementById('msAddItemModal').classList.add('open');
+      else if (document.getElementById('addModal')) document.getElementById('addModal').classList.add('open');
+    };
+  }
+
+  document.querySelectorAll('[data-paid-row], .paid-toggle, [data-row]').forEach(function(btn) {
     const row = btn.dataset.paidRow || btn.dataset.row;
-    if (!row || btn.dataset.msPaidWired) return;
-    btn.dataset.msPaidWired = '1';
-    btn.addEventListener('click', (event) => {
+    if (!row || btn.dataset.safePaidWired) return;
+    btn.dataset.safePaidWired = '1';
+    btn.addEventListener('click', function(event) {
       event.preventDefault();
       event.stopPropagation();
-      msTogglePaidStatus(row);
+      if (typeof togglePaid === 'function') togglePaid(row);
     });
   });
-
-  const save = document.getElementById('msAddItemSave') || document.getElementById('addSave');
-  if (save && !save.dataset.msAddWired) {
-    save.dataset.msAddWired = '1';
-    save.onclick = (event) => {
-      event.preventDefault();
-      msAddItemToSheet();
-    };
-  }
 }
 
-// Override older load/write functions so all paths use the robust sync layer.
-loadSpreadsheet = msRefreshFromSheet;
-updateValues = msWriteValues;
-
-document.addEventListener('click', function(event) {
-  const paidBtn = event.target.closest('[data-paid-row], .paid-toggle');
-  if (paidBtn) {
-    const row = paidBtn.dataset.paidRow || paidBtn.dataset.row;
-    if (row) {
-      event.preventDefault();
-      event.stopPropagation();
-      msTogglePaidStatus(row);
-    }
-  }
-});
-
 document.addEventListener('DOMContentLoaded', function() {
-  msWireSyncButtons();
-  setInterval(msWireSyncButtons, 1000);
+  msSafeWireSyncControls();
+  setInterval(msSafeWireSyncControls, 1000);
 });
 
 start();
-msWireSyncButtons();
+msSafeWireSyncControls();
 msNormaliseLeftAmountWholeNumber();
 setTimeout(msNormaliseLeftAmountWholeNumber, 200);
 setTimeout(msNormaliseLeftAmountWholeNumber, 800);
