@@ -1,0 +1,5 @@
+Built: 2026-05-12 19:35:48
+Base: month-spread-glass-card-icons-20260512-191532.zip
+Visual-only Apple/iOS Liquid Glass makeover. Sync/auth/business logic left intact.
+JS syntax ok: True
+

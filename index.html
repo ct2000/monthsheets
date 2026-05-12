@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- glass card PWA icons + in-app brand icon build: 2026-05-12 19:15:32 -->
+<!-- Apple iOS Liquid Glass visual makeover build: 2026-05-12 19:35:48 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1095,6 +1095,406 @@ body.dark .logo-mark,
   content: '' !important;
 }
 
+
+/* === Apple iOS / Liquid Glass makeover 2026-05-12 19:35:48 === */
+:root {
+  --ios-bg: #f5f7fb;
+  --ios-bg-2: #eef2f7;
+  --ios-card: rgba(255,255,255,.78);
+  --ios-card-solid: #ffffff;
+  --ios-text: #111827;
+  --ios-muted: #6b7280;
+  --ios-hairline: rgba(15,23,42,.08);
+  --ios-shadow: 0 18px 48px rgba(15,23,42,.10);
+  --ios-soft-shadow: 0 8px 24px rgba(15,23,42,.07);
+  --ios-radius-xl: 28px;
+  --ios-radius-lg: 22px;
+  --ios-radius-md: 16px;
+  --ios-blue: #007aff;
+  --ios-green: #34c759;
+  --ios-red: #ff3b30;
+}
+
+html {
+  background: var(--ios-bg) !important;
+}
+
+body {
+  margin: 0 !important;
+  background:
+    radial-gradient(circle at 18% -8%, rgba(0,122,255,.16), transparent 34%),
+    radial-gradient(circle at 92% 4%, rgba(52,199,89,.12), transparent 32%),
+    linear-gradient(180deg, var(--ios-bg), var(--ios-bg-2)) !important;
+  color: var(--ios-text) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif !important;
+  letter-spacing: -0.015em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body.dark,
+[data-theme="dark"] {
+  --ios-bg: #070a0f;
+  --ios-bg-2: #111827;
+  --ios-card: rgba(22,27,36,.74);
+  --ios-card-solid: #171b23;
+  --ios-text: #f8fafc;
+  --ios-muted: #a3a9b4;
+  --ios-hairline: rgba(255,255,255,.10);
+  --ios-shadow: 0 18px 48px rgba(0,0,0,.38);
+  --ios-soft-shadow: 0 8px 24px rgba(0,0,0,.28);
+  background:
+    radial-gradient(circle at 18% -8%, rgba(0,122,255,.18), transparent 34%),
+    radial-gradient(circle at 92% 4%, rgba(52,199,89,.10), transparent 32%),
+    linear-gradient(180deg, var(--ios-bg), var(--ios-bg-2)) !important;
+  color: var(--ios-text) !important;
+}
+
+#app,
+.app,
+.container,
+.shell {
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
+}
+
+header,
+.topbar,
+.app-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 40 !important;
+  padding: max(14px, env(safe-area-inset-top)) 16px 12px !important;
+  background: rgba(245,247,251,.72) !important;
+  backdrop-filter: blur(24px) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.35) !important;
+  border-bottom: 1px solid var(--ios-hairline) !important;
+}
+
+body.dark header,
+body.dark .topbar,
+body.dark .app-header,
+[data-theme="dark"] header,
+[data-theme="dark"] .topbar,
+[data-theme="dark"] .app-header {
+  background: rgba(7,10,15,.72) !important;
+}
+
+h1, h2, h3 {
+  color: var(--ios-text) !important;
+  letter-spacing: -0.035em !important;
+}
+
+h1 {
+  font-size: 28px !important;
+  line-height: 1.05 !important;
+  font-weight: 850 !important;
+}
+
+h2 {
+  font-size: 21px !important;
+  font-weight: 800 !important;
+}
+
+h3 {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+}
+
+.card,
+.panel,
+.summary-card,
+.bill-card,
+.glass,
+.config-box,
+.sheet {
+  background: var(--ios-card) !important;
+  border: 1px solid var(--ios-hairline) !important;
+  border-radius: var(--ios-radius-xl) !important;
+  box-shadow: var(--ios-soft-shadow) !important;
+  backdrop-filter: blur(26px) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.35) !important;
+}
+
+.bill-card,
+.item-card,
+.row-card {
+  border-radius: 22px !important;
+  padding: 14px !important;
+  margin-bottom: 10px !important;
+  transition: transform .18s ease, box-shadow .18s ease, background .18s ease !important;
+}
+
+.bill-card:active,
+.item-card:active,
+.row-card:active {
+  transform: scale(.985) !important;
+}
+
+input,
+select,
+textarea {
+  background: rgba(255,255,255,.92) !important;
+  color: var(--ios-text) !important;
+  border: 1px solid var(--ios-hairline) !important;
+  border-radius: 16px !important;
+  min-height: 44px !important;
+  padding: 10px 13px !important;
+  font-size: 16px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+  outline: none !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(0,122,255,.55) !important;
+  box-shadow:
+    0 0 0 4px rgba(0,122,255,.13),
+    inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+body.dark input,
+body.dark select,
+body.dark textarea,
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background: rgba(23,27,35,.92) !important;
+  color: var(--ios-text) !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+button,
+.btn,
+.btn-primary,
+.btn-secondary {
+  min-height: 44px !important;
+  border-radius: 16px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  transition: transform .16s ease, opacity .16s ease, background .16s ease !important;
+}
+
+button:active,
+.btn:active,
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(.975) !important;
+}
+
+.btn-primary,
+button.primary {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border: 0 !important;
+  box-shadow: 0 10px 24px rgba(17,24,39,.18) !important;
+}
+
+body.dark .btn-primary,
+[data-theme="dark"] .btn-primary {
+  background: #f8fafc !important;
+  color: #111827 !important;
+}
+
+.btn-secondary,
+button.secondary {
+  background: rgba(255,255,255,.88) !important;
+  color: var(--ios-text) !important;
+  border: 1px solid var(--ios-hairline) !important;
+}
+
+.tabs {
+  display: flex !important;
+  gap: 8px !important;
+  padding: 6px !important;
+  margin: 8px 0 14px !important;
+  background: var(--ios-card) !important;
+  border: 1px solid var(--ios-hairline) !important;
+  border-radius: 22px !important;
+  box-shadow: var(--ios-soft-shadow) !important;
+  backdrop-filter: blur(24px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.25) !important;
+}
+
+.tabs .tab {
+  flex: 1 !important;
+  min-height: 42px !important;
+  border: 0 !important;
+  border-radius: 17px !important;
+  background: transparent !important;
+  color: var(--ios-text) !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.tabs .tab:hover,
+.tabs .tab:focus-visible {
+  background: rgba(17,24,39,.055) !important;
+}
+
+.tabs .tab.active {
+  background: rgba(255,255,255,.92) !important;
+  color: var(--ios-text) !important;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,.05),
+    inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+
+body.dark .tabs .tab.active,
+[data-theme="dark"] .tabs .tab.active {
+  background: rgba(255,255,255,.10) !important;
+}
+
+.tabs .badge {
+  background: rgba(255,255,255,.86) !important;
+  color: var(--ios-text) !important;
+  border: 1px solid var(--ios-hairline) !important;
+  border-radius: 999px !important;
+  min-width: 22px !important;
+  height: 22px !important;
+  padding: 0 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 12px !important;
+  font-weight: 850 !important;
+}
+
+body.dark .tabs .badge,
+[data-theme="dark"] .tabs .badge {
+  background: rgba(255,255,255,.10) !important;
+  color: var(--ios-text) !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+
+.status-pill,
+.pill,
+.badge {
+  border-radius: 999px !important;
+  font-weight: 850 !important;
+}
+
+.pill-paid,
+.status-pill.pill-paid {
+  background: rgba(52,199,89,.16) !important;
+  color: #15803d !important;
+}
+
+.pill-due,
+.status-pill.pill-due {
+  background: rgba(255,59,48,.14) !important;
+  color: #b91c1c !important;
+}
+
+body.dark .pill-paid,
+body.dark .status-pill.pill-paid,
+[data-theme="dark"] .pill-paid,
+[data-theme="dark"] .status-pill.pill-paid {
+  background: rgba(52,199,89,.22) !important;
+  color: #86efac !important;
+}
+
+body.dark .pill-due,
+body.dark .status-pill.pill-due,
+[data-theme="dark"] .pill-due,
+[data-theme="dark"] .status-pill.pill-due {
+  background: rgba(255,59,48,.22) !important;
+  color: #fecaca !important;
+}
+
+.bottom-nav {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: max(0px, env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%) !important;
+  width: min(430px, 100vw) !important;
+  height: 78px !important;
+  padding: 9px 30px max(9px, env(safe-area-inset-bottom)) !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+  background: rgba(255,255,255,.78) !important;
+  border-top: 1px solid var(--ios-hairline) !important;
+  border-radius: 28px 28px 0 0 !important;
+  box-shadow: 0 -18px 48px rgba(15,23,42,.12) !important;
+  backdrop-filter: blur(28px) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.35) !important;
+  z-index: 9999 !important;
+}
+
+body.dark .bottom-nav,
+[data-theme="dark"] .bottom-nav {
+  background: rgba(18,22,30,.82) !important;
+  box-shadow: 0 -18px 48px rgba(0,0,0,.36) !important;
+}
+
+.bottom-nav .nav-btn {
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--ios-muted) !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+.bottom-nav .nav-btn strong {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 16px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.65) !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+
+body.dark .bottom-nav .nav-btn strong,
+[data-theme="dark"] .bottom-nav .nav-btn strong {
+  background: rgba(255,255,255,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+.config-modal.open,
+.modal.open {
+  background: rgba(0,0,0,.32) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.config-box,
+.sheet {
+  animation: iosSheetIn .22s ease both;
+}
+
+@keyframes iosSheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -1114,54 +1514,9 @@ body.dark .logo-mark,
 </div>
 <div id="signin" class="signin"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
 <div class="bottom-bar" id="bottomBar"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
-<div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com">
-
-<button id="saveClientSettingsBtn" type="button" class="nav-btn" style="width:100%;margin-top:14px;">
-  Save Settings
-</button>
-</div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
+<div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" placeholder="0.00" inputmode="decimal" autocomplete="off"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
-<script src="https://accounts.google.com/gsi/client" async defer>
-const CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
-
-// Settings submit button fix
-document.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('saveClientSettingsBtn');
-  if (!btn) return;
-
-  btn.addEventListener('click', () => {
-    try {
-      const input =
-        document.querySelector('#clientId') ||
-        document.querySelector('#googleClientId') ||
-        document.querySelector('input[name="clientId"]') ||
-        document.querySelector('input[data-client-id]');
-
-      if (input && input.value) {
-        try {
-          localStorage.setItem('googleClientId', input.value.trim());
-        } catch(e){}
-
-        if (typeof CLIENT_ID !== 'undefined') {
-          console.log('Client ID configured');
-        }
-      }
-
-      const modal =
-        document.querySelector('.settings-modal.open') ||
-        document.querySelector('#settingsModal.open') ||
-        document.querySelector('#configModal.open');
-
-      if (modal) modal.classList.remove('open');
-
-      alert('Settings saved ✓');
-    } catch(err) {
-      alert('Could not save settings: ' + err.message);
-    }
-  });
-});
-
-</script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 
 window.addEventListener('error', function(event) {
