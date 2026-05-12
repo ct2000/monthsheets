@@ -1,0 +1,5 @@
+Built: 2026-05-12 21:12:36
+Base: money-left-per-day-rebuilt-20260512-210724.zip
+Fix: added msWireLeftAmountUpdate compatibility shim so old render hooks no longer crash spreadsheet loading.
+JS syntax ok: True
+

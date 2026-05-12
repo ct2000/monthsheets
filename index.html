@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Money Left per day rebuilt calc build: 2026-05-12 21:07:24 -->
+<!-- msWireLeftAmountUpdate shim fix build: 2026-05-12 21:12:36 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -5112,6 +5112,18 @@ document.addEventListener('change', function(event) {
     setTimeout(moneyLeftPerDayRebuiltWire, 0);
   }
 }, true);
+
+
+// Compatibility shim for older render hooks.
+// Older code still calls msWireLeftAmountUpdate(); route it to the rebuilt calc.
+function msWireLeftAmountUpdate() {
+  if (typeof moneyLeftPerDayRebuiltWire === 'function') {
+    return moneyLeftPerDayRebuiltWire();
+  }
+  if (typeof moneyLeftPerDayRebuiltUpdate === 'function') {
+    return moneyLeftPerDayRebuiltUpdate();
+  }
+}
 
 start();
 setTimeout(moneyLeftPerDayRebuiltWire, 800);
