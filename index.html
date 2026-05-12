@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Safe to spend Option B sync build: 2026-05-12 20:59:16 -->
+<!-- Money Left per day Option B fix build: 2026-05-12 21:03:18 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3163,57 +3163,7 @@ setTimeout(msFixLeftAmountField, 100);
 setTimeout(msFixLeftAmountField, 1000);
 
 
-function msRecalculatePerDayFromLeftAmount() {
-  const leftAmount = document.getElementById('leftAmount');
-  if (!leftAmount) return;
-
-  const perDayValueEl =
-    document.getElementById('perDayValue') ||
-    document.getElementById('perDayValueEl') ||
-    document.querySelector('[data-per-day-value]') ||
-    document.querySelector('.per-day .big');
-
-  const perDayMetaEl =
-    document.getElementById('perDayMeta') ||
-    document.querySelector('[data-per-day-meta]') ||
-    document.querySelector('.per-day .meta');
-
-  if (!perDayValueEl) return;
-
-  const amount = parseFloat(
-    String(leftAmount.value || '')
-      .replace(/,/g,'')
-      .replace(/£/g,'')
-      .replace(/[^0-9.]/g,'')
-  ) || 0;
-  let stillToPay = 0;
-
-  try {
-    const picker = document.getElementById('monthPicker');
-    const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
-    if (table && table.rows) {
-      stillToPay = table.rows.reduce((sum, row) => sum + (isRowPaid(row) ? 0 : (row.paid || 0)), 0);
-    }
-  } catch (e) {}
-
-  const today = new Date();
-  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
-  const days = Math.max(1, Math.ceil((end - today) / 86400000));
-  const spendable = amount - stillToPay;
-  const perDay = spendable / days;
-
-  perDayValueEl.textContent = fmtMoney(perDay);
-  perDayValueEl.style.color = spendable < 0 ? '#b91c1c' : '';
-
-  if (perDayMetaEl) {
-    perDayMetaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
-  }
-
-  try {
-    const tableKey = document.getElementById('monthPicker')?.value || 'default';
-    localStorage.setItem(`ms.leftAmount.${tableKey}`, String(amount));
-  } catch (e) {}
-}
+function msRecalculatePerDayFromLeftAmount() { return moneyUpdateOriginalPerDayBoxOptionB(); }
 
 function msWireLeftAmountRecalc() {
   const leftAmount = document.getElementById('leftAmount');
@@ -3378,40 +3328,7 @@ function msDaysLeftInCurrentMonth() {
   return Math.max(1, Math.ceil((end - now) / 86400000));
 }
 
-function msUpdateLeftAmountPerDay() {
-  const input = document.getElementById('leftAmount');
-  if (!input) return;
-
-  const valueEl =
-    document.getElementById('perDayValue') ||
-    document.querySelector('[data-per-day-value]') ||
-    document.querySelector('.per-day .big');
-
-  const metaEl =
-    document.getElementById('perDayMeta') ||
-    document.querySelector('[data-per-day-meta]') ||
-    document.querySelector('.per-day .meta');
-
-  if (!valueEl) return;
-
-  const amountLeft = msParseLooseMoney(input.value);
-  const stillToPay = msCurrentStillToPay();
-  const days = msDaysLeftInCurrentMonth();
-  const spendable = amountLeft - stillToPay;
-  const perDay = spendable / days;
-
-  valueEl.textContent = fmtMoney(perDay);
-  valueEl.style.color = spendable < 0 ? '#b91c1c' : '';
-
-  if (metaEl) {
-    metaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
-  }
-
-  try {
-    const tableKey = document.getElementById('monthPicker')?.value || 'default';
-    localStorage.setItem(`ms.leftAmount.${tableKey}`, input.value);
-  } catch (e) {}
-}
+function msUpdateLeftAmountPerDay() { return moneyUpdateOriginalPerDayBoxOptionB(); }
 
 function msWireLeftAmountUpdate() {
   const input = document.getElementById('leftAmount');
@@ -3957,34 +3874,7 @@ function msMoneyLeftStillToPay() {
 // exclude the selected final/end day.
 function msMoneyLeftDays() { return moneyOptionBDaysLeft(); }
 
-function msMoneyLeftRecalc() {
-  const input = document.getElementById('leftAmount');
-  if (!input) return;
-
-  const amount = msMoneyLeftParse(input.value);
-  const stillToPay = msMoneyLeftStillToPay();
-  const days = msMoneyLeftDays();
-  const perDay = (amount - stillToPay) / days;
-
-  const valueEl =
-    document.getElementById('perDayValue') ||
-    document.getElementById('perDayValueEl') ||
-    document.querySelector('[data-per-day-value]') ||
-    document.querySelector('.per-day .big');
-
-  const metaEl =
-    document.getElementById('perDayMeta') ||
-    document.querySelector('[data-per-day-meta]') ||
-    document.querySelector('.per-day .meta');
-
-  if (valueEl) {
-    valueEl.textContent = typeof fmtMoney === 'function' ? fmtMoney(perDay) : ('£' + perDay.toFixed(2));
-  }
-
-  if (metaEl) {
-    metaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
-  }
-}
+function msMoneyLeftRecalc() { return moneyUpdateOriginalPerDayBoxOptionB(); }
 
 function msMoneyLeftWriteBack(value, showError) {
   const cleaned = msMoneyLeftCleanForSave(value);
@@ -5158,7 +5048,95 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Final Money Left per day Option B fix.
+// Forces the original Money Left per day box to use:
+// include today, exclude selected/end date.
+function moneyOptionBDaysText() {
+  const days = typeof moneyOptionBDaysLeft === 'function'
+    ? moneyOptionBDaysLeft()
+    : 1;
+  return `${days} day${days === 1 ? '' : 's'} left`;
+}
+
+function moneyUpdateOriginalPerDayBoxOptionB() {
+  const input = document.getElementById('leftAmount');
+  if (!input) return;
+
+  const amount = typeof msMoneyLeftParse === 'function'
+    ? msMoneyLeftParse(input.value)
+    : parseFloat(String(input.value || '0').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.]/g,'')) || 0;
+
+  const unpaid = typeof msMoneyLeftStillToPay === 'function'
+    ? msMoneyLeftStillToPay()
+    : (typeof moneyMetrics === 'function' ? moneyMetrics().unpaidTotal : 0);
+
+  const days = typeof moneyOptionBDaysLeft === 'function'
+    ? moneyOptionBDaysLeft()
+    : 1;
+
+  const perDay = (amount - unpaid) / Math.max(1, days);
+  const text = typeof fmtMoney === 'function' ? fmtMoney(perDay) : ('£' + perDay.toFixed(2));
+  const daysText = moneyOptionBDaysText();
+
+  const valueEls = [
+    document.getElementById('perDayValue'),
+    document.getElementById('perDayValueEl'),
+    document.querySelector('[data-per-day-value]'),
+    document.querySelector('.per-day .big')
+  ].filter(Boolean);
+
+  const metaEls = [
+    document.getElementById('perDayMeta'),
+    document.querySelector('[data-per-day-meta]'),
+    document.querySelector('.per-day .meta')
+  ].filter(Boolean);
+
+  valueEls.forEach(el => {
+    el.textContent = text;
+  });
+
+  metaEls.forEach(el => {
+    el.textContent = daysText;
+  });
+
+  // Keep hero aligned too.
+  if (typeof moneyApplySafeSpendOptionB === 'function') {
+    moneyApplySafeSpendOptionB();
+  }
+}
+
+function moneyPatchOriginalPerDayFunctionsOptionB() {
+  // Override previous per-day recalculators with Option B version.
+  window.msUpdateMoneyLeftPerDaySimple = moneyUpdateOriginalPerDayBoxOptionB;
+  window.msMoneyLeftRecalc = moneyUpdateOriginalPerDayBoxOptionB;
+  window.msUpdateLeftAmountPerDay = moneyUpdateOriginalPerDayBoxOptionB;
+  window.msRecalculatePerDayFromLeftAmount = moneyUpdateOriginalPerDayBoxOptionB;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyPatchOriginalPerDayFunctionsOptionB();
+  setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 300);
+  setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 900);
+  setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 1600);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 0);
+    setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 160);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill')) {
+    setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 250);
+    setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 800);
+  }
+}, true);
+
 start();
+setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 800);
 setTimeout(moneyApplySafeSpendOptionB, 800);
 setTimeout(moneyPatchOptionBDayDisplays, 700);
 setTimeout(moneyWireCorrectPerDayHeroSync, 800);

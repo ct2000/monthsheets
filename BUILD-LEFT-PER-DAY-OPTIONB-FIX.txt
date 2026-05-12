@@ -1,0 +1,5 @@
+Built: 2026-05-12 21:03:18
+Base: money-safe-spend-optionb-sync-20260512-205916.zip
+Fix: Original Money Left per day box now uses the same Option B days logic as Safe to spend today.
+JS syntax ok: True
+
