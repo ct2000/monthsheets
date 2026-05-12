@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Safe to spend matches Money Left per day build: 2026-05-12 20:34:22 -->
+<!-- HARD safe spend equals Money Left per day build: 2026-05-12 20:38:39 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4185,7 +4185,7 @@ function moneyBuildDashboardHTML() {
     <section class="money-hero">
       <div class="money-hero-top">
         <div class="money-hero-kicker">Safe to spend today</div>
-        <div class="money-hero-amount">${moneyGetDisplayedPerDayValue() || moneyFmt(m.safeToSpend)}</div>
+        <div class="money-hero-amount">${moneySafeSpendCurrentValue ? (moneySafeSpendCurrentValue() || moneyGetDisplayedPerDayValue() || moneyFmt(m.safeToSpend)) : (moneyGetDisplayedPerDayValue() || moneyFmt(m.safeToSpend))}</div>
         <div class="money-hero-sub">${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left · ${moneyFmt(m.unpaidTotal)} still to pay</div>
       </div>
       <div class="money-hero-row">
@@ -4522,7 +4522,139 @@ document.addEventListener('click', function(event) {
   }
 });
 
+
+// Hard sync: Safe to spend today must equal the Money Left per day calculation.
+function moneySafeSpendFindPerDayElement() {
+  return (
+    document.getElementById('perDayValue') ||
+    document.getElementById('perDayValueEl') ||
+    document.querySelector('[data-per-day-value]') ||
+    document.querySelector('.per-day .big') ||
+    document.querySelector('[class*="perDay"]') ||
+    document.querySelector('[class*="per-day"] .big')
+  );
+}
+
+function moneySafeSpendReadPerDay() {
+  const el = moneySafeSpendFindPerDayElement();
+  const text = el ? String(el.textContent || '').trim() : '';
+  return text || '';
+}
+
+function moneySafeSpendCalculateFromSameInputs() {
+  try {
+    const input = document.getElementById('leftAmount');
+    const amount = typeof msMoneyLeftParse === 'function'
+      ? msMoneyLeftParse(input ? input.value : 0)
+      : parseFloat(String(input ? input.value : '0').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.]/g,'')) || 0;
+
+    const stillToPay = typeof msMoneyLeftStillToPay === 'function'
+      ? msMoneyLeftStillToPay()
+      : (typeof moneyMetrics === 'function' ? moneyMetrics().unpaidTotal : 0);
+
+    const days = typeof msMoneyLeftDays === 'function'
+      ? msMoneyLeftDays()
+      : Math.max(1, Math.ceil((new Date(new Date().getFullYear(), new Date().getMonth()+1, 0, 23,59,59) - new Date()) / 86400000));
+
+    const perDay = (amount - stillToPay) / days;
+    return typeof fmtMoney === 'function' ? fmtMoney(perDay) : ('£' + perDay.toFixed(2));
+  } catch (e) {
+    return '';
+  }
+}
+
+function moneySafeSpendCurrentValue() {
+  return moneySafeSpendReadPerDay() || moneySafeSpendCalculateFromSameInputs();
+}
+
+function moneySafeSpendApply() {
+  const value = moneySafeSpendCurrentValue();
+  if (!value) return;
+
+  document.querySelectorAll('.money-hero-amount').forEach(el => {
+    if (el.textContent !== value) el.textContent = value;
+  });
+
+  document.querySelectorAll('.money-insight').forEach(insight => {
+    const text = String(insight.textContent || '').toLowerCase();
+    if (text.includes('safe to spend') || text.includes('short by')) {
+      const target = insight.querySelector('span:not(.money-insight-icon)') || insight;
+      target.textContent = `Safe to spend: ${value} per day.`;
+    }
+  });
+}
+
+function moneySafeSpendPatchDashboardBuilder() {
+  if (window.__moneySafeSpendBuilderPatched) return;
+  if (typeof moneyBuildDashboardHTML !== 'function') return;
+
+  window.__moneySafeSpendBuilderPatched = true;
+  const original = moneyBuildDashboardHTML;
+
+  moneyBuildDashboardHTML = function(...args) {
+    const html = original.apply(this, args);
+    const value = moneySafeSpendCurrentValue();
+    if (!value) return html;
+
+    return String(html)
+      .replace(
+        /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
+        `$1${value}$3`
+      )
+      .replace(
+        /(Safe to spend: )[^<]+?( per day\.)/,
+        `$1${value}$2`
+      )
+      .replace(
+        /(You are short by )[^<]+?( per day\.)/,
+        `Safe to spend: ${value} per day.`
+      );
+  };
+}
+
+function moneySafeSpendWireHardSync() {
+  moneySafeSpendPatchDashboardBuilder();
+  moneySafeSpendApply();
+
+  const perDay = moneySafeSpendFindPerDayElement();
+  if (perDay && !perDay.dataset.safeSpendHardObserver) {
+    perDay.dataset.safeSpendHardObserver = '1';
+    new MutationObserver(() => {
+      setTimeout(moneySafeSpendApply, 0);
+      setTimeout(() => {
+        if (typeof moneyInsertDashboard === 'function') moneyInsertDashboard();
+        moneySafeSpendApply();
+      }, 80);
+    }).observe(perDay, { childList: true, subtree: true, characterData: true });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneySafeSpendWireHardSync();
+  setTimeout(moneySafeSpendWireHardSync, 500);
+  setTimeout(moneySafeSpendWireHardSync, 1200);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneySafeSpendWireHardSync, 0);
+    setTimeout(moneySafeSpendWireHardSync, 160);
+    setTimeout(() => {
+      if (typeof moneyInsertDashboard === 'function') moneyInsertDashboard();
+      moneySafeSpendApply();
+    }, 320);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill')) {
+    setTimeout(moneySafeSpendWireHardSync, 200);
+    setTimeout(moneySafeSpendWireHardSync, 700);
+  }
+}, true);
+
 start();
+setTimeout(moneySafeSpendWireHardSync, 700);
 setTimeout(moneyWireSafeSpendMatch, 700);
 setTimeout(moneyApplyBillLogos, 500);
 moneyRefreshPremiumDashboardSoon();

@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:38:39
+Base: money-safe-spend-match-perday-20260512-203422.zip
+Fix: patches dashboard builder and live DOM so Safe to spend today uses the exact same value/calculation as Money Left per day.
+JS syntax ok: True
+
