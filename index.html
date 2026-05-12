@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Safe spend mirrors primary Money Left per day build: 2026-05-12 21:20:36 -->
+<!-- FORCE safe spend matches Money Left per day build: 2026-05-12 21:25:39 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4142,7 +4142,7 @@ function moneyBuildDashboardHTML() {
     <section class="money-hero">
       <div class="money-hero-top">
         <div class="money-hero-kicker">Safe to spend today</div>
-        <div class="money-hero-amount">${(moneyFindPrimaryLeftPerDayValue && moneyFindPrimaryLeftPerDayValue()) ? moneyFindPrimaryLeftPerDayValue().textContent.trim() : moneyFmt(m.safeToSpend)}</div>
+        <div class="money-hero-amount"><span data-safe-spend-placeholder="1">—</span></div>
         <div class="money-hero-sub">${moneyReadCorrectDaysText ? (moneyReadCorrectDaysText() || `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`) : `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`} · ${moneyFmt(m.unpaidTotal)} still to pay</div>
       </div>
       <div class="money-hero-row">
@@ -5269,7 +5269,144 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// HARD FINAL FIX:
+// Safe to spend today must visually equal the primary Money Left per day display.
+// This runs after every render/update and also on a short interval so rebuilds cannot overwrite it.
+function moneyPrimaryPerDayValueText() {
+  const selectors = [
+    '#perDayValue',
+    '#perDayValueEl',
+    '[data-per-day-value]',
+    '.per-day .big'
+  ];
+
+  for (const selector of selectors) {
+    const el = document.querySelector(selector);
+    if (el && String(el.textContent || '').trim()) {
+      return String(el.textContent || '').trim();
+    }
+  }
+
+  return '';
+}
+
+function moneyPrimaryPerDayMetaText() {
+  const selectors = [
+    '#perDayMeta',
+    '[data-per-day-meta]',
+    '.per-day .meta'
+  ];
+
+  for (const selector of selectors) {
+    const el = document.querySelector(selector);
+    if (el && String(el.textContent || '').trim()) {
+      return String(el.textContent || '').trim();
+    }
+  }
+
+  return '';
+}
+
+function moneyForceSafeSpendMatch() {
+  const value = moneyPrimaryPerDayValueText();
+  const meta = moneyPrimaryPerDayMetaText();
+
+  if (value) {
+    document.querySelectorAll('.money-hero-amount').forEach(el => {
+      if (el.textContent !== value) el.textContent = value;
+      el.setAttribute('data-force-matched-per-day', '1');
+    });
+
+    document.querySelectorAll('.money-insight').forEach(insight => {
+      const text = String(insight.textContent || '').toLowerCase();
+      if (text.includes('safe to spend') || text.includes('short by')) {
+        const target = insight.querySelector('span:not(.money-insight-icon)') || insight;
+        const newText = `Safe to spend: ${value} per day.`;
+        if (target.textContent !== newText) target.textContent = newText;
+      }
+    });
+  }
+
+  if (meta) {
+    document.querySelectorAll('.money-hero-sub').forEach(el => {
+      const old = String(el.textContent || '');
+      const still = old.match(/·\s*(.*still to pay)/i);
+      const suffix = still ? ` · ${still[1]}` : '';
+      const next = `${meta}${suffix}`;
+      if (el.textContent !== next) el.textContent = next;
+    });
+  }
+}
+
+function moneyPatchDashboardHTMLForceMatch() {
+  if (window.__moneyPatchDashboardHTMLForceMatch) return;
+  if (typeof moneyBuildDashboardHTML !== 'function') return;
+
+  window.__moneyPatchDashboardHTMLForceMatch = true;
+  const original = moneyBuildDashboardHTML;
+
+  moneyBuildDashboardHTML = function(...args) {
+    let out = String(original.apply(this, args));
+
+    // Put harmless placeholders in the dashboard HTML.
+    // The force matcher replaces them immediately after render with the real primary value.
+    out = out.replace(
+      /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
+      '$1<span data-safe-spend-placeholder="1">—</span>$3'
+    );
+
+    out = out.replace(
+      /(Safe to spend: )[^<]+?( per day\.)/,
+      '$1—$2'
+    );
+
+    return out;
+  };
+}
+
+function moneyStartSafeSpendForceMatch() {
+  moneyPatchDashboardHTMLForceMatch();
+  moneyForceSafeSpendMatch();
+
+  if (!window.__moneySafeSpendForceInterval) {
+    window.__moneySafeSpendForceInterval = setInterval(moneyForceSafeSpendMatch, 250);
+  }
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  if (root && !root.dataset.safeSpendForceObserver) {
+    root.dataset.safeSpendForceObserver = '1';
+    const observer = new MutationObserver(() => {
+      requestAnimationFrame(moneyForceSafeSpendMatch);
+    });
+    observer.observe(root, { childList: true, subtree: true, characterData: true });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyStartSafeSpendForceMatch();
+  setTimeout(moneyStartSafeSpendForceMatch, 500);
+  setTimeout(moneyStartSafeSpendForceMatch, 1500);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyForceSafeSpendMatch, 0);
+    setTimeout(moneyForceSafeSpendMatch, 150);
+    setTimeout(moneyForceSafeSpendMatch, 450);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker')) {
+    setTimeout(moneyForceSafeSpendMatch, 100);
+    setTimeout(moneyForceSafeSpendMatch, 400);
+    setTimeout(moneyForceSafeSpendMatch, 1000);
+  }
+}, true);
+
 start();
+setTimeout(moneyStartSafeSpendForceMatch, 800);
 setTimeout(moneyWireSafeSpendMirror, 800);
 setTimeout(moneyLeftPerDayRebuiltWire, 800);
 setTimeout(moneyUpdateOriginalPerDayBoxOptionB, 800);

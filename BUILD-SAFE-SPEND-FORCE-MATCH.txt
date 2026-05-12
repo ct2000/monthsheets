@@ -1,0 +1,5 @@
+Built: 2026-05-12 21:25:39
+Base: money-safe-spend-mirror-left-20260512-212036.zip
+Fix: Safe to spend today is force-matched to the primary Money Left per day DOM value after every render/update, preventing dashboard rebuilds from overwriting it.
+JS syntax ok: True
+
