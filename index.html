@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- clean bottom nav only add+refresh build: 2026-05-12 15:58:06 -->
+<!-- STRICT two-button bottom bar build: 2026-05-12 16:06:15 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -510,6 +510,75 @@ body.dark .nav-btn strong,
   color: #a3a9b4 !important;
 }
 
+
+/* === strict two-button bottom bar 2026-05-12 16:06:15 === */
+.bottom-nav {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: max(0px, env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%) !important;
+  width: min(430px, 100vw) !important;
+  height: 72px !important;
+  padding: 8px 28px max(8px, env(safe-area-inset-bottom)) !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+  background: rgba(255,255,255,.95) !important;
+  border-top: 1px solid rgba(17,24,39,.08) !important;
+  border-radius: 24px 24px 0 0 !important;
+  box-shadow: 0 -12px 34px rgba(16,24,40,.08) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  z-index: 9999 !important;
+}
+
+.bottom-nav .nav-btn {
+  border: 0 !important;
+  background: transparent !important;
+  color: #6b7280 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+
+.bottom-nav .nav-btn strong {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  border-radius: 15px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: #f4f6f8 !important;
+  color: #6b7280 !important;
+  box-shadow: none !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+}
+
+.bottom-nav .nav-btn span {
+  display: block !important;
+}
+
+body.dark .bottom-nav,
+[data-theme="dark"] .bottom-nav {
+  background: rgba(20,24,32,.95) !important;
+  border-top-color: rgba(255,255,255,.08) !important;
+}
+
+body.dark .bottom-nav .nav-btn strong,
+[data-theme="dark"] .bottom-nav .nav-btn strong {
+  background: rgba(255,255,255,.08) !important;
+  color: #a3a9b4 !important;
+}
+
 </style>
 </head>
 <body>
@@ -522,7 +591,7 @@ body.dark .nav-btn strong,
   <main id="content"><div class="spinner">Fetching your spreadsheet…</div></main>
 </div>
 <div id="signin" class="signin" style="display:none"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
-<div class="bottom-bar" id="bottomBar" style="display:none"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div><button class="add-fab" id="addFab" style="display:none">+</button>
+<div class="bottom-bar" id="bottomBar" style="display:none"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
 <div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" inputmode="decimal" placeholder="0.00"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -550,7 +619,7 @@ async function updateValues(range,values){const {fileId}=getConfig();const url=`
 function parseTablesFromGrid(grid){const tables=[];for(let r=0;r<grid.length;r++){const row=grid[r]||[];for(let c=0;c<=row.length-3;c++){if(normalize(row[c])==='date due'&&normalize(row[c+1])==='due'&&normalize(row[c+2])==='paid'){const labelCol=c-1;if(labelCol<0)continue;const label=String(row[labelCol]||'').trim();if(!label||normalize(label)==='date due')continue;const rows=[];let blanks=0;for(let dr=r+1;dr<grid.length;dr++){const drow=grid[dr]||[];const name=String(drow[labelCol]||'').trim();if(!name){blanks++;if(blanks>=2)break;continue}blanks=0;rows.push({name,dueDate:String(drow[c]??'').trim(),due:parseMoney(drow[c+1]),paid:parseMoney(drow[c+2]),sheetRow:dr+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2})}if(rows.length)tables.push({label,headerRow:r+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2,rows})}}}return tables}
 function isRowPaid(r){return r.due<=0||r.paid===0}function outstandingAmount(r){return r.due<=0?0:r.paid}function effectivePaidAmount(r){return r.due<=0?0:(r.paid===0?r.due:0)}function defaultEndDate(){const n=new Date();const last=new Date(n.getFullYear(),n.getMonth()+1,0);return `${last.getFullYear()}-${String(last.getMonth()+1).padStart(2,'0')}-${String(last.getDate()).padStart(2,'0')}`}function todayISO(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`}function daysBetween(a,b){return Math.max(1,Math.floor((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)-1)}
 function pickBestTable(tables){const now=new Date(),full=MONTH_NAMES[now.getMonth()].toLowerCase(),short=MONTH_SHORT[now.getMonth()].toLowerCase();const found=tables.findIndex(t=>normalize(t.label).includes(full)||normalize(t.label).includes(short));return found>=0?found:0}
-function showApp(){signin.style.display='none';app.style.display='';bottomBar.style.display='flex';addFab.style.display='block'}function showSignIn(){app.style.display='none';bottomBar.style.display='none';addFab.style.display='none';signin.style.display='';signinBtn.disabled=!getConfig().clientId;signinBtn.textContent=signinBtn.disabled?'Set Client ID in Settings':'Sign in with Google'}function showSignInError(msg){showSignIn();document.querySelector('#signin p').textContent=msg}
+function showApp(){signin.style.display='none';app.style.display='';bottomBar.style.display='flex';removedAddFab.style.display='block'}function showSignIn(){app.style.display='none';bottomBar.style.display='none';removedAddFab.style.display='none';signin.style.display='';signinBtn.disabled=!getConfig().clientId;signinBtn.textContent=signinBtn.disabled?'Set Client ID in Settings':'Sign in with Google'}function showSignInError(msg){showSignIn();document.querySelector('#signin p').textContent=msg}
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
@@ -562,7 +631,7 @@ async function togglePaid(sheetRow){const table=CACHED_TABLES[monthPicker.value]
 async function appendBill(){const table=CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0];if(!table)return;const name=newName.value.trim(),dueDate=newDueDate.value.trim(),amount=parseMoney(newAmount.value);if(!name||!amount)return;const row=Math.max(...table.rows.map(r=>r.sheetRow||0))+1;await updateValues(`${colLetter(table.labelCol)}${row}:${colLetter(table.paidCol)}${row}`,[[name,dueDate,amount,amount]]);closeAdd();await loadSpreadsheet()}
 async function loadSpreadsheet(){content.innerHTML='<div class="spinner">Fetching your spreadsheet…</div>';try{CACHED_TABLES=parseTablesFromGrid(await fetchSheet());render()}catch(e){if(String(e.message).toLowerCase().includes('sign')){showSignIn();return}content.innerHTML=`<div class="error"><strong>Couldn’t load spreadsheet:</strong><br>${escapeHtml(e.message||e)}</div>`}}
 function openConfig(){const c=getConfig();cfgClientId.value=c.clientId;cfgFileId.value=c.fileId;configModal.classList.add('open')}function closeConfig(){configModal.classList.remove('open')}function openAdd(){newName.value='';newDueDate.value='';newAmount.value='';addModal.classList.add('open')}function closeAdd(){addModal.classList.remove('open')}function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem('ms.theme',t);themeBtn.textContent=t==='dark'?'☀':'☾'}
-themeBtn.onclick=()=>applyTheme((document.documentElement.dataset.theme||'light')==='dark'?'light':'dark');applyTheme(localStorage.getItem('ms.theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));settingsBtn.onclick=openConfig;settingsBtnSignin.onclick=openConfig;settingsNav.onclick=openConfig;refreshBtn.onclick=loadSpreadsheet;refreshNav.onclick=loadSpreadsheet;addFab.onclick=openAdd;addCancel.onclick=closeAdd;addSave.onclick=appendBill;signinBtn.onclick=()=>requestSignIn(false);searchBills.oninput=()=>{if(CACHED_TABLES.length)renderMonth(CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0])};cfgCancel.onclick=closeConfig;cfgSave.onclick=()=>{cfgClientId.value.trim()?localStorage.setItem('ms.clientId',cfgClientId.value.trim()):localStorage.removeItem('ms.clientId');cfgFileId.value.trim()?localStorage.setItem('ms.fileId',cfgFileId.value.trim()):localStorage.removeItem('ms.fileId');TOKEN_CLIENT=null;clearToken();closeConfig();start()};
+themeBtn.onclick=()=>applyTheme((document.documentElement.dataset.theme||'light')==='dark'?'light':'dark');applyTheme(localStorage.getItem('ms.theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));settingsBtn.onclick=openConfig;settingsBtnSignin.onclick=openConfig;settingsNav.onclick=openConfig;refreshBtn.onclick=loadSpreadsheet;refreshNav.onclick=loadSpreadsheet;removedAddFab.onclick=openAdd;addCancel.onclick=closeAdd;addSave.onclick=appendBill;signinBtn.onclick=()=>requestSignIn(false);searchBills.oninput=()=>{if(CACHED_TABLES.length)renderMonth(CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0])};cfgCancel.onclick=closeConfig;cfgSave.onclick=()=>{cfgClientId.value.trim()?localStorage.setItem('ms.clientId',cfgClientId.value.trim()):localStorage.removeItem('ms.clientId');cfgFileId.value.trim()?localStorage.setItem('ms.fileId',cfgFileId.value.trim()):localStorage.removeItem('ms.fileId');TOKEN_CLIENT=null;clearToken();closeConfig();start()};
 function waitForGoogle(timeout=10000){return new Promise((res,rej)=>{const t=Date.now();(function tick(){if(window.google?.accounts?.oauth2)return res();if(Date.now()-t>timeout)return rej(new Error('Google sign-in script failed to load'));setTimeout(tick,100)})()})}function start(){const c=getConfig();if(!c.clientId||!c.fileId){showSignIn();return}if(getToken()){showApp();loadSpreadsheet();return}waitForGoogle().then(()=>{initTokenClient();showSignIn();requestSignIn(true)}).catch(()=>showSignIn())}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&getToken())loadSpreadsheet()});setInterval(()=>{if(getToken()&&document.visibilityState==='visible')loadSpreadsheet()},120000);if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=20260512-153350').catch(()=>{}));
 
@@ -602,11 +671,7 @@ function wireBottomBarActions() {
     reload.dataset.wired = '1';
     reload.onclick = () => loadSpreadsheet();
   }
-  if (settings && !settings.dataset.wired) {
-    settings.dataset.wired = '1';
-    settings.onclick = () => openConfig();
   }
-}
 
 
 // Verified paid/outstanding write-back handler
@@ -686,14 +751,40 @@ document.addEventListener('click', function(event) {
 });
 
 start();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const addBtn = document.getElementById('addItemBarBtn');
+  const refreshBtn = document.getElementById('reloadBarBtn');
+
+  if (addBtn) {
+    addBtn.onclick = () => {
+      if (typeof openAddBill === 'function') openAddBill();
+      else if (typeof openAdd === 'function') openAdd();
+      else if (document.getElementById('addBillModal')) document.getElementById('addBillModal').classList.add('open');
+      else if (document.getElementById('addModal')) document.getElementById('addModal').classList.add('open');
+    };
+  }
+
+  if (refreshBtn) {
+    refreshBtn.onclick = () => loadSpreadsheet();
+  }
+});
+
 wireBottomBarActions();
 
 
 
 </script>
-<nav class="bottom-nav" id="bottomNav" style="display:none">
-  <button class="nav-btn" id="addItemBarBtn" type="button"><strong>＋</strong>Add</button>
-  <button class="nav-btn" id="reloadBarBtn" type="button"><strong>↻</strong>Refresh</button>
+
+
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-btn" id="addItemBarBtn" type="button" aria-label="Add item">
+    <strong>＋</strong><span>Add</span>
+  </button>
+  <button class="nav-btn" id="reloadBarBtn" type="button" aria-label="Refresh">
+    <strong>↻</strong><span>Refresh</span>
+  </button>
 </nav>
+
 </body>
 </html>
