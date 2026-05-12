@@ -1,0 +1,5 @@
+Built: 2026-05-12 21:07:24
+Base: money-left-per-day-optionb-fix-20260512-210318.zip
+Rebuilt Money Left per day calculation from scratch. Formula: (Money Left - unpaid bills) / Option B days. Option B: include today, exclude end/reset date. Example 12 -> 30 = 18 days.
+JS syntax ok: True
+
