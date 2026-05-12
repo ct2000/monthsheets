@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- SAFE modal close only build: 2026-05-12 16:25:53 -->
+<!-- fix removed addFab/bottomBar references build: 2026-05-12 16:29:59 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -614,6 +614,17 @@ body.dark .bottom-nav .nav-btn strong,
   cursor: auto;
 }
 
+
+/* === fix removed element references 2026-05-12 16:29:59 === */
+.nav-mini,
+#navMini,
+[data-nav-mini],
+#addFab {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -669,7 +680,25 @@ async function updateValues(range,values){const {fileId}=getConfig();const url=`
 function parseTablesFromGrid(grid){const tables=[];for(let r=0;r<grid.length;r++){const row=grid[r]||[];for(let c=0;c<=row.length-3;c++){if(normalize(row[c])==='date due'&&normalize(row[c+1])==='due'&&normalize(row[c+2])==='paid'){const labelCol=c-1;if(labelCol<0)continue;const label=String(row[labelCol]||'').trim();if(!label||normalize(label)==='date due')continue;const rows=[];let blanks=0;for(let dr=r+1;dr<grid.length;dr++){const drow=grid[dr]||[];const name=String(drow[labelCol]||'').trim();if(!name){blanks++;if(blanks>=2)break;continue}blanks=0;rows.push({name,dueDate:String(drow[c]??'').trim(),due:parseMoney(drow[c+1]),paid:parseMoney(drow[c+2]),sheetRow:dr+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2})}if(rows.length)tables.push({label,headerRow:r+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2,rows})}}}return tables}
 function isRowPaid(r){return r.due<=0||r.paid===0}function outstandingAmount(r){return r.due<=0?0:r.paid}function effectivePaidAmount(r){return r.due<=0?0:(r.paid===0?r.due:0)}function defaultEndDate(){const n=new Date();const last=new Date(n.getFullYear(),n.getMonth()+1,0);return `${last.getFullYear()}-${String(last.getMonth()+1).padStart(2,'0')}-${String(last.getDate()).padStart(2,'0')}`}function todayISO(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`}function daysBetween(a,b){return Math.max(1,Math.floor((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)-1)}
 function pickBestTable(tables){const now=new Date(),full=MONTH_NAMES[now.getMonth()].toLowerCase(),short=MONTH_SHORT[now.getMonth()].toLowerCase();const found=tables.findIndex(t=>normalize(t.label).includes(full)||normalize(t.label).includes(short));return found>=0?found:0}
-function showApp(){signin.style.display='none';app.style.display='';bottomBar.style.display='flex';addFab.style.display='block'}function showSignIn(){app.style.display='none';bottomBar.style.display='none';addFab.style.display='none';signin.style.display='';signinBtn.disabled=!getConfig().clientId;signinBtn.textContent=signinBtn.disabled?'Set Client ID in Settings':'Sign in with Google'}function showSignInError(msg){showSignIn();document.querySelector('#signin p').textContent=msg}
+function showApp(){
+  const signInEl = document.getElementById('signin');
+  const appEl = document.getElementById('app');
+  const navEl = document.getElementById('bottomNav');
+  if (signInEl) signInEl.style.display='none';
+  if (appEl) appEl.style.display='';
+  if (navEl) navEl.style.display='grid';
+}
+function showSignIn(){
+  const appEl = document.getElementById('app');
+  const signInEl = document.getElementById('signin');
+  const navEl = document.getElementById('bottomNav');
+  if (appEl) appEl.style.display='none';
+  if (navEl) navEl.style.display='none';
+  if (signInEl) signInEl.style.display='';
+  signinBtn.disabled=!getConfig().clientId;
+  signinBtn.textContent=signinBtn.disabled?'Set Client ID in Settings':'Sign in with Google';
+}
+function showSignInError(msg){showSignIn();document.querySelector('#signin p').textContent=msg}
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
