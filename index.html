@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- visible Left!C4 write fix build: 2026-05-12 18:02:21 -->
+<!-- tabs hover and dark mode build: 2026-05-12 18:58:40 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -966,6 +966,85 @@ input[name="amount"] {
   font-size:12px;
   font-weight:700;
   line-height:1;
+}
+
+
+/* === tabs hover + dark mode 2026-05-12 18:58:40 === */
+.tabs {
+  background:#ffffff !important;
+  border-color:rgba(0,0,0,.06) !important;
+}
+
+.tabs .tab {
+  background:#ffffff !important;
+  color:#111827 !important;
+}
+
+.tabs .tab:hover,
+.tabs .tab:focus-visible {
+  background:#f3f4f6 !important;
+  color:#111827 !important;
+}
+
+.tabs .tab.active {
+  background:#ffffff !important;
+  color:#111827 !important;
+}
+
+.tabs .tab.active:hover,
+.tabs .tab.active:focus-visible {
+  background:#f3f4f6 !important;
+  color:#111827 !important;
+}
+
+.tabs .badge {
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:1px solid rgba(0,0,0,.08) !important;
+}
+
+body.dark .tabs,
+[data-theme="dark"] .tabs {
+  background:#171b23 !important;
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,.25),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+body.dark .tabs .tab,
+[data-theme="dark"] .tabs .tab {
+  background:#171b23 !important;
+  color:#f7f8fb !important;
+}
+
+body.dark .tabs .tab:hover,
+body.dark .tabs .tab:focus-visible,
+[data-theme="dark"] .tabs .tab:hover,
+[data-theme="dark"] .tabs .tab:focus-visible {
+  background:#242a35 !important;
+  color:#ffffff !important;
+}
+
+body.dark .tabs .tab.active,
+[data-theme="dark"] .tabs .tab.active {
+  background:#202631 !important;
+  color:#ffffff !important;
+}
+
+body.dark .tabs .tab.active:hover,
+body.dark .tabs .tab.active:focus-visible,
+[data-theme="dark"] .tabs .tab.active:hover,
+[data-theme="dark"] .tabs .tab.active:focus-visible {
+  background:#2b3240 !important;
+  color:#ffffff !important;
+}
+
+body.dark .tabs .badge,
+[data-theme="dark"] .tabs .badge {
+  background:#111827 !important;
+  color:#f7f8fb !important;
+  border-color:rgba(255,255,255,.12) !important;
 }
 
 </style>
