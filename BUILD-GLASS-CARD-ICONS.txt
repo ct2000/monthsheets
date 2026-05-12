@@ -1,0 +1,5 @@
+Built: 2026-05-12 19:15:32
+Base: month-spread-due-sort-fix-20260512-190741.zip
+Added stacked glass-card icon set to PWA manifest/icons and replaced in-app brand icon styling.
+JS syntax ok: True
+

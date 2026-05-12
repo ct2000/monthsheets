@@ -2,12 +2,12 @@
   "name": "Month Spread",
   "short_name": "Month Spread",
   "description": "Monthly bills and spending planner with Google Sheets sync.",
-  "start_url": "./index.html?v=20260512-190741",
+  "start_url": "./index.html?v=20260512-191532",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f8fafc",
-  "theme_color": "#80e45e",
+  "theme_color": "#ffffff",
   "icons": [
     {
       "src": "icon-192.png",
@@ -26,6 +26,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }
