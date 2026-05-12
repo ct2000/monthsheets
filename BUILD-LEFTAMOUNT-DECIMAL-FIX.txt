@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:17:49
+Base: month-spread-cursor-fix-safe-20260512-171458.zip
+Fix: leftAmount accepts decimal money values like 1092.33, preserves cursor position, and recalculates per-day using parseFloat.
+JS syntax ok: True
+

@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:02:32
+Base: month-spread-leftamount-js-fix-20260512-165856.zip
+Fix: Amount Left input now accepts large values and updates money-left-per-day live again.
+JS syntax ok: True
+

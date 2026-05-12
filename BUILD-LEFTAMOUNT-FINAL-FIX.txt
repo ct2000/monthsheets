@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:05:40
+Base: month-spread-leftamount-recalc-fix-20260512-170232.zip
+Fix: forces #leftAmount to text/decimal after every render, removes max/min/step/maxlength/pattern, keeps per-day recalculation wired.
+JS syntax ok: True
+

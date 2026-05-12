@@ -2,7 +2,7 @@
   "name": "Month Spread",
   "short_name": "Month Spread",
   "description": "Monthly bills and spending planner with Google Sheets sync.",
-  "start_url": "./index.html?v=20260512-165856",
+  "start_url": "./index.html?v=20260512-171749",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

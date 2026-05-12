@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:09:12
+Base: month-spread-leftamount-final-fix-20260512-170540.zip
+Change: leftAmount now uses whole-number numeric input mode (1092, 2500 etc.) while bill/item amounts remain decimal-capable.
+JS syntax ok: True
+
