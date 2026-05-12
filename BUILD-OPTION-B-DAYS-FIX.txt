@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:57:36
+Base: money-monochrome-bill-icons-20260512-205321.zip
+Fix: Option B day count. Includes today and excludes selected/end date. Example 12th to 30th = 18 days.
+JS syntax ok: True
+

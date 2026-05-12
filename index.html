@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Hero safe spend + days mirrors Money Left per day build: 2026-05-12 20:43:51 -->
+<!-- Safe to spend Option B sync build: 2026-05-12 20:59:16 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2659,6 +2659,76 @@ body.dark .money-swipe-action.more{
   text-decoration-thickness: 1.5px;
 }
 
+
+/* === monochrome bill icons, dark-mode friendly 2026-05-12 20:53:21 === */
+
+.money-bill-logo,
+.bill-icon {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.92), rgba(241,245,249,.78)) !important;
+  color: #111827 !important;
+  border: 1px solid rgba(15,23,42,.08) !important;
+  box-shadow:
+    0 8px 20px rgba(15,23,42,.07),
+    inset 0 1px 0 rgba(255,255,255,.85) !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
+.money-bill-logo::after,
+.bill-icon::after {
+  background: linear-gradient(135deg, rgba(255,255,255,.35), transparent 52%) !important;
+}
+
+/* neutralise category colours */
+.money-bill-logo[data-kind],
+.bill-icon[data-kind] {
+  --logo-a: transparent !important;
+  --logo-b: transparent !important;
+}
+
+body.dark .money-bill-logo,
+body.dark .bill-icon,
+[data-theme="dark"] .money-bill-logo,
+[data-theme="dark"] .bill-icon {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.10), rgba(255,255,255,.045)) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 10px 24px rgba(0,0,0,.30),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+body.dark .money-bill-logo::after,
+body.dark .bill-icon::after,
+[data-theme="dark"] .money-bill-logo::after,
+[data-theme="dark"] .bill-icon::after {
+  background: linear-gradient(135deg, rgba(255,255,255,.08), transparent 52%) !important;
+}
+
+/* keep icons perfectly centred */
+.money-bill-logo,
+.bill-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  font-size: 19px !important;
+  font-weight: 850 !important;
+  padding: 0 !important;
+}
+
+.money-bill-logo *,
+.bill-icon * {
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -3882,11 +3952,10 @@ function msMoneyLeftStillToPay() {
   }
 }
 
-function msMoneyLeftDays() {
-  const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-  return Math.max(1, Math.ceil((end - now) / 86400000));
-}
+// Left-per-day calculation:
+// include TODAY
+// exclude the selected final/end day.
+function msMoneyLeftDays() { return moneyOptionBDaysLeft(); }
 
 function msMoneyLeftRecalc() {
   const input = document.getElementById('leftAmount');
@@ -4213,13 +4282,9 @@ function moneyMetrics() {
   const leftInput = document.getElementById('leftAmount');
   const left = leftInput ? moneyParseAmountText(leftInput.value) : 0;
 
-  const daysLeft = (() => {
-    const now = new Date();
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-    return Math.max(1, Math.ceil((end - now) / 86400000));
-  })();
+  const daysLeft = moneyOptionBDaysLeft();
 
-  const safeToSpend = (left - unpaidTotal) / daysLeft;
+  const safeToSpend = (() => { try { return parseFloat(String(moneySafeSpendOptionBValue()).replace(/,/g,'').replace(/£/g,'')) || ((left - unpaidTotal) / daysLeft); } catch(e){ return (left - unpaidTotal) / daysLeft; } })();
   const upcoming = unpaid
     .map(r => ({ ...r, daysUntil: moneyDaysUntilDue(r) }))
     .filter(r => r.daysUntil != null && r.daysUntil >= 0 && r.daysUntil <= 7)
@@ -4628,9 +4693,7 @@ function moneySafeSpendCalculateFromSameInputs() {
       ? msMoneyLeftStillToPay()
       : (typeof moneyMetrics === 'function' ? moneyMetrics().unpaidTotal : 0);
 
-    const days = typeof msMoneyLeftDays === 'function'
-      ? msMoneyLeftDays()
-      : Math.max(1, Math.ceil((new Date(new Date().getFullYear(), new Date().getMonth()+1, 0, 23,59,59) - new Date()) / 86400000));
+    const days = moneyOptionBDaysLeft();
 
     const perDay = (amount - stillToPay) / days;
     return typeof fmtMoney === 'function' ? fmtMoney(perDay) : ('£' + perDay.toFixed(2));
@@ -4866,7 +4929,238 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Option B day-count rule:
+// Include today, exclude the selected/reset/end date.
+// Example: today 12th, selected end 30th => count 12..29 = 18 days.
+function moneyOptionBDaysLeft() {
+  const now = new Date();
+
+  const today = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  );
+
+  // Try to use the app's selected end date if there is one.
+  // Fallback to last day of the current month.
+  let endDate = null;
+
+  const candidates = [
+    document.getElementById('endDate'),
+    document.getElementById('targetDate'),
+    document.getElementById('selectedDate'),
+    document.querySelector('[data-end-date]'),
+    document.querySelector('input[type="date"]')
+  ].filter(Boolean);
+
+  for (const el of candidates) {
+    const value = el.dataset && el.dataset.endDate ? el.dataset.endDate : el.value;
+    if (!value) continue;
+
+    const parsed = new Date(value + (String(value).includes('T') ? '' : 'T00:00:00'));
+    if (!isNaN(parsed.getTime())) {
+      endDate = new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+      break;
+    }
+  }
+
+  if (!endDate) {
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+  }
+
+  // Exclude the end date. Including today means simple difference in calendar days.
+  const days = Math.floor((endDate - today) / 86400000);
+
+  return Math.max(1, days);
+}
+
+// Override the various day functions added during previous patches.
+function msMoneyLeftDays() {
+  return moneyOptionBDaysLeft();
+}
+
+function msDaysLeftInCurrentMonth() {
+  return moneyOptionBDaysLeft();
+}
+
+function msMoneyLeftDaysRemaining() {
+  return moneyOptionBDaysLeft();
+}
+
+function moneySafeSpendDaysLeft() {
+  return moneyOptionBDaysLeft();
+}
+
+function moneyPatchOptionBDayDisplays() {
+  const days = moneyOptionBDaysLeft();
+  const text = `${days} day${days === 1 ? '' : 's'} left`;
+
+  const metaEls = [
+    document.getElementById('perDayMeta'),
+    document.querySelector('[data-per-day-meta]'),
+    document.querySelector('.per-day .meta')
+  ].filter(Boolean);
+
+  metaEls.forEach(el => {
+    el.textContent = text;
+  });
+
+  document.querySelectorAll('.money-hero-sub').forEach(el => {
+    const stillToPayMatch = String(el.textContent || '').match(/·\s*(.*still to pay)/i);
+    const stillToPay = stillToPayMatch ? stillToPayMatch[1] : '';
+    el.textContent = stillToPay ? `${text} · ${stillToPay}` : text;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyPatchOptionBDayDisplays();
+  setTimeout(moneyPatchOptionBDayDisplays, 500);
+  setTimeout(moneyPatchOptionBDayDisplays, 1200);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyPatchOptionBDayDisplays, 100);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill')) {
+    setTimeout(moneyPatchOptionBDayDisplays, 300);
+    setTimeout(moneyPatchOptionBDayDisplays, 900);
+  }
+}, true);
+
+
+// Safe to spend today must use the same Option B logic:
+// include today, exclude end/reset date.
+function moneySafeSpendOptionBValue() {
+  try {
+    const input = document.getElementById('leftAmount');
+
+    const amount = typeof msMoneyLeftParse === 'function'
+      ? msMoneyLeftParse(input ? input.value : 0)
+      : parseFloat(String(input ? input.value : '0').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.]/g,'')) || 0;
+
+    const unpaid = typeof msMoneyLeftStillToPay === 'function'
+      ? msMoneyLeftStillToPay()
+      : (typeof moneyMetrics === 'function' ? moneyMetrics().unpaidTotal : 0);
+
+    const days = typeof moneyOptionBDaysLeft === 'function'
+      ? moneyOptionBDaysLeft()
+      : 1;
+
+    const perDay = (amount - unpaid) / Math.max(1, days);
+
+    return typeof fmtMoney === 'function'
+      ? fmtMoney(perDay)
+      : ('£' + perDay.toFixed(2));
+  } catch (e) {
+    return '';
+  }
+}
+
+function moneyApplySafeSpendOptionB() {
+  const value = moneySafeSpendOptionBValue();
+  const days = typeof moneyOptionBDaysLeft === 'function'
+    ? moneyOptionBDaysLeft()
+    : 1;
+
+  if (!value) return;
+
+  document.querySelectorAll('.money-hero-amount').forEach(el => {
+    el.textContent = value;
+  });
+
+  document.querySelectorAll('.money-hero-sub').forEach(el => {
+    const stillToPayMatch = String(el.textContent || '').match(/·\s*(.*still to pay)/i);
+    const stillToPay = stillToPayMatch ? stillToPayMatch[1] : '';
+    const text = `${days} day${days === 1 ? '' : 's'} left`;
+    el.textContent = stillToPay ? `${text} · ${stillToPay}` : text;
+  });
+
+  document.querySelectorAll('.money-insight').forEach(insight => {
+    const text = String(insight.textContent || '').toLowerCase();
+    if (text.includes('safe to spend') || text.includes('short by')) {
+      const target = insight.querySelector('span:not(.money-insight-icon)') || insight;
+      target.textContent = `Safe to spend: ${value} per day.`;
+    }
+  });
+}
+
+function moneyPatchSafeSpendDashboardBuilder() {
+  if (window.__moneySafeSpendOptionBPatched) return;
+  if (typeof moneyBuildDashboardHTML !== 'function') return;
+
+  window.__moneySafeSpendOptionBPatched = true;
+
+  const original = moneyBuildDashboardHTML;
+
+  moneyBuildDashboardHTML = function(...args) {
+    let out = String(original.apply(this, args));
+
+    const value = moneySafeSpendOptionBValue();
+    const days = typeof moneyOptionBDaysLeft === 'function'
+      ? moneyOptionBDaysLeft()
+      : 1;
+
+    const daysText = `${days} day${days === 1 ? '' : 's'} left`;
+
+    out = out.replace(
+      /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
+      `$1${value}$3`
+    );
+
+    out = out.replace(
+      /(Safe to spend: )[^<]+?( per day\.)/,
+      `$1${value}$2`
+    );
+
+    out = out.replace(
+      /(You are short by )[^<]+?( per day\.)/,
+      `Safe to spend: ${value} per day.`
+    );
+
+    out = out.replace(
+      /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? still to pay<\/div>)/,
+      `$1${daysText}$3`
+    );
+
+    return out;
+  };
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyPatchSafeSpendDashboardBuilder();
+  moneyApplySafeSpendOptionB();
+
+  setTimeout(moneyApplySafeSpendOptionB, 500);
+  setTimeout(moneyApplySafeSpendOptionB, 1200);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyApplySafeSpendOptionB, 50);
+    setTimeout(moneyApplySafeSpendOptionB, 250);
+    setTimeout(() => {
+      if (typeof moneyInsertDashboard === 'function') moneyInsertDashboard();
+      moneyApplySafeSpendOptionB();
+    }, 450);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill')) {
+    setTimeout(moneyApplySafeSpendOptionB, 250);
+    setTimeout(moneyApplySafeSpendOptionB, 800);
+  }
+}, true);
+
 start();
+setTimeout(moneyApplySafeSpendOptionB, 800);
+setTimeout(moneyPatchOptionBDayDisplays, 700);
 setTimeout(moneyWireCorrectPerDayHeroSync, 800);
 setTimeout(moneySafeSpendWireHardSync, 700);
 setTimeout(moneyWireSafeSpendMatch, 700);

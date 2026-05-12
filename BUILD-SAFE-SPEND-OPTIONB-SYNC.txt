@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:59:16
+Base: money-option-b-days-fix-20260512-205736.zip
+Fix: Safe to spend today now uses the same Option B logic (include today, exclude end date) as Money Left per day.
+JS syntax ok: True
+

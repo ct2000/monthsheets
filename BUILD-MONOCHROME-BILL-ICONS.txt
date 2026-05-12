@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:53:21
+Base: money-left-days-fix-20260512-205137.zip
+Changes: bill icons are now monochrome, centred, and dark-mode friendly.
+JS syntax ok: True
+
