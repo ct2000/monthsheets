@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:34:22
+Base: money-icons-darkmode-fix-20260512-203207.zip
+Fix: Safe to spend today now mirrors the existing Money Left per day display exactly, instead of using a separate calculation.
+JS syntax ok: True
+

@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:32:07
+Base: money-bill-icons-glass-refine-20260512-202557.zip
+Fix: centred bill icons and added complete dark-mode styling for Safe to spend today, Smart insights, Month snapshot, and Upcoming this week sections.
+JS syntax ok: True
+
