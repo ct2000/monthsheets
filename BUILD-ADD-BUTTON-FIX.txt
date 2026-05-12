@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:45:37
+Base: month-spread-amount-input-fix-20260512-164322.zip
+Fix: bottom Add button now opens a robust add-item modal and writes new item to the selected month in Google Sheets.
+JS syntax ok: True
+

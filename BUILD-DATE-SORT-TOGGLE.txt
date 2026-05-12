@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:40:05
+Base: month-spread-due-date-sort-pills-20260512-163417.zip
+Changes: removed paid/unpaid counts; added Due ↑ and Due ↓ sort; forced active Unpaid red, active Paid green, inactive white.
+JS syntax ok: True
+

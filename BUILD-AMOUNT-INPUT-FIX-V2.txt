@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:47:46
+Base: month-spread-add-button-fix-20260512-164537.zip
+Fix: Amount Left and add-item amount inputs now remove max/maxlength/pattern restrictions and use decimal text input where needed. parseMoney handles 1092 and 1,092.50.
+JS syntax ok: True
+

@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:34:17
+Base: month-spread-fix-removed-elements-20260512-162959.zip
+Changes: added Due date sort; unpaid count pill uses red outstanding style; paid count pill uses green style; inactive pills stay white.
+JS syntax ok: True
+

@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:29:59
+Base: month-spread-modal-close-safe-20260512-162553.zip
+Fix: showApp/showSignIn no longer reference removed bottomBar/addFab globals.
+JS syntax ok: True
+

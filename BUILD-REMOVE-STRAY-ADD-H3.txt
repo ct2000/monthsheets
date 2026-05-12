@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:51:28
+Base: month-spread-amount-input-fix-v2-20260512-164746.zip
+Fix: removed duplicate/stray Add item H3 text while keeping Add modal and save wiring.
+JS syntax ok: True
+

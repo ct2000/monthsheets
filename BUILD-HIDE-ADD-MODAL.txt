@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:55:40
+Base: month-spread-remove-stray-add-h3-20260512-165128.zip
+Fix: msAddItemModal hidden by default and only shown with .open. Amount input changed to type=text with decimal inputmode.
+JS syntax ok: True
+
