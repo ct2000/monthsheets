@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- leftAmount JS restriction fix build: 2026-05-12 16:58:56 -->
+<!-- leftAmount per-day recalc fix build: 2026-05-12 17:02:32 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -1248,11 +1248,6 @@ function msFixLeftAmountField() {
   leftAmount.inputMode = 'decimal';
   leftAmount.autocomplete = 'off';
 
-  // Remove cloned restrictive handlers.
-  leftAmount.oninput = null;
-  leftAmount.onchange = null;
-  leftAmount.onkeyup = null;
-
   leftAmount.addEventListener('input', function() {
     const cursor = this.selectionStart;
     const cleaned = this.value
@@ -1268,8 +1263,76 @@ document.addEventListener('DOMContentLoaded', msFixLeftAmountField);
 setTimeout(msFixLeftAmountField, 100);
 setTimeout(msFixLeftAmountField, 1000);
 
+
+function msRecalculatePerDayFromLeftAmount() {
+  const leftAmount = document.getElementById('leftAmount');
+  if (!leftAmount) return;
+
+  const perDayValueEl =
+    document.getElementById('perDayValue') ||
+    document.getElementById('perDayValueEl') ||
+    document.querySelector('[data-per-day-value]') ||
+    document.querySelector('.per-day .big');
+
+  const perDayMetaEl =
+    document.getElementById('perDayMeta') ||
+    document.querySelector('[data-per-day-meta]') ||
+    document.querySelector('.per-day .meta');
+
+  if (!perDayValueEl) return;
+
+  const amount = parseMoney(leftAmount.value);
+  let stillToPay = 0;
+
+  try {
+    const picker = document.getElementById('monthPicker');
+    const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+    if (table && table.rows) {
+      stillToPay = table.rows.reduce((sum, row) => sum + (isRowPaid(row) ? 0 : (row.paid || 0)), 0);
+    }
+  } catch (e) {}
+
+  const today = new Date();
+  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
+  const days = Math.max(1, Math.ceil((end - today) / 86400000));
+  const spendable = amount - stillToPay;
+  const perDay = spendable / days;
+
+  perDayValueEl.textContent = fmtMoney(perDay);
+  perDayValueEl.style.color = spendable < 0 ? '#b91c1c' : '';
+
+  if (perDayMetaEl) {
+    perDayMetaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
+  }
+
+  try {
+    const tableKey = document.getElementById('monthPicker')?.value || 'default';
+    localStorage.setItem(`ms.leftAmount.${tableKey}`, String(amount));
+  } catch (e) {}
+}
+
+function msWireLeftAmountRecalc() {
+  const leftAmount = document.getElementById('leftAmount');
+  if (!leftAmount || leftAmount.dataset.recalcWired) return;
+  leftAmount.dataset.recalcWired = '1';
+
+  leftAmount.addEventListener('input', function() {
+    msRecalculatePerDayFromLeftAmount();
+  });
+  leftAmount.addEventListener('change', function() {
+    msRecalculatePerDayFromLeftAmount();
+  });
+  leftAmount.addEventListener('keyup', function() {
+    msRecalculatePerDayFromLeftAmount();
+  });
+
+  msRecalculatePerDayFromLeftAmount();
+}
+
 start();
+setTimeout(msWireLeftAmountRecalc, 500);
 msFixLeftAmountField();
+msWireLeftAmountRecalc();
 msFixAmountInputs();
 msWireAddButton();
 document.addEventListener('DOMContentLoaded', msWireAddButton);
