@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:46:55
+Base: month-spread-leftamount-update-safe-20260512-174222.zip
+Fix: Amount Left now syncs to spreadsheet range Left!C4. PWA pulls Left!C4 on load/refresh and writes Left!C4 after edits.
+JS syntax ok: True
+

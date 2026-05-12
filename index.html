@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- left amount update safe patch build: 2026-05-12 17:42:22 -->
+<!-- Left!C4 Amount Left sync build: 2026-05-12 17:46:55 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -891,6 +891,13 @@ input[name="amount"] {
   font-variant-numeric: tabular-nums !important;
 }
 
+
+/* === Left!C4 amount sync 2026-05-12 17:46:55 === */
+#leftAmount {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
 </style>
 </head>
 <body>
@@ -1452,7 +1459,7 @@ function msSafeWireSyncControls() {
     refresh.dataset.safeRefreshWired = '1';
     refresh.onclick = function(event) {
       event.preventDefault();
-      loadSpreadsheet();
+      msRefreshLeftC4AndSheet();
     };
   }
 
@@ -1598,7 +1605,132 @@ function msWireLeftAmountUpdate() {
   msUpdateLeftAmountPerDay();
 }
 
+
+// Sync Amount Left with the spreadsheet tab/range: Left!C4
+const MS_LEFT_AMOUNT_RANGE = 'Left!C4';
+
+async function msReadLeftAmountFromSheet() {
+  const { fileId } = getConfig();
+  const token = getToken();
+  if (!token) throw new Error('Not signed in');
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(MS_LEFT_AMOUNT_RANGE)}?valueRenderOption=FORMATTED_VALUE`;
+  const res = await fetch(url, {
+    cache: 'no-store',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache'
+    }
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired — sign in again.');
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+  }
+
+  const data = await res.json();
+  return data.values && data.values[0] && data.values[0][0] != null ? String(data.values[0][0]) : '';
+}
+
+async function msWriteLeftAmountToSheet(value) {
+  const { fileId } = getConfig();
+  const token = getToken();
+  if (!token) throw new Error('Not signed in');
+
+  const amount = typeof msParseLooseMoney === 'function' ? msParseLooseMoney(value) : parseFloat(String(value || '').replace(/,/g,'').replace(/£/g,'').replace(/[^0-9.]/g,'')) || 0;
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(MS_LEFT_AMOUNT_RANGE)}?valueInputOption=USER_ENTERED`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      range: MS_LEFT_AMOUNT_RANGE,
+      majorDimension: 'ROWS',
+      values: [[amount]]
+    })
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired — sign in again.');
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+  }
+
+  return res.json();
+}
+
+async function msPullLeftAmountC4() {
+  const input = document.getElementById('leftAmount');
+  if (!input) return;
+
+  try {
+    const value = await msReadLeftAmountFromSheet();
+    if (value !== '') {
+      const cleaned = typeof msCleanLooseMoney === 'function'
+        ? msCleanLooseMoney(value)
+        : String(value).replace(/,/g,'').replace(/£/g,'').replace(/[^0-9.]/g,'');
+      input.value = cleaned;
+    }
+
+    if (typeof msUpdateLeftAmountPerDay === 'function') msUpdateLeftAmountPerDay();
+  } catch (err) {
+    console.warn('Could not read Left!C4:', err);
+  }
+}
+
+function msWireLeftAmountC4Sync() {
+  const input = document.getElementById('leftAmount');
+  if (!input || input.dataset.leftC4SyncWired) return;
+  input.dataset.leftC4SyncWired = '1';
+
+  let saveTimer = null;
+  const save = () => {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try {
+        await msWriteLeftAmountToSheet(input.value);
+        if (typeof msUpdateLeftAmountPerDay === 'function') msUpdateLeftAmountPerDay();
+      } catch (err) {
+        console.warn('Could not write Left!C4:', err);
+      }
+    }, 500);
+  };
+
+  input.addEventListener('input', save);
+  input.addEventListener('change', async () => {
+    clearTimeout(saveTimer);
+    try {
+      await msWriteLeftAmountToSheet(input.value);
+      if (typeof msUpdateLeftAmountPerDay === 'function') msUpdateLeftAmountPerDay();
+    } catch (err) {
+      alert('Could not sync Amount Left: ' + (err.message || err));
+    }
+  });
+}
+
+async function msRefreshLeftC4AndSheet() {
+  await loadSpreadsheet();
+  setTimeout(async () => {
+    msWireLeftAmountC4Sync();
+    await msPullLeftAmountC4();
+  }, 100);
+}
+
 start();
+setTimeout(() => { msWireLeftAmountC4Sync(); msPullLeftAmountC4(); }, 300);
 msWireLeftAmountUpdate();
 msSafeWireSyncControls();
 msNormaliseLeftAmountWholeNumber();
