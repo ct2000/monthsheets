@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Month Spread">
 <link rel="manifest" href="manifest.json?v=20260512-153350">
-<title>Month Spread</title>
+<title>Money</title>
 <style>
 :root{
   color-scheme:light dark;--bg:#f8fafc;--panel:#fff;--soft:#f4f6f8;--line:#edf0f4;--text:#111827;--muted:#6b7280;--green:#80e45e;--green2:#20a451;--purple:#5b46d6;--red:#d34848;--amber:#b45309;--shadow:0 12px 34px rgba(16,24,40,.07)
@@ -1530,6 +1530,55 @@ select{
   font-size:13px !important;
 }
 
+
+/* === compact equal-height search + month controls === */
+
+#searchBills,
+.search-input,
+input[type="search"],
+#monthPicker,
+.month-picker{
+  height:38px !important;
+  min-height:38px !important;
+  max-height:38px !important;
+
+  padding:0 12px !important;
+
+  font-size:13px !important;
+  line-height:38px !important;
+
+  border-radius:14px !important;
+
+  box-sizing:border-box !important;
+  appearance:none !important;
+  -webkit-appearance:none !important;
+}
+
+#searchBills,
+.search-input,
+input[type="search"]{
+  font-size:14px !important;
+}
+
+#monthPicker,
+.month-picker{
+  font-size:12px !important;
+  font-weight:700 !important;
+}
+
+
+/* === compact Money title === */
+
+h1,
+.app-title,
+.topbar-title,
+header h1{
+  font-size:22px !important;
+  line-height:1.05 !important;
+  font-weight:800 !important;
+  letter-spacing:-0.04em !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -1541,13 +1590,13 @@ select{
 <body>
 <div id="app" class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-icon"></div><div><h1 class="title">Month Spread</h1><div class="subtitle" id="subtitle">Loading…</div></div></div>
+    <div class="brand"><div class="brand-icon"></div><div><h1 class="title">Money</h1><div class="subtitle" id="subtitle">Loading…</div></div></div>
     <div class="toolbar"><select class="month-picker" id="monthPicker" aria-label="Choose month"></select><button class="icon-btn" id="themeBtn" title="Theme">☾</button><button class="icon-btn" id="settingsBtn" title="Settings">⚙</button></div>
   </header>
   <div class="search-row"><label class="search">⌕<input id="searchBills" placeholder="Search bills…"></label><button class="filter-btn" id="refreshBtn">↻</button></div>
   <main id="content"><div class="spinner">Fetching your spreadsheet…</div></main>
 </div>
-<div id="signin" class="signin"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
+<div id="signin" class="signin"><div class="signin-card"><h1>Money</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
 <div class="bottom-bar" id="bottomBar"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
 <div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" placeholder="0.00" inputmode="decimal" autocomplete="off"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
