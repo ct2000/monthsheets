@@ -905,78 +905,82 @@ input[name="amount"] {
 }
 
 
-/* === white segmented tabs === */
+
+/* === clean iOS style tabs === */
 .tabs{
   display:flex;
-  gap:8px;
+  gap:10px;
   padding:6px;
+  margin:6px 0 14px;
   background:#ffffff !important;
-  border-radius:18px;
+  border-radius:20px;
   border:1px solid rgba(0,0,0,.06);
   box-shadow:
     0 1px 2px rgba(0,0,0,.04),
-    inset 0 1px 0 rgba(255,255,255,.8);
+    inset 0 1px 0 rgba(255,255,255,.85);
 }
 
 .tabs .tab{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-height:42px;
+  padding:0 14px;
+  border:0;
+  border-radius:16px;
   background:#ffffff !important;
   color:#111827 !important;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:-0.01em;
+  -webkit-appearance:none;
+  appearance:none;
+  transition:all .18s ease;
 }
 
-.tabs .tab.active[data-sort="unpaid"]{
-  background:#ef4444 !important;
-  color:#fff !important;
+.tabs .tab:hover{
+  background:#f8fafc !important;
 }
 
-.tabs .tab.active[data-sort="paid"]{
-  background:#22c55e !important;
-  color:#fff !important;
-}
-
-.tabs .badge{
-  background:rgba(255,255,255,.22) !important;
-  color:inherit !important;
-}
-
-
-/* === full white segmented tabs === */
-.tabs{
-  background:#ffffff !important;
-}
-
-.tabs .tab{
-  background:#ffffff !important;
+.tabs .tab.active{
+  background:#f3f4f6 !important;
+  color:#111827 !important;
+  box-shadow:
+    0 1px 2px rgba(0,0,0,.05),
+    inset 0 1px 0 rgba(255,255,255,.9);
 }
 
 .tabs .badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  height:22px;
+  padding:0 7px;
+  border-radius:999px;
   background:#ffffff !important;
-  color:inherit !important;
-  border:1px solid rgba(0,0,0,.06);
-}
-
-.tabs .tab.active[data-sort="unpaid"]{
-  background:#ef4444 !important;
-  color:#fff !important;
-}
-
-.tabs .tab.active[data-sort="paid"]{
-  background:#22c55e !important;
-  color:#fff !important;
+  color:#111827 !important;
+  border:1px solid rgba(0,0,0,.08);
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
 }
 
 </style>
 </head>
 <body>
-<div id="app" class="app" style="display:none">
+<div id="app" class="app">
   <header class="topbar">
     <div class="brand"><div class="brand-icon">£</div><div><h1 class="title">Month Spread</h1><div class="subtitle" id="subtitle">Loading…</div></div></div>
-    <div class="toolbar"><select class="month-picker" id="monthPicker" aria-label="Choose month" style="display:none"></select><button class="icon-btn" id="themeBtn" title="Theme">☾</button><button class="icon-btn" id="settingsBtn" title="Settings">⚙</button></div>
+    <div class="toolbar"><select class="month-picker" id="monthPicker" aria-label="Choose month"></select><button class="icon-btn" id="themeBtn" title="Theme">☾</button><button class="icon-btn" id="settingsBtn" title="Settings">⚙</button></div>
   </header>
   <div class="search-row"><label class="search">⌕<input id="searchBills" placeholder="Search bills…"></label><button class="filter-btn" id="refreshBtn">↻</button></div>
   <main id="content"><div class="spinner">Fetching your spreadsheet…</div></main>
 </div>
-<div id="signin" class="signin" style="display:none"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
-<div class="bottom-bar" id="bottomBar" style="display:none"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
+<div id="signin" class="signin"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
+<div class="bottom-bar" id="bottomBar"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
 <div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" placeholder="0.00" inputmode="decimal" autocomplete="off"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1042,7 +1046,7 @@ function showSignInError(msg){showSignIn();document.querySelector('#signin p').t
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
-function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value" style="color:${spendable<0?'var(--red)':'var(--text)'}">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" data-money="decimal" type="text" inputmode="decimal" autocomplete="off"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
+function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" data-money="decimal" type="text" inputmode="decimal" autocomplete="off"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
       <button type="button" class="sort-pill unpaid-sort" data-sort="unpaid">Unpaid</button>
       <button type="button" class="sort-pill paid-sort" data-sort="paid">Paid</button>
       <button type="button" class="sort-pill date-sort" data-sort="dateAsc">Due ↑</button>
@@ -2152,7 +2156,7 @@ wireBottomBarActions();
     <input id="msNewItemAmount" placeholder="0.00" type="text" inputmode="decimal" autocomplete="off">
     <div class="actions">
       <button class="btn-secondary" id="msAddItemCancel" type="button">Cancel</button>
-      <button class="btn-primary" style="width:auto" id="msAddItemSave" type="button">Add</button>
+      <button class="btn-primary" id="msAddItemSave" type="button">Add</button>
     </div>
   </div>
 </div>
