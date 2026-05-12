@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:43:51
+Base: money-safe-spend-hard-sync-20260512-203839.zip
+Fix: Safe to spend today and days-left text now mirror the existing correct Money Left per day value/meta text instead of recalculating days independently.
+JS syntax ok: True
+

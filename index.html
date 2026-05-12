@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- HARD safe spend equals Money Left per day build: 2026-05-12 20:38:39 -->
+<!-- Hero safe spend + days mirrors Money Left per day build: 2026-05-12 20:43:51 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -4186,7 +4186,7 @@ function moneyBuildDashboardHTML() {
       <div class="money-hero-top">
         <div class="money-hero-kicker">Safe to spend today</div>
         <div class="money-hero-amount">${moneySafeSpendCurrentValue ? (moneySafeSpendCurrentValue() || moneyGetDisplayedPerDayValue() || moneyFmt(m.safeToSpend)) : (moneyGetDisplayedPerDayValue() || moneyFmt(m.safeToSpend))}</div>
-        <div class="money-hero-sub">${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left · ${moneyFmt(m.unpaidTotal)} still to pay</div>
+        <div class="money-hero-sub">${moneyReadCorrectDaysText ? (moneyReadCorrectDaysText() || `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`) : `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`} · ${moneyFmt(m.unpaidTotal)} still to pay</div>
       </div>
       <div class="money-hero-row">
         <div class="money-hero-stat"><strong>${m.unpaid.length}</strong><span>Unpaid</span></div>
@@ -4653,7 +4653,145 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Final fix: dashboard hero must mirror the existing correct Money Left per day UI,
+// including the already-correct days-left text.
+function moneyFindPerDayValueEl() {
+  return (
+    document.getElementById('perDayValue') ||
+    document.getElementById('perDayValueEl') ||
+    document.querySelector('[data-per-day-value]') ||
+    document.querySelector('.per-day .big')
+  );
+}
+
+function moneyFindPerDayMetaEl() {
+  return (
+    document.getElementById('perDayMeta') ||
+    document.querySelector('[data-per-day-meta]') ||
+    document.querySelector('.per-day .meta')
+  );
+}
+
+function moneyReadCorrectPerDayText() {
+  const el = moneyFindPerDayValueEl();
+  return el ? String(el.textContent || '').trim() : '';
+}
+
+function moneyReadCorrectDaysText() {
+  const el = moneyFindPerDayMetaEl();
+  const text = el ? String(el.textContent || '').trim() : '';
+  return text || '';
+}
+
+function moneyApplyCorrectHeroValues() {
+  const perDayText = moneyReadCorrectPerDayText();
+  const daysText = moneyReadCorrectDaysText();
+
+  if (perDayText) {
+    document.querySelectorAll('.money-hero-amount').forEach(el => {
+      el.textContent = perDayText;
+    });
+
+    document.querySelectorAll('.money-insight').forEach(insight => {
+      const text = String(insight.textContent || '').toLowerCase();
+      if (text.includes('safe to spend') || text.includes('short by')) {
+        const target = insight.querySelector('span:not(.money-insight-icon)') || insight;
+        target.textContent = `Safe to spend: ${perDayText} per day.`;
+      }
+    });
+  }
+
+  if (daysText) {
+    document.querySelectorAll('.money-hero-sub').forEach(el => {
+      const stillToPayMatch = String(el.textContent || '').match(/·\s*(.*still to pay)/i);
+      const stillToPay = stillToPayMatch ? stillToPayMatch[1] : '';
+      el.textContent = stillToPay ? `${daysText} · ${stillToPay}` : daysText;
+    });
+  }
+}
+
+function moneyPatchDashboardForCorrectDays() {
+  if (window.__moneyDashboardCorrectDaysPatched) return;
+  if (typeof moneyBuildDashboardHTML !== 'function') return;
+
+  window.__moneyDashboardCorrectDaysPatched = true;
+  const original = moneyBuildDashboardHTML;
+
+  moneyBuildDashboardHTML = function(...args) {
+    let out = String(original.apply(this, args));
+    const perDayText = moneyReadCorrectPerDayText();
+    const daysText = moneyReadCorrectDaysText();
+
+    if (perDayText) {
+      out = out.replace(
+        /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
+        `$1${perDayText}$3`
+      );
+      out = out.replace(
+        /(Safe to spend: )[^<]+?( per day\.)/,
+        `$1${perDayText}$2`
+      );
+      out = out.replace(
+        /(You are short by )[^<]+?( per day\.)/,
+        `Safe to spend: ${perDayText} per day.`
+      );
+    }
+
+    if (daysText) {
+      out = out.replace(
+        /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? still to pay<\/div>)/,
+        `$1${daysText}$3`
+      );
+      out = out.replace(
+        /(<div class="money-hero-sub">)(\d+\s+days?\s+left)([\s\S]*?<\/div>)/,
+        `$1${daysText}$3`
+      );
+    }
+
+    return out;
+  };
+}
+
+function moneyWireCorrectPerDayHeroSync() {
+  moneyPatchDashboardForCorrectDays();
+  moneyApplyCorrectHeroValues();
+
+  [moneyFindPerDayValueEl(), moneyFindPerDayMetaEl()].forEach(el => {
+    if (!el || el.dataset.heroMirrorObserver) return;
+    el.dataset.heroMirrorObserver = '1';
+    new MutationObserver(() => {
+      setTimeout(moneyApplyCorrectHeroValues, 0);
+      setTimeout(() => {
+        if (typeof moneyInsertDashboard === 'function') moneyInsertDashboard();
+        moneyApplyCorrectHeroValues();
+      }, 120);
+    }).observe(el, { childList: true, characterData: true, subtree: true });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(moneyWireCorrectPerDayHeroSync, 400);
+  setTimeout(moneyWireCorrectPerDayHeroSync, 1000);
+  setTimeout(moneyWireCorrectPerDayHeroSync, 1800);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyWireCorrectPerDayHeroSync, 50);
+    setTimeout(moneyWireCorrectPerDayHeroSync, 300);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill')) {
+    setTimeout(moneyWireCorrectPerDayHeroSync, 250);
+    setTimeout(moneyWireCorrectPerDayHeroSync, 800);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireCorrectPerDayHeroSync, 800);
 setTimeout(moneySafeSpendWireHardSync, 700);
 setTimeout(moneyWireSafeSpendMatch, 700);
 setTimeout(moneyApplyBillLogos, 500);

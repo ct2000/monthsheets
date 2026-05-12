@@ -2,7 +2,7 @@
   "name": "Money",
   "short_name": "Money",
   "description": "Monthly bills and spending planner with Google Sheets sync.",
-  "start_url": "./index.html?v=20260512-203839",
+  "start_url": "./index.html?v=20260512-204351",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
