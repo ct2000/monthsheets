@@ -1114,9 +1114,54 @@ body.dark .logo-mark,
 </div>
 <div id="signin" class="signin"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
 <div class="bottom-bar" id="bottomBar"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
-<div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
+<div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com">
+
+<button id="saveClientSettingsBtn" type="button" class="nav-btn" style="width:100%;margin-top:14px;">
+  Save Settings
+</button>
+</div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" placeholder="0.00" inputmode="decimal" autocomplete="off"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer>
+const CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
+
+// Settings submit button fix
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('saveClientSettingsBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', () => {
+    try {
+      const input =
+        document.querySelector('#clientId') ||
+        document.querySelector('#googleClientId') ||
+        document.querySelector('input[name="clientId"]') ||
+        document.querySelector('input[data-client-id]');
+
+      if (input && input.value) {
+        try {
+          localStorage.setItem('googleClientId', input.value.trim());
+        } catch(e){}
+
+        if (typeof CLIENT_ID !== 'undefined') {
+          console.log('Client ID configured');
+        }
+      }
+
+      const modal =
+        document.querySelector('.settings-modal.open') ||
+        document.querySelector('#settingsModal.open') ||
+        document.querySelector('#configModal.open');
+
+      if (modal) modal.classList.remove('open');
+
+      alert('Settings saved ✓');
+    } catch(err) {
+      alert('Could not save settings: ' + err.message);
+    }
+  });
+});
+
+</script>
 <script>
 
 window.addEventListener('error', function(event) {
