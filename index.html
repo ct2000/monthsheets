@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- amount input fix build: 2026-05-12 16:43:22 -->
+<!-- amount input fix v2 build: 2026-05-12 16:47:46 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -794,6 +794,28 @@ body.dark .sort-pill-row .sort-pill.paid-sort.active,
   color: #ffffff !important;
 }
 
+
+/* === add button fix 2026-05-12 16:45:37 === */
+#msAddItemModal.config-modal.open {
+  display: flex !important;
+}
+
+#msAddItemModal .config-box {
+  position: relative !important;
+}
+
+
+/* === amount input fix v2 2026-05-12 16:47:46 === */
+#leftAmount,
+#msNewItemAmount,
+#newAmount,
+#newBillAmount,
+input[name="amount"] {
+  min-width: 0 !important;
+  width: 100% !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
 </style>
 </head>
 <body>
@@ -808,7 +830,7 @@ body.dark .sort-pill-row .sort-pill.paid-sort.active,
 <div id="signin" class="signin" style="display:none"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
 <div class="bottom-bar" id="bottomBar" style="display:none"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
 <div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
-<div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" inputmode="decimal" placeholder="0.00"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
+<div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" placeholder="0.00" inputmode="decimal" autocomplete="off"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 
@@ -872,7 +894,7 @@ function showSignInError(msg){showSignIn();document.querySelector('#signin p').t
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
-function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge" style="background:#e5e7eb;color:#111827">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value" style="color:${spendable<0?'var(--red)':'var(--text)'}">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" type="number" step="0.01" inputmode="decimal" value="${Number(stored.amount||0).toFixed(2)}"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
+function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge" style="background:#e5e7eb;color:#111827">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value" style="color:${spendable<0?'var(--red)':'var(--text)'}">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" type="text" step="0.01" value="${Number(stored.amount||0).toFixed(2)}" inputmode="decimal" autocomplete="off"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
       <button type="button" class="sort-pill unpaid-sort" data-sort="unpaid">Unpaid</button>
       <button type="button" class="sort-pill paid-sort" data-sort="paid">Paid</button>
       <button type="button" class="sort-pill date-sort" data-sort="dateAsc">Due ↑</button>
@@ -909,11 +931,7 @@ function wireBottomBarActions() {
   const reload = document.getElementById('reloadBarBtn');
     if (add && !add.dataset.wired) {
     add.dataset.wired = '1';
-    add.onclick = () => {
-      if (typeof openAddBill === 'function') openAddBill();
-      else if (typeof openAdd === 'function') openAdd();
-      else if (document.getElementById('addModal')) document.getElementById('addModal').classList.add('open');
-    };
+    add.onclick = (event) => { event.preventDefault(); msOpenAddItemModal(); };
   }
   if (reload && !reload.dataset.wired) {
     reload.dataset.wired = '1';
@@ -1004,12 +1022,7 @@ function wireCleanBottomBar() {
   const refreshBtn = document.getElementById('reloadBarBtn');
   if (addBtn && !addBtn.dataset.wired) {
     addBtn.dataset.wired = '1';
-    addBtn.onclick = () => {
-      if (typeof openAddBill === 'function') openAddBill();
-      else if (typeof openAdd === 'function') openAdd();
-      else if (document.getElementById('addBillModal')) document.getElementById('addBillModal').classList.add('open');
-      else if (document.getElementById('addModal')) document.getElementById('addModal').classList.add('open');
-    };
+    addBtn.onclick = (event) => { event.preventDefault(); msOpenAddItemModal(); };
   }
   if (refreshBtn && !refreshBtn.dataset.wired) {
     refreshBtn.dataset.wired = '1';
@@ -1037,7 +1050,161 @@ document.addEventListener('click', function(event) {
   }
 });
 
+
+function msOpenAddItemModal() {
+  const existingFns = ['openAddBill', 'openAdd'];
+  for (const fn of existingFns) {
+    if (typeof window[fn] === 'function') {
+      try { window[fn](); return; } catch(e) {}
+    }
+  }
+  const modal = document.getElementById('msAddItemModal');
+  if (!modal) return;
+  const name = document.getElementById('msNewItemName');
+  const date = document.getElementById('msNewItemDate');
+  const amount = document.getElementById('msNewItemAmount');
+  if (name) name.value = '';
+  if (date) date.value = '';
+  if (amount) amount.value = '';
+  modal.classList.add('open');
+}
+
+function msCloseAddItemModal() {
+  const modal = document.getElementById('msAddItemModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function msColumnLetter(n) {
+  let s = '';
+  n++;
+  while (n > 0) {
+    const m = (n - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    n = Math.floor((n - m) / 26);
+  }
+  return s;
+}
+
+async function msPutValues(range, values) {
+  if (typeof updateValues === 'function') {
+    return updateValues(range, values);
+  }
+  const { fileId } = getConfig();
+  const token = getToken();
+  if (!token) throw new Error('Not signed in');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ range, majorDimension: 'ROWS', values })
+  });
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired — sign in again.');
+  }
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+  }
+  return res.json();
+}
+
+async function msSaveNewItem() {
+  const table = CACHED_TABLES[document.getElementById('monthPicker')?.value || 0] || CACHED_TABLES[0];
+  if (!table) {
+    alert('No month table loaded yet. Tap Refresh and try again.');
+    return;
+  }
+
+  const name = document.getElementById('msNewItemName')?.value.trim();
+  const dueDate = document.getElementById('msNewItemDate')?.value.trim();
+  const amount = parseMoney(document.getElementById('msNewItemAmount')?.value || '0');
+
+  if (!name) {
+    alert('Please enter an item name.');
+    return;
+  }
+  if (!amount || amount <= 0) {
+    alert('Please enter an amount.');
+    return;
+  }
+
+  const saveBtn = document.getElementById('msAddItemSave');
+  try {
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Adding…';
+    }
+    const nextRow = Math.max(...table.rows.map(r => r.sheetRow || 0)) + 1;
+    const labelCol = table.labelCol ?? table.rows[0]?.labelCol ?? 0;
+    const paidCol = table.paidCol ?? table.rows[0]?.paidCol ?? 3;
+    const range = `${msColumnLetter(labelCol)}${nextRow}:${msColumnLetter(paidCol)}${nextRow}`;
+    await msPutValues(range, [[name, dueDate, amount, amount]]);
+    msCloseAddItemModal();
+    await loadSpreadsheet();
+  } catch (err) {
+    alert('Could not add item: ' + (err.message || err));
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Add';
+    }
+  }
+}
+
+function msWireAddButton() {
+  const addBtn = document.getElementById('addItemBarBtn') || document.getElementById('addBtn') || document.getElementById('addItemBtn');
+  if (addBtn) {
+    addBtn.onclick = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      msOpenAddItemModal();
+    };
+  }
+
+  const cancel = document.getElementById('msAddItemCancel');
+  if (cancel) cancel.onclick = msCloseAddItemModal;
+
+  const save = document.getElementById('msAddItemSave');
+  if (save) save.onclick = msSaveNewItem;
+
+  const modal = document.getElementById('msAddItemModal');
+  if (modal && !modal.dataset.backdropWired) {
+    modal.dataset.backdropWired = '1';
+    modal.addEventListener('click', function(event) {
+      if (event.target === modal) msCloseAddItemModal();
+    });
+  }
+}
+
+
+function msFixAmountInputs() {
+  document.querySelectorAll('#leftAmount, #msNewItemAmount, #newAmount, #newBillAmount, input[name="amount"], input[data-money]').forEach(function(el) {
+    el.removeAttribute('max');
+    el.removeAttribute('maxlength');
+    el.removeAttribute('pattern');
+    el.setAttribute('inputmode', 'decimal');
+    el.setAttribute('autocomplete', 'off');
+    if (el.id === 'leftAmount') {
+      el.setAttribute('type', 'text');
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', msFixAmountInputs);
+document.addEventListener('focusin', function(event) {
+  if (event.target && event.target.matches('#leftAmount, #msNewItemAmount, #newAmount, #newBillAmount, input[name="amount"], input[data-money]')) {
+    msFixAmountInputs();
+  }
+});
+
 start();
+msFixAmountInputs();
+msWireAddButton();
+document.addEventListener('DOMContentLoaded', msWireAddButton);
 
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('input[name="amount"], input#amount').forEach(function(el) {
@@ -1095,6 +1262,23 @@ wireBottomBarActions();
     <strong>↻</strong><span>Refresh</span>
   </button>
 </nav>
+
+
+<div class="config-modal" id="msAddItemModal">
+  <div class="config-box">
+    <h3>Add item</h3>
+    <label for="msNewItemName">Item name</label>
+    <input id="msNewItemName" placeholder="e.g. Car insurance">
+    <label for="msNewItemDate">Date due</label>
+    <input id="msNewItemDate" placeholder="e.g. 14" inputmode="numeric">
+    <label for="msNewItemAmount">Amount</label>
+    <input id="msNewItemAmount" placeholder="0.00" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off">
+    <div class="actions">
+      <button class="btn-secondary" id="msAddItemCancel" type="button">Cancel</button>
+      <button class="btn-primary" style="width:auto" id="msAddItemSave" type="button">Add</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
