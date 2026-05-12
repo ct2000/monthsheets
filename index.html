@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- CLEAN final leftAmount typing fix build: 2026-05-12 17:22:49 -->
+<!-- Google Sheets sync fix build: 2026-05-12 17:32:13 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -875,12 +875,16 @@ input[name="amount"] {
 }
 
 
-/* === final clean leftAmount field 2026-05-12 17:22:49 === */
-#leftAmount {
+/* === sync fix 2026-05-12 17:32:13 === */
+.status-pill.paid-toggle {
+  border: 0 !important;
+  cursor: pointer !important;
   -webkit-appearance: none !important;
   appearance: none !important;
-  font-variant-numeric: tabular-nums !important;
-  width: 100% !important;
+}
+.status-pill.paid-toggle:disabled {
+  opacity: .65 !important;
+  cursor: wait !important;
 }
 
 </style>
@@ -934,18 +938,8 @@ function colLetter(n){let s='';n++;while(n>0){let m=(n-1)%26;s=String.fromCharCo
 function initTokenClient(){const {clientId}=getConfig();if(!clientId||!window.google?.accounts?.oauth2)return null;TOKEN_CLIENT=google.accounts.oauth2.initTokenClient({client_id:clientId,scope:SCOPE,callback:r=>{if(r?.access_token){setToken(r.access_token,r.expires_in);showApp();loadSpreadsheet()}else showSignInError(r?.error_description||r?.error||'Google sign-in failed')}});return TOKEN_CLIENT}
 function requestSignIn(silent=false){const c=TOKEN_CLIENT||initTokenClient();if(!c){showSignInError('Set your Google OAuth Client ID in Settings first.');return}c.requestAccessToken(silent?{prompt:''}:{prompt:'consent'})}
 async function sheetsRequest(url,opts={}){const token=getToken();if(!token)throw new Error('Not signed in');const res=await fetch(url,{...opts,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json',...(opts.headers||{})}});if(res.status===401){clearToken();throw new Error('Session expired — sign in again.')}if(!res.ok)throw new Error(`Sheets API ${res.status}: ${(await res.text()).slice(0,220)}`);return res.status===204?{}:res.json()}
-async function fetchSheet(){const {fileId}=getConfig();const range=encodeURIComponent('A1:ZZ2000');const url=`https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${range}?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING`;return (await sheetsRequest(url)).values||[]}
-async function updateValues(range,values){const {fileId}=getConfig();const url=`https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;return sheetsRequest(url,{method:'PUT',body:JSON.stringify({range,majorDimension:'ROWS',values})})}
-function parseTablesFromGrid(grid){const tables=[];for(let r=0;r<grid.length;r++){const row=grid[r]||[];for(let c=0;c<=row.length-3;c++){if(normalize(row[c])==='date due'&&normalize(row[c+1])==='due'&&normalize(row[c+2])==='paid'){const labelCol=c-1;if(labelCol<0)continue;const label=String(row[labelCol]||'').trim();if(!label||normalize(label)==='date due')continue;const rows=[];let blanks=0;for(let dr=r+1;dr<grid.length;dr++){const drow=grid[dr]||[];const name=String(drow[labelCol]||'').trim();if(!name){blanks++;if(blanks>=2)break;continue}blanks=0;rows.push({name,dueDate:String(drow[c]??'').trim(),due:parseMoney(drow[c+1]),paid:parseMoney(drow[c+2]),sheetRow:dr+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2})}if(rows.length)tables.push({label,headerRow:r+1,labelCol,dateCol:c,dueCol:c+1,paidCol:c+2,rows})}}}return tables}
-function isRowPaid(r){return r.due<=0||r.paid===0}function outstandingAmount(r){return r.due<=0?0:r.paid}function effectivePaidAmount(r){return r.due<=0?0:(r.paid===0?r.due:0)}function defaultEndDate(){const n=new Date();const last=new Date(n.getFullYear(),n.getMonth()+1,0);return `${last.getFullYear()}-${String(last.getMonth()+1).padStart(2,'0')}-${String(last.getDate()).padStart(2,'0')}`}function todayISO(){const n=new Date();return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`}function daysBetween(a,b){return Math.max(1,Math.floor((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000)-1)}
-function pickBestTable(tables){const now=new Date(),full=MONTH_NAMES[now.getMonth()].toLowerCase(),short=MONTH_SHORT[now.getMonth()].toLowerCase();const found=tables.findIndex(t=>normalize(t.label).includes(full)||normalize(t.label).includes(short));return found>=0?found:0}
-function showApp(){
-  const signInEl = document.getElementById('signin');
-  const appEl = document.getElementById('app');
-  const navEl = document.getElementById('bottomNav');
-  if (signInEl) signInEl.style.display='none';
-  if (appEl) appEl.style.display='';
-  if (navEl) navEl.style.display='grid';
+async function fetchSheet() {
+  return msReadSheetFresh();
 }
 function showSignIn(){
   const appEl = document.getElementById('app');
@@ -961,7 +955,7 @@ function showSignInError(msg){showSignIn();document.querySelector('#signin p').t
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
-function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge" style="background:#e5e7eb;color:#111827">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value" style="color:${spendable<0?'var(--red)':'var(--text)'}">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" value="${Number(stored.amount||0).toFixed(2)}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" data-leftamount="1"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
+function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge" style="background:#e5e7eb;color:#111827">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value" style="color:${spendable<0?'var(--red)':'var(--text)'}">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" type="text" inputmode="decimal" autocomplete="off" data-money="decimal"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
       <button type="button" class="sort-pill unpaid-sort" data-sort="unpaid">Unpaid</button>
       <button type="button" class="sort-pill paid-sort" data-sort="paid">Paid</button>
       <button type="button" class="sort-pill date-sort" data-sort="dateAsc">Due ↑</button>
@@ -1262,162 +1256,385 @@ function msFixAmountInputs() {
 }
 
 document.addEventListener('DOMContentLoaded', msFixAmountInputs);
-document.addEventListener('DOMContentLoaded', msFixLeftAmountField);
-
-
-
-
-
-
-
-
-// Final clean Amount Left money input.
-// Allows values such as 1092, 1092.33, 1,092.33 and recalculates money left per day.
-function msParseMoneyLoose(value) {
-  const cleaned = String(value || '')
-    .replace(/,/g, '')
-    .replace(/£/g, '')
-    .replace(/[^\d.]/g, '');
-
-  const firstDot = cleaned.indexOf('.');
-  const normalised = firstDot === -1
-    ? cleaned
-    : cleaned.slice(0, firstDot + 1) + cleaned.slice(firstDot + 1).replace(/\./g, '');
-
-  const n = parseFloat(normalised);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function msCleanMoneyLoose(value) {
-  const raw = String(value || '')
-    .replace(/,/g, '')
-    .replace(/£/g, '')
-    .replace(/[^\d.]/g, '');
-
-  const firstDot = raw.indexOf('.');
-  if (firstDot === -1) return raw;
-  return raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '');
-}
-
-function msCalculateStillToPay() {
-  try {
-    const picker = document.getElementById('monthPicker');
-    const tableIndex = picker && picker.value !== '' ? picker.value : 0;
-    const table = CACHED_TABLES[tableIndex] || CACHED_TABLES[0];
-    if (!table || !table.rows) return 0;
-    return table.rows.reduce((sum, row) => sum + (isRowPaid(row) ? 0 : (row.paid || 0)), 0);
-  } catch (e) {
-    return 0;
+document.addEventListener('focusin', function(event) {
+  if (event.target && event.target.matches('#leftAmount, #msNewItemAmount, #newAmount, #newBillAmount, input[name="amount"], input[data-money]')) {
+    msFixAmountInputs();
   }
+});
+
+
+function msFixLeftAmountField() {
+  const leftAmount = document.getElementById('leftAmount');
+  if (!leftAmount) return;
+
+  leftAmount.removeAttribute('max');
+  leftAmount.removeAttribute('maxlength');
+  leftAmount.removeAttribute('pattern');
+  leftAmount.removeAttribute('min');
+  leftAmount.removeAttribute('step');
+
+  leftAmount.type = 'text';
+  leftAmount.inputMode = 'decimal';
+  leftAmount.autocomplete = 'off';
+
+  leftAmount.addEventListener('input', function() {
+    const cursor = this.selectionStart;
+    const cleaned = this.value
+      .replace(/,/g,'')
+      .replace(/£/g,'')
+      .replace(/[^0-9.]/g,'');
+    this.value = cleaned;
+    try { this.setSelectionRange(cursor, cursor); } catch(e) {}
+  });
 }
 
-function msDaysLeftThisMonth() {
-  const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-  return Math.max(1, Math.ceil((end - now) / 86400000));
-}
+document.addEventListener('DOMContentLoaded', msFixLeftAmountField);
+setTimeout(msFixLeftAmountField, 100);
+setTimeout(msFixLeftAmountField, 1000);
 
-function msRecalcLeftAmountPerDay() {
-  const input = document.getElementById('leftAmount');
-  if (!input) return;
 
-  const amount = msParseMoneyLoose(input.value);
-  const stillToPay = msCalculateStillToPay();
-  const days = msDaysLeftThisMonth();
-  const spendable = amount - stillToPay;
-  const perDay = spendable / days;
+function msRecalculatePerDayFromLeftAmount() {
+  const leftAmount = document.getElementById('leftAmount');
+  if (!leftAmount) return;
 
-  const valueEl =
+  const perDayValueEl =
     document.getElementById('perDayValue') ||
     document.getElementById('perDayValueEl') ||
     document.querySelector('[data-per-day-value]') ||
     document.querySelector('.per-day .big');
 
-  const metaEl =
+  const perDayMetaEl =
     document.getElementById('perDayMeta') ||
     document.querySelector('[data-per-day-meta]') ||
     document.querySelector('.per-day .meta');
 
-  if (valueEl) {
-    valueEl.textContent = fmtMoney(perDay);
-    valueEl.style.color = spendable < 0 ? '#b91c1c' : '';
+  if (!perDayValueEl) return;
+
+  const amount = parseFloat(
+    String(leftAmount.value || '')
+      .replace(/,/g,'')
+      .replace(/£/g,'')
+      .replace(/[^0-9.]/g,'')
+  ) || 0;
+  let stillToPay = 0;
+
+  try {
+    const picker = document.getElementById('monthPicker');
+    const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+    if (table && table.rows) {
+      stillToPay = table.rows.reduce((sum, row) => sum + (isRowPaid(row) ? 0 : (row.paid || 0)), 0);
+    }
+  } catch (e) {}
+
+  const today = new Date();
+  const end = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59);
+  const days = Math.max(1, Math.ceil((end - today) / 86400000));
+  const spendable = amount - stillToPay;
+  const perDay = spendable / days;
+
+  perDayValueEl.textContent = fmtMoney(perDay);
+  perDayValueEl.style.color = spendable < 0 ? '#b91c1c' : '';
+
+  if (perDayMetaEl) {
+    perDayMetaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
   }
 
-  if (metaEl) {
-    metaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
-  }
+  try {
+    const tableKey = document.getElementById('monthPicker')?.value || 'default';
+    localStorage.setItem(`ms.leftAmount.${tableKey}`, String(amount));
+  } catch (e) {}
 }
 
-function msWireLeftAmountClean() {
-  const input = document.getElementById('leftAmount');
-  if (!input) return;
+function msWireLeftAmountRecalc() {
+  const leftAmount = document.getElementById('leftAmount');
+  if (!leftAmount || leftAmount.dataset.recalcWired) return;
+  leftAmount.dataset.recalcWired = '1';
 
-  input.removeAttribute('max');
-  input.removeAttribute('maxlength');
-  input.removeAttribute('min');
-  input.removeAttribute('step');
-  input.removeAttribute('pattern');
-  input.type = 'text';
-  input.inputMode = 'decimal';
-  input.autocomplete = 'off';
-
-  if (input.dataset.leftAmountCleanWired) {
-    msRecalcLeftAmountPerDay();
-    return;
-  }
-  input.dataset.leftAmountCleanWired = '1';
-
-  input.addEventListener('beforeinput', function(event) {
-    // Allow editing/navigation/paste; block only clearly invalid typed characters.
-    if (event.inputType && !event.inputType.startsWith('insert')) return;
-    if (event.data == null) return;
-    if (!/^[0-9.]$/.test(event.data)) {
-      event.preventDefault();
-    }
+  leftAmount.addEventListener('input', function() {
+    msRecalculatePerDayFromLeftAmount();
+  });
+  leftAmount.addEventListener('change', function() {
+    msRecalculatePerDayFromLeftAmount();
+  });
+  leftAmount.addEventListener('keyup', function() {
+    msRecalculatePerDayFromLeftAmount();
   });
 
-  input.addEventListener('input', function() {
-    // Do NOT rewrite valid input, so the cursor never jumps.
+  msRecalculatePerDayFromLeftAmount();
+}
+
+
+
+
+
+
+function msNormaliseLeftAmountWholeNumber() {
+  const el = document.getElementById('leftAmount');
+  if (!el) return;
+
+  el.removeAttribute('max');
+  el.removeAttribute('maxlength');
+  el.removeAttribute('min');
+  el.removeAttribute('step');
+  el.removeAttribute('pattern');
+
+  el.type = 'text';
+  el.inputMode = 'decimal';
+  el.autocomplete = 'off';
+
+  const clean = (value) => {
+    let raw = String(value || '')
+      .replace(/,/g, '')
+      .replace(/£/g, '')
+      .replace(/[^0-9.]/g, '');
+
+    const firstDot = raw.indexOf('.');
+    if (firstDot !== -1) {
+      raw = raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '');
+    }
+
+    return raw;
+  };
+
+  const current = clean(el.value);
+  el.value = current;
+
+  if (el.dataset.decimalMoneyWired) return;
+  el.dataset.decimalMoneyWired = '1';
+
+  el.addEventListener('input', function() {
+    const cursor = this.selectionStart || 0;
     const before = this.value;
-    const cleaned = msCleanMoneyLoose(before);
+    const cleaned = clean(before);
 
     if (before !== cleaned) {
-      const cursor = this.selectionStart || before.length;
-      const beforeCursor = before.slice(0, cursor);
-      const cleanedBeforeCursor = msCleanMoneyLoose(beforeCursor);
-
+      const removedBeforeCursor = before.slice(0, cursor).length - clean(before.slice(0, cursor)).length;
       this.value = cleaned;
 
       try {
-        const pos = cleanedBeforeCursor.length;
+        const pos = Math.max(0, cursor - removedBeforeCursor);
         this.setSelectionRange(pos, pos);
       } catch (e) {}
     }
 
-    msRecalcLeftAmountPerDay();
+    if (typeof msRecalculatePerDayFromLeftAmount === 'function') {
+      msRecalculatePerDayFromLeftAmount();
+    }
   });
 
-  input.addEventListener('change', msRecalcLeftAmountPerDay);
-  input.addEventListener('blur', msRecalcLeftAmountPerDay);
-
-  msRecalcLeftAmountPerDay();
+  el.addEventListener('change', function() {
+    if (typeof msRecalculatePerDayFromLeftAmount === 'function') {
+      msRecalculatePerDayFromLeftAmount();
+    }
+  });
 }
 
+
+
+
+// Robust Google Sheets sync layer.
+// Reads always bypass cache. Writes update the Sheet and then refresh the PWA.
+function msGetSelectedTable() {
+  const picker = document.getElementById('monthPicker');
+  const tableIndex = picker && picker.value !== '' ? picker.value : 0;
+  return CACHED_TABLES[tableIndex] || CACHED_TABLES[0];
+}
+
+function msCol(n) {
+  let s = '';
+  n++;
+  while (n > 0) {
+    const m = (n - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    n = Math.floor((n - m) / 26);
+  }
+  return s;
+}
+
+async function msSheetsFetch(url, opts = {}) {
+  const token = getToken();
+  if (!token) throw new Error('Not signed in');
+
+  const res = await fetch(url, {
+    cache: 'no-store',
+    ...opts,
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      ...(opts.headers || {})
+    }
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired — sign in again.');
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 300)}`);
+  }
+
+  return res.status === 204 ? {} : res.json();
+}
+
+async function msReadSheetFresh() {
+  const { fileId } = getConfig();
+  const cacheBust = Date.now();
+  const range = encodeURIComponent('A1:ZZ2000');
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${range}?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING&t=${cacheBust}`;
+  const data = await msSheetsFetch(url, { method: 'GET' });
+  return data.values || [];
+}
+
+async function msWriteValues(range, values) {
+  const { fileId } = getConfig();
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+  return msSheetsFetch(url, {
+    method: 'PUT',
+    body: JSON.stringify({ range, majorDimension: 'ROWS', values })
+  });
+}
+
+async function msRefreshFromSheet() {
+  const content = document.getElementById('content');
+  if (content) content.innerHTML = '<div class="spinner">Fetching your spreadsheet…</div>';
+
+  try {
+    const grid = await msReadSheetFresh();
+    CACHED_TABLES = parseTablesFromGrid(grid);
+    render();
+    if (typeof msWireSyncButtons === 'function') setTimeout(msWireSyncButtons, 50);
+  } catch (err) {
+    if (String(err.message || err).toLowerCase().includes('not signed in')) {
+      showSignIn();
+      return;
+    }
+    if (content) {
+      content.innerHTML = `<div class="error"><strong>Couldn’t load spreadsheet:</strong><br>${escapeHtml(err.message || err)}</div>`;
+    }
+  }
+}
+
+async function msTogglePaidStatus(sheetRow) {
+  try {
+    const table = msGetSelectedTable();
+    if (!table) throw new Error('No month table loaded.');
+    const row = table.rows.find(r => String(r.sheetRow) === String(sheetRow));
+    if (!row) throw new Error('Could not find selected row. Tap Refresh and try again.');
+    if (row.paidCol == null || row.sheetRow == null) throw new Error('Row is missing spreadsheet coordinates.');
+
+    // Sheet convention used by this PWA: paid column stores outstanding value.
+    // 0 means paid. Due amount means outstanding.
+    const nextOutstanding = isRowPaid(row) ? row.due : 0;
+    const range = `${msCol(row.paidCol)}${row.sheetRow}`;
+
+    const btn = document.querySelector(`[data-paid-row="${sheetRow}"], [data-row="${sheetRow}"], .paid-toggle[data-row="${sheetRow}"]`);
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Saving…';
+    }
+
+    await msWriteValues(range, [[nextOutstanding]]);
+    await msRefreshFromSheet();
+  } catch (err) {
+    alert('Could not update paid status: ' + (err.message || err));
+    try { await msRefreshFromSheet(); } catch(e) {}
+  }
+}
+
+async function msAddItemToSheet() {
+  try {
+    const table = msGetSelectedTable();
+    if (!table) throw new Error('No month table loaded.');
+
+    const nameEl = document.getElementById('msNewItemName') || document.getElementById('newBillName') || document.getElementById('newName');
+    const dateEl = document.getElementById('msNewItemDate') || document.getElementById('newBillDate') || document.getElementById('newDueDate');
+    const amountEl = document.getElementById('msNewItemAmount') || document.getElementById('newBillAmount') || document.getElementById('newAmount');
+
+    const name = nameEl ? nameEl.value.trim() : '';
+    const dueDate = dateEl ? dateEl.value.trim() : '';
+    const amount = parseMoney(amountEl ? amountEl.value : '0');
+
+    if (!name) throw new Error('Please enter an item name.');
+    if (!amount || amount <= 0) throw new Error('Please enter an amount.');
+
+    const nextRow = Math.max(...table.rows.map(r => r.sheetRow || 0)) + 1;
+    const labelCol = table.labelCol ?? table.rows[0]?.labelCol ?? 0;
+    const paidCol = table.paidCol ?? table.rows[0]?.paidCol ?? 3;
+    const range = `${msCol(labelCol)}${nextRow}:${msCol(paidCol)}${nextRow}`;
+
+    await msWriteValues(range, [[name, dueDate, amount, amount]]);
+
+    document.querySelectorAll('.config-modal.open, .modal.open').forEach(m => m.classList.remove('open'));
+    await msRefreshFromSheet();
+  } catch (err) {
+    alert('Could not add item: ' + (err.message || err));
+  }
+}
+
+function msWireSyncButtons() {
+  const refreshBtn = document.getElementById('reloadBarBtn') || document.getElementById('reloadBtn') || document.getElementById('refreshInline');
+  if (refreshBtn && !refreshBtn.dataset.msSyncWired) {
+    refreshBtn.dataset.msSyncWired = '1';
+    refreshBtn.onclick = (event) => {
+      event.preventDefault();
+      msRefreshFromSheet();
+    };
+  }
+
+  document.querySelectorAll('[data-paid-row], .paid-toggle, [data-row]').forEach(btn => {
+    const row = btn.dataset.paidRow || btn.dataset.row;
+    if (!row || btn.dataset.msPaidWired) return;
+    btn.dataset.msPaidWired = '1';
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      msTogglePaidStatus(row);
+    });
+  });
+
+  const save = document.getElementById('msAddItemSave') || document.getElementById('addSave');
+  if (save && !save.dataset.msAddWired) {
+    save.dataset.msAddWired = '1';
+    save.onclick = (event) => {
+      event.preventDefault();
+      msAddItemToSheet();
+    };
+  }
+}
+
+// Override older load/write functions so all paths use the robust sync layer.
+loadSpreadsheet = msRefreshFromSheet;
+updateValues = msWriteValues;
+
+document.addEventListener('click', function(event) {
+  const paidBtn = event.target.closest('[data-paid-row], .paid-toggle');
+  if (paidBtn) {
+    const row = paidBtn.dataset.paidRow || paidBtn.dataset.row;
+    if (row) {
+      event.preventDefault();
+      event.stopPropagation();
+      msTogglePaidStatus(row);
+    }
+  }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
-  msWireLeftAmountClean();
-  setTimeout(msWireLeftAmountClean, 100);
-  setTimeout(msWireLeftAmountClean, 500);
+  msWireSyncButtons();
+  setInterval(msWireSyncButtons, 1000);
 });
 
 start();
-msWireLeftAmountClean();
-
-
-
-
-
-
-
+msWireSyncButtons();
+msNormaliseLeftAmountWholeNumber();
+setTimeout(msNormaliseLeftAmountWholeNumber, 200);
+setTimeout(msNormaliseLeftAmountWholeNumber, 800);
+msWireLeftAmountFinal();
+setTimeout(msWireLeftAmountRecalc, 500);
+msFixLeftAmountField();
+msWireLeftAmountRecalc();
 msFixAmountInputs();
 msWireAddButton();
 document.addEventListener('DOMContentLoaded', msWireAddButton);

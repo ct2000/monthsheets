@@ -1,0 +1,4 @@
+Built: 2026-05-12 17:27:42
+Rolled back from broken clean-final leftAmount build to: month-spread-leftamount-decimal-fix-20260512-171749.zip
+JS syntax ok: True
+

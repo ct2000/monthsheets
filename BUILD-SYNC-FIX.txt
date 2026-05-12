@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:32:13
+Base: month-spread-rollback-working-shell-20260512-172742.zip
+Fix: restored robust Google Sheets sync layer for fresh reads, paid toggles, add item writes, and refresh after write.
+JS syntax ok: True
+
