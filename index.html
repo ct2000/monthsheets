@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- SAFE hide nav-mini only build: 2026-05-12 16:17:30 -->
+<!-- modal close UX build: 2026-05-12 16:23:06 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -602,6 +602,50 @@ body.dark .bottom-nav .nav-btn strong,
   display: grid !important;
 }
 
+
+/* === modal close UX patch 2026-05-12 16:23:06 === */
+.config-box,
+.sheet {
+  position: relative !important;
+}
+
+.modal-close {
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 17px !important;
+  border: 1px solid rgba(107,114,128,.18) !important;
+  background: rgba(255,255,255,.82) !important;
+  color: #6b7280 !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  display: grid !important;
+  place-items: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 22px rgba(16,24,40,.08) !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+.modal-close:hover,
+.modal-close:active {
+  background: #f3f4f6 !important;
+}
+
+body.dark .modal-close,
+[data-theme="dark"] .modal-close {
+  background: rgba(255,255,255,.08) !important;
+  color: #d1d5db !important;
+  border-color: rgba(255,255,255,.12) !important;
+}
+
+.config-box h3,
+.sheet h2 {
+  padding-right: 42px !important;
+}
+
 </style>
 </head>
 <body>
@@ -615,10 +659,27 @@ body.dark .bottom-nav .nav-btn strong,
 </div>
 <div id="signin" class="signin" style="display:none"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
 <div class="bottom-bar" id="bottomBar" style="display:none"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
-<div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
+<div class="modal" id="configModal"><div class="sheet">
+    <button type="button" class="modal-close" data-close-modal aria-label="Close">×</button>
+    <h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" inputmode="decimal" placeholder="0.00"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+window.addEventListener('error', function(event) {
+  const content = document.getElementById('content');
+  if (content && content.innerHTML.includes('Fetching your spreadsheet')) {
+    content.innerHTML = `<div class="error"><strong>App error:</strong><br>${String(event.message || 'Unknown error')}</div>`;
+  }
+});
+window.addEventListener('unhandledrejection', function(event) {
+  const content = document.getElementById('content');
+  const msg = event.reason && event.reason.message ? event.reason.message : event.reason;
+  if (content && content.innerHTML.includes('Fetching your spreadsheet')) {
+    content.innerHTML = `<div class="error"><strong>Load error:</strong><br>${String(msg || 'Unknown error')}</div>`;
+  }
+});
+
 const DEFAULT_CLIENT_ID='';
 const DEFAULT_FILE_ID='1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw';
 const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
@@ -773,13 +834,12 @@ document.addEventListener('click', function(event) {
   msTogglePaid(rowId);
 });
 
-start();
 
-document.addEventListener('DOMContentLoaded', () => {
+function wireCleanBottomBar() {
   const addBtn = document.getElementById('addItemBarBtn');
   const refreshBtn = document.getElementById('reloadBarBtn');
-
-  if (addBtn) {
+  if (addBtn && !addBtn.dataset.wired) {
+    addBtn.dataset.wired = '1';
     addBtn.onclick = () => {
       if (typeof openAddBill === 'function') openAddBill();
       else if (typeof openAdd === 'function') openAdd();
@@ -787,11 +847,51 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (document.getElementById('addModal')) document.getElementById('addModal').classList.add('open');
     };
   }
-
-  if (refreshBtn) {
+  if (refreshBtn && !refreshBtn.dataset.wired) {
+    refreshBtn.dataset.wired = '1';
     refreshBtn.onclick = () => loadSpreadsheet();
   }
+}
+
+
+function closeAnyOpenModal() {
+  document.querySelectorAll('.config-modal.open, .modal.open').forEach(modal => {
+    modal.classList.remove('open');
+  });
+}
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeAnyOpenModal();
+  }
 });
+
+document.addEventListener('click', function(event) {
+  const closeBtn = event.target.closest('[data-close-modal]');
+  if (closeBtn) {
+    event.preventDefault();
+    closeAnyOpenModal();
+    return;
+  }
+
+  const modal = event.target.closest('.config-modal.open, .modal.open');
+  if (modal && event.target === modal) {
+    closeAnyOpenModal();
+  }
+});
+
+start();
+
+setTimeout(() => {
+  const content = document.getElementById('content');
+  if (content && content.innerHTML.includes('Fetching your spreadsheet')) {
+    content.innerHTML = '<div class="error"><strong>Still fetching…</strong><br>The spreadsheet request did not finish. Tap Refresh, or check Google sign-in/config.</div>';
+  }
+}, 15000);
+
+wireCleanBottomBar();
+
+
 
 wireBottomBarActions();
 
