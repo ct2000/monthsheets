@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- SAFE sync repair build: 2026-05-12 17:37:47 -->
+<!-- left amount update safe patch build: 2026-05-12 17:42:22 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -883,6 +883,14 @@ input[name="amount"] {
   appearance: none !important;
 }
 
+
+/* === left amount update safe patch 2026-05-12 17:42:22 === */
+#leftAmount {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
 </style>
 </head>
 <body>
@@ -961,7 +969,7 @@ function showSignInError(msg){showSignIn();document.querySelector('#signin p').t
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
-function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge" style="background:#e5e7eb;color:#111827">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value" style="color:${spendable<0?'var(--red)':'var(--text)'}">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" type="text" inputmode="decimal" autocomplete="off" data-money="decimal"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
+function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge" style="background:#e5e7eb;color:#111827">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value" style="color:${spendable<0?'var(--red)':'var(--text)'}">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" data-money="decimal" type="text" inputmode="decimal" autocomplete="off"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
       <button type="button" class="sort-pill unpaid-sort" data-sort="unpaid">Unpaid</button>
       <button type="button" class="sort-pill paid-sort" data-sort="paid">Paid</button>
       <button type="button" class="sort-pill date-sort" data-sort="dateAsc">Due ↑</button>
@@ -969,7 +977,7 @@ function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase()
     </div></div><section class="bill-list">${rows.map(r=>{const paid=isRowPaid(r);return `<article class="bill-card ${paid?'paid':'unpaid'}"><div class="bill-icon">£</div><div><div class="bill-name">${escapeHtml(r.name)}</div><div class="bill-meta">Due ${escapeHtml(r.dueDate||'—')}</div></div><div class="bill-right"><div class="bill-amount">${fmtMoney(r.due)}</div><button class="status-pill ${paid?'pill-paid':'pill-due'}" data-paid-row="${r.sheetRow}">${paid?'Paid':'Outstanding'}</button></div></article>`}).join('')}</section>`;sortBills.value=CURRENT_SORT;sortBills.onchange=()=>{CURRENT_SORT=sortBills.value;localStorage.setItem('ms.sort',CURRENT_SORT);renderMonth(table)};document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{CURRENT_SORT=b.dataset.sort;localStorage.setItem('ms.sort',CURRENT_SORT);renderMonth(table)});document.querySelectorAll('[data-row]').forEach(b=>b.onclick=()=>togglePaid(b.dataset.row));leftAmount.oninput=()=>{setLeft(table,{amount:parseFloat(leftAmount.value)||0,endDate:leftUntil.value||defaultEndDate()});renderMonth(table)};leftUntil.onchange=()=>{setLeft(table,{amount:parseFloat(leftAmount.value)||0,endDate:leftUntil.value||defaultEndDate()});renderMonth(table)}}
 async function togglePaid(sheetRow){const table=CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0];const row=table.rows.find(r=>String(r.sheetRow)===String(sheetRow));if(!row)return;await updateValues(`${colLetter(row.paidCol)}${row.sheetRow}`,[[isRowPaid(row)?row.due:0]]);await loadSpreadsheet()}
 async function appendBill(){const table=CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0];if(!table)return;const name=newName.value.trim(),dueDate=newDueDate.value.trim(),amount=parseMoney(newAmount.value);if(!name||!amount)return;const row=Math.max(...table.rows.map(r=>r.sheetRow||0))+1;await updateValues(`${colLetter(table.labelCol)}${row}:${colLetter(table.paidCol)}${row}`,[[name,dueDate,amount,amount]]);closeAdd();await loadSpreadsheet()}
-async function loadSpreadsheet(){content.innerHTML='<div class="spinner">Fetching your spreadsheet…</div>';try{CACHED_TABLES=parseTablesFromGrid(await fetchSheet());render()}catch(e){if(String(e.message).toLowerCase().includes('sign')){showSignIn();return}content.innerHTML=`<div class="error"><strong>Couldn’t load spreadsheet:</strong><br>${escapeHtml(e.message||e)}</div>`}}
+async function loadSpreadsheet(){content.innerHTML='<div class="spinner">Fetching your spreadsheet…</div>';try{CACHED_TABLES=parseTablesFromGrid(await fetchSheet());render();setTimeout(msWireLeftAmountUpdate,50)}catch(e){if(String(e.message).toLowerCase().includes('sign')){showSignIn();return}content.innerHTML=`<div class="error"><strong>Couldn’t load spreadsheet:</strong><br>${escapeHtml(e.message||e)}</div>`}}
 function openConfig(){const c=getConfig();cfgClientId.value=c.clientId;cfgFileId.value=c.fileId;configModal.classList.add('open')}function closeConfig(){configModal.classList.remove('open')}function openAdd(){newName.value='';newDueDate.value='';newAmount.value='';addModal.classList.add('open')}function closeAdd(){addModal.classList.remove('open')}function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem('ms.theme',t);themeBtn.textContent=t==='dark'?'☀':'☾'}
 themeBtn.onclick=()=>applyTheme((document.documentElement.dataset.theme||'light')==='dark'?'light':'dark');applyTheme(localStorage.getItem('ms.theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));settingsBtn.onclick=openConfig;settingsBtnSignin.onclick=openConfig;settingsNav.onclick=openConfig;refreshBtn.onclick=loadSpreadsheet;refreshNav.onclick=loadSpreadsheet;/* addFab removed */addCancel.onclick=closeAdd;addSave.onclick=appendBill;signinBtn.onclick=()=>requestSignIn(false);searchBills.oninput=()=>{if(CACHED_TABLES.length)renderMonth(CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0])};cfgCancel.onclick=closeConfig;cfgSave.onclick=()=>{cfgClientId.value.trim()?localStorage.setItem('ms.clientId',cfgClientId.value.trim()):localStorage.removeItem('ms.clientId');cfgFileId.value.trim()?localStorage.setItem('ms.fileId',cfgFileId.value.trim()):localStorage.removeItem('ms.fileId');TOKEN_CLIENT=null;clearToken();closeConfig();start()};
 function waitForGoogle(timeout=10000){return new Promise((res,rej)=>{const t=Date.now();(function tick(){if(window.google?.accounts?.oauth2)return res();if(Date.now()-t>timeout)return rej(new Error('Google sign-in script failed to load'));setTimeout(tick,100)})()})}function start(){const c=getConfig();if(!c.clientId||!c.fileId){showSignIn();return}if(getToken()){showApp();loadSpreadsheet();return}waitForGoogle().then(()=>{initTokenClient();showSignIn();requestSignIn(true)}).catch(()=>showSignIn())}
@@ -1476,7 +1484,122 @@ document.addEventListener('DOMContentLoaded', function() {
   setInterval(msSafeWireSyncControls, 1000);
 });
 
+
+function msParseLooseMoney(value) {
+  const raw = String(value || '')
+    .replace(/,/g, '')
+    .replace(/£/g, '')
+    .replace(/[^\d.]/g, '');
+  const dot = raw.indexOf('.');
+  const normalised = dot === -1 ? raw : raw.slice(0, dot + 1) + raw.slice(dot + 1).replace(/\./g, '');
+  const n = parseFloat(normalised);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function msCleanLooseMoney(value) {
+  const raw = String(value || '')
+    .replace(/,/g, '')
+    .replace(/£/g, '')
+    .replace(/[^\d.]/g, '');
+  const dot = raw.indexOf('.');
+  return dot === -1 ? raw : raw.slice(0, dot + 1) + raw.slice(dot + 1).replace(/\./g, '');
+}
+
+function msCurrentStillToPay() {
+  try {
+    const picker = document.getElementById('monthPicker');
+    const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+    if (!table || !table.rows) return 0;
+    return table.rows.reduce((sum, row) => sum + (isRowPaid(row) ? 0 : (row.paid || 0)), 0);
+  } catch (e) {
+    return 0;
+  }
+}
+
+function msDaysLeftInCurrentMonth() {
+  const now = new Date();
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  return Math.max(1, Math.ceil((end - now) / 86400000));
+}
+
+function msUpdateLeftAmountPerDay() {
+  const input = document.getElementById('leftAmount');
+  if (!input) return;
+
+  const valueEl =
+    document.getElementById('perDayValue') ||
+    document.querySelector('[data-per-day-value]') ||
+    document.querySelector('.per-day .big');
+
+  const metaEl =
+    document.getElementById('perDayMeta') ||
+    document.querySelector('[data-per-day-meta]') ||
+    document.querySelector('.per-day .meta');
+
+  if (!valueEl) return;
+
+  const amountLeft = msParseLooseMoney(input.value);
+  const stillToPay = msCurrentStillToPay();
+  const days = msDaysLeftInCurrentMonth();
+  const spendable = amountLeft - stillToPay;
+  const perDay = spendable / days;
+
+  valueEl.textContent = fmtMoney(perDay);
+  valueEl.style.color = spendable < 0 ? '#b91c1c' : '';
+
+  if (metaEl) {
+    metaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
+  }
+
+  try {
+    const tableKey = document.getElementById('monthPicker')?.value || 'default';
+    localStorage.setItem(`ms.leftAmount.${tableKey}`, input.value);
+  } catch (e) {}
+}
+
+function msWireLeftAmountUpdate() {
+  const input = document.getElementById('leftAmount');
+  if (!input) return;
+
+  input.removeAttribute('max');
+  input.removeAttribute('maxlength');
+  input.removeAttribute('min');
+  input.removeAttribute('step');
+  input.removeAttribute('pattern');
+  input.type = 'text';
+  input.inputMode = 'decimal';
+  input.autocomplete = 'off';
+
+  if (!input.dataset.leftAmountUpdateWired) {
+    input.dataset.leftAmountUpdateWired = '1';
+
+    input.addEventListener('beforeinput', function(event) {
+      if (event.inputType && !event.inputType.startsWith('insert')) return;
+      if (event.data == null) return;
+      if (!/^[0-9.]$/.test(event.data)) event.preventDefault();
+    });
+
+    input.addEventListener('input', function() {
+      const before = this.value;
+      const cleaned = msCleanLooseMoney(before);
+      if (before !== cleaned) {
+        const cursor = this.selectionStart || before.length;
+        const cleanedBeforeCursor = msCleanLooseMoney(before.slice(0, cursor));
+        this.value = cleaned;
+        try { this.setSelectionRange(cleanedBeforeCursor.length, cleanedBeforeCursor.length); } catch(e) {}
+      }
+      msUpdateLeftAmountPerDay();
+    });
+
+    input.addEventListener('change', msUpdateLeftAmountPerDay);
+    input.addEventListener('keyup', msUpdateLeftAmountPerDay);
+  }
+
+  msUpdateLeftAmountPerDay();
+}
+
 start();
+msWireLeftAmountUpdate();
 msSafeWireSyncControls();
 msNormaliseLeftAmountWholeNumber();
 setTimeout(msNormaliseLeftAmountWholeNumber, 200);

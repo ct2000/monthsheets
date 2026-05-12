@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:42:22
+Base: month-spread-sync-safe-repair-20260512-173747.zip
+Fix: keeps working shell/sync intact and only wires Amount Left input to recalculate money-left-per-day live.
+JS syntax ok: True
+
