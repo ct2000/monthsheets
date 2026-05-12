@@ -1495,6 +1495,41 @@ body.dark .bottom-nav .nav-btn strong,
   height: 0;
 }
 
+
+/* === search + month dropdown sizing fix === */
+
+/* Search bills input */
+#searchBills,
+.search-input,
+input[type="search"]{
+  min-height:44px !important;
+  height:44px !important;
+  padding:0 14px !important;
+  font-size:15px !important;
+  line-height:44px !important;
+  border-radius:16px !important;
+  box-sizing:border-box !important;
+}
+
+/* Month dropdown */
+#monthPicker,
+.month-picker,
+select{
+  min-height:44px !important;
+  height:44px !important;
+  padding:0 12px !important;
+  font-size:13px !important;
+  font-weight:700 !important;
+  line-height:44px !important;
+  border-radius:16px !important;
+  box-sizing:border-box !important;
+}
+
+/* specifically tighten month selector text */
+#monthPicker option{
+  font-size:13px !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
