@@ -468,11 +468,11 @@ button { cursor:pointer; border:0; }
   </div>
 </div>
 
-<div class="build-stamp">approved preview build 2026-05-12 15:00:17</div>
+<div class="build-stamp">fixed approved preview build 2026-05-12 15:03:43</div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-const BUILD='20260512-150017';
+const BUILD='20260512-150343';
 const DEFAULT_CLIENT_ID = '';
 const DEFAULT_FILE_ID = '1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw';
 const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
@@ -517,7 +517,7 @@ async function api(url,opts={}){
 }
 async function fetchSheet(){
   const {fileId}=getConfig();
-  const url=`https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent('A1:ZZ2000')}?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING&build=${BUILD}`;
+  const url=`https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent('A1:ZZ2000')}?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING`;
   return (await api(url)).values||[];
 }
 function parseTablesFromGrid(grid){
