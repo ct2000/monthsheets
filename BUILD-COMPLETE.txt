@@ -1,0 +1,2 @@
+Built: 2026-05-12 15:33:50
+Includes: wallet icons, sorting, per-day money, paid toggle, add item, Sheets read/write sync, auto refresh.
