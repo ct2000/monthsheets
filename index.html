@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- FORCE safe spend matches Money Left per day build: 2026-05-12 21:25:39 -->
+<!-- Canonical daily calc rebuild build: 2026-05-12 21:30:10 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2736,6 +2736,16 @@ body.dark .bill-icon::after,
   font-variant-numeric: tabular-nums !important;
 }
 
+
+/* === canonical daily calc rebuild 2026-05-12 21:30:10 === */
+.money-hero-amount,
+#perDayValue,
+#perDayValueEl,
+[data-per-day-value],
+.per-day .big {
+  font-variant-numeric: tabular-nums !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -4855,265 +4865,6 @@ document.addEventListener('click', function(event) {
 }, true);
 
 
-// ============================================================================
-// Money Left per day — rebuilt from scratch
-// Single source of truth.
-// Formula:
-//   (Money Left - total unpaid bills) / Option B days
-//
-// Option B days:
-//   Include today, exclude selected/end/reset date.
-//   Example: 12th -> 30th = 18 days, counting 12..29.
-// ============================================================================
-
-function moneyLeftRebuiltParseMoney(value) {
-  const cleaned = String(value || '')
-    .replace(/,/g, '')
-    .replace(/£/g, '')
-    .replace(/[^\d.-]/g, '');
-  const n = parseFloat(cleaned);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function moneyLeftRebuiltFmt(value) {
-  if (typeof fmtMoney === 'function') return fmtMoney(value || 0);
-  const sign = value < 0 ? '-' : '';
-  return sign + '£' + Math.abs(value || 0).toFixed(2);
-}
-
-function moneyLeftRebuiltSelectedEndDay() {
-  // Prefer explicit date/end-date controls if the app has one.
-  const controls = [
-    document.getElementById('endDate'),
-    document.getElementById('targetDate'),
-    document.getElementById('selectedDate'),
-    document.querySelector('[data-end-date]'),
-    document.querySelector('input[type="date"]')
-  ].filter(Boolean);
-
-  for (const el of controls) {
-    const raw = (el.dataset && el.dataset.endDate) ? el.dataset.endDate : el.value;
-    if (!raw) continue;
-
-    // YYYY-MM-DD
-    const iso = String(raw).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-    if (iso) {
-      return {
-        year: parseInt(iso[1], 10),
-        month: parseInt(iso[2], 10) - 1,
-        day: parseInt(iso[3], 10)
-      };
-    }
-
-    // DD/MM/YYYY or DD-MM-YYYY
-    const uk = String(raw).match(/^(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?$/);
-    if (uk) {
-      const now = new Date();
-      const year = uk[3] ? parseInt(uk[3].length === 2 ? '20' + uk[3] : uk[3], 10) : now.getFullYear();
-      return {
-        year,
-        month: parseInt(uk[2], 10) - 1,
-        day: parseInt(uk[1], 10)
-      };
-    }
-  }
-
-  // If there is no explicit control, use the selected/current month table's last day.
-  // This avoids timezone offsets and keeps month maths deterministic.
-  const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  return {
-    year: end.getFullYear(),
-    month: end.getMonth(),
-    day: end.getDate()
-  };
-}
-
-function moneyLeftRebuiltDaysLeft() {
-  const now = new Date();
-
-  const todayUTC = Date.UTC(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate()
-  );
-
-  const endParts = moneyLeftRebuiltSelectedEndDay();
-  const endUTC = Date.UTC(
-    endParts.year,
-    endParts.month,
-    endParts.day
-  );
-
-  // Option B: include today, exclude end date.
-  // Calendar-day difference gives exactly that.
-  // Example: 12 -> 30 = 18.
-  const days = Math.floor((endUTC - todayUTC) / 86400000);
-
-  return Math.max(1, days);
-}
-
-function moneyLeftRebuiltUnpaidTotal() {
-  try {
-    const picker = document.getElementById('monthPicker');
-    const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
-    if (!table || !Array.isArray(table.rows)) return 0;
-
-    return table.rows.reduce((sum, row) => {
-      const paid = typeof isRowPaid === 'function' ? isRowPaid(row) : false;
-      if (paid) return sum;
-
-      // In this app row.paid is the outstanding/current unpaid amount.
-      const outstanding = Number(row.paid || 0);
-      const due = Number(row.due || 0);
-      return sum + (outstanding || due || 0);
-    }, 0);
-  } catch (e) {
-    return 0;
-  }
-}
-
-function moneyLeftPerDayRebuiltValue() {
-  const leftInput = document.getElementById('leftAmount');
-  const left = moneyLeftRebuiltParseMoney(leftInput ? leftInput.value : 0);
-  const unpaid = moneyLeftRebuiltUnpaidTotal();
-  const days = moneyLeftRebuiltDaysLeft();
-
-  return {
-    left,
-    unpaid,
-    days,
-    perDay: (left - unpaid) / Math.max(1, days)
-  };
-}
-
-function moneyLeftPerDayRebuiltUpdate() {
-  const calc = moneyLeftPerDayRebuiltValue();
-  const amountText = moneyLeftRebuiltFmt(calc.perDay);
-  const daysText = `${calc.days} day${calc.days === 1 ? '' : 's'} left`;
-
-  const valueEls = [
-    document.getElementById('perDayValue'),
-    document.getElementById('perDayValueEl'),
-    document.querySelector('[data-per-day-value]'),
-    document.querySelector('.per-day .big')
-  ].filter(Boolean);
-
-  const metaEls = [
-    document.getElementById('perDayMeta'),
-    document.querySelector('[data-per-day-meta]'),
-    document.querySelector('.per-day .meta')
-  ].filter(Boolean);
-
-  valueEls.forEach(el => {
-    el.textContent = amountText;
-    el.dataset.rebuiltPerDay = '1';
-  });
-
-  metaEls.forEach(el => {
-    el.textContent = daysText;
-    el.dataset.rebuiltDays = String(calc.days);
-  });
-
-  // Keep hero/dashboard aligned with this exact source of truth.
-  document.querySelectorAll('.money-hero-amount').forEach(el => {
-    el.textContent = amountText;
-  });
-
-  document.querySelectorAll('.money-hero-sub').forEach(el => {
-    el.textContent = `${daysText} · ${moneyLeftRebuiltFmt(calc.unpaid)} still to pay`;
-  });
-
-  document.querySelectorAll('.money-insight').forEach(insight => {
-    const text = String(insight.textContent || '').toLowerCase();
-    if (text.includes('safe to spend') || text.includes('short by')) {
-      const target = insight.querySelector('span:not(.money-insight-icon)') || insight;
-      target.textContent = `Safe to spend: ${amountText} per day.`;
-    }
-  });
-
-  return calc;
-}
-
-function moneyLeftPerDayRebuiltPatchDashboard() {
-  if (window.__moneyLeftPerDayRebuiltDashboardPatched) return;
-  if (typeof moneyBuildDashboardHTML !== 'function') return;
-
-  window.__moneyLeftPerDayRebuiltDashboardPatched = true;
-  const original = moneyBuildDashboardHTML;
-
-  moneyBuildDashboardHTML = function(...args) {
-    let out = String(original.apply(this, args));
-    const calc = moneyLeftPerDayRebuiltValue();
-    const amountText = moneyLeftRebuiltFmt(calc.perDay);
-    const daysText = `${calc.days} day${calc.days === 1 ? '' : 's'} left`;
-
-    out = out.replace(
-      /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
-      `$1${amountText}$3`
-    );
-
-    out = out.replace(
-      /(<div class="money-hero-sub">)([\s\S]*?)(<\/div>)/,
-      `$1${daysText} · ${moneyLeftRebuiltFmt(calc.unpaid)} still to pay$3`
-    );
-
-    out = out.replace(
-      /(Safe to spend: )[^<]+?( per day\.)/,
-      `$1${amountText}$2`
-    );
-
-    out = out.replace(
-      /(You are short by )[^<]+?( per day\.)/,
-      `Safe to spend: ${amountText} per day.`
-    );
-
-    return out;
-  };
-}
-
-function moneyLeftPerDayRebuiltWire() {
-  moneyLeftPerDayRebuiltPatchDashboard();
-  moneyLeftPerDayRebuiltUpdate();
-
-  const input = document.getElementById('leftAmount');
-  if (input && !input.dataset.rebuiltPerDayWired) {
-    input.dataset.rebuiltPerDayWired = '1';
-    input.addEventListener('input', () => setTimeout(moneyLeftPerDayRebuiltUpdate, 0), true);
-    input.addEventListener('change', () => setTimeout(moneyLeftPerDayRebuiltUpdate, 0), true);
-    input.addEventListener('blur', () => setTimeout(moneyLeftPerDayRebuiltUpdate, 0), true);
-  }
-}
-
-// Override previous function names so any existing app hooks call this rebuilt logic.
-window.msMoneyLeftDays = moneyLeftRebuiltDaysLeft;
-window.msUpdateMoneyLeftPerDaySimple = moneyLeftPerDayRebuiltUpdate;
-window.msMoneyLeftRecalc = moneyLeftPerDayRebuiltUpdate;
-window.msUpdateLeftAmountPerDay = moneyLeftPerDayRebuiltUpdate;
-window.msRecalculatePerDayFromLeftAmount = moneyLeftPerDayRebuiltUpdate;
-window.moneyUpdateOriginalPerDayBoxOptionB = moneyLeftPerDayRebuiltUpdate;
-
-document.addEventListener('DOMContentLoaded', function() {
-  moneyLeftPerDayRebuiltWire();
-  setTimeout(moneyLeftPerDayRebuiltWire, 300);
-  setTimeout(moneyLeftPerDayRebuiltWire, 900);
-  setTimeout(moneyLeftPerDayRebuiltWire, 1600);
-});
-
-document.addEventListener('click', function(event) {
-  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker')) {
-    setTimeout(moneyLeftPerDayRebuiltWire, 120);
-    setTimeout(moneyLeftPerDayRebuiltWire, 500);
-  }
-}, true);
-
-document.addEventListener('change', function(event) {
-  if (event.target && (event.target.id === 'monthPicker' || event.target.id === 'leftAmount')) {
-    setTimeout(moneyLeftPerDayRebuiltWire, 0);
-  }
-}, true);
-
-
 // Compatibility shim for older render hooks.
 // Older code still calls msWireLeftAmountUpdate(); route it to the rebuilt calc.
 function msWireLeftAmountUpdate() {
@@ -5124,150 +4875,6 @@ function msWireLeftAmountUpdate() {
     return moneyLeftPerDayRebuiltUpdate();
   }
 }
-
-
-// Safe to spend today mirror fix.
-// The hero card no longer calculates its own amount.
-// It mirrors the existing Money Left per day / left-to-pay display directly.
-function moneyFindPrimaryLeftPerDayValue() {
-  return (
-    document.getElementById('perDayValue') ||
-    document.getElementById('perDayValueEl') ||
-    document.querySelector('[data-per-day-value]') ||
-    document.querySelector('.per-day .big')
-  );
-}
-
-function moneyFindPrimaryLeftPerDayMeta() {
-  return (
-    document.getElementById('perDayMeta') ||
-    document.querySelector('[data-per-day-meta]') ||
-    document.querySelector('.per-day .meta')
-  );
-}
-
-function moneyMirrorSafeSpendFromPrimary() {
-  const valueEl = moneyFindPrimaryLeftPerDayValue();
-  const metaEl = moneyFindPrimaryLeftPerDayMeta();
-
-  const value = valueEl ? String(valueEl.textContent || '').trim() : '';
-  const meta = metaEl ? String(metaEl.textContent || '').trim() : '';
-
-  if (value) {
-    document.querySelectorAll('.money-hero-amount').forEach(el => {
-      el.textContent = value;
-      el.dataset.mirrorsPrimaryPerDay = '1';
-    });
-
-    document.querySelectorAll('.money-insight').forEach(insight => {
-      const text = String(insight.textContent || '').toLowerCase();
-      if (text.includes('safe to spend') || text.includes('short by')) {
-        const target = insight.querySelector('span:not(.money-insight-icon)') || insight;
-        target.textContent = `Safe to spend: ${value} per day.`;
-      }
-    });
-  }
-
-  if (meta) {
-    document.querySelectorAll('.money-hero-sub').forEach(el => {
-      const oldText = String(el.textContent || '');
-      const stillToPayMatch = oldText.match(/·\s*(.*still to pay)/i);
-      const stillToPay = stillToPayMatch ? stillToPayMatch[1] : '';
-      el.textContent = stillToPay ? `${meta} · ${stillToPay}` : meta;
-    });
-  }
-}
-
-function moneyPatchDashboardHeroMirror() {
-  if (window.__moneyHeroMirrorPatched) return;
-  if (typeof moneyBuildDashboardHTML !== 'function') return;
-
-  window.__moneyHeroMirrorPatched = true;
-  const original = moneyBuildDashboardHTML;
-
-  moneyBuildDashboardHTML = function(...args) {
-    let out = String(original.apply(this, args));
-
-    const valueEl = moneyFindPrimaryLeftPerDayValue();
-    const metaEl = moneyFindPrimaryLeftPerDayMeta();
-
-    const value = valueEl ? String(valueEl.textContent || '').trim() : '';
-    const meta = metaEl ? String(metaEl.textContent || '').trim() : '';
-
-    if (value) {
-      out = out.replace(
-        /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
-        `$1${value}$3`
-      );
-
-      out = out.replace(
-        /(Safe to spend: )[^<]+?( per day\.)/,
-        `$1${value}$2`
-      );
-
-      out = out.replace(
-        /(You are short by )[^<]+?( per day\.)/,
-        `Safe to spend: ${value} per day.`
-      );
-    }
-
-    if (meta) {
-      out = out.replace(
-        /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? still to pay<\/div>)/,
-        `$1${meta}$3`
-      );
-
-      out = out.replace(
-        /(<div class="money-hero-sub">)([\s\S]*?)(<\/div>)/,
-        (match, start, middle, end) => {
-          if (String(middle).includes('still to pay')) return match;
-          return `${start}${meta}${end}`;
-        }
-      );
-    }
-
-    return out;
-  };
-}
-
-function moneyWireSafeSpendMirror() {
-  moneyPatchDashboardHeroMirror();
-  moneyMirrorSafeSpendFromPrimary();
-
-  [moneyFindPrimaryLeftPerDayValue(), moneyFindPrimaryLeftPerDayMeta()].forEach(el => {
-    if (!el || el.dataset.safeSpendMirrorObserver) return;
-    el.dataset.safeSpendMirrorObserver = '1';
-
-    new MutationObserver(() => {
-      setTimeout(moneyMirrorSafeSpendFromPrimary, 0);
-      setTimeout(() => {
-        if (typeof moneyInsertDashboard === 'function') moneyInsertDashboard();
-        moneyMirrorSafeSpendFromPrimary();
-      }, 120);
-    }).observe(el, { childList: true, characterData: true, subtree: true });
-  });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  moneyWireSafeSpendMirror();
-  setTimeout(moneyWireSafeSpendMirror, 400);
-  setTimeout(moneyWireSafeSpendMirror, 1000);
-  setTimeout(moneyWireSafeSpendMirror, 1800);
-});
-
-document.addEventListener('input', function(event) {
-  if (event.target && event.target.id === 'leftAmount') {
-    setTimeout(moneyWireSafeSpendMirror, 80);
-    setTimeout(moneyWireSafeSpendMirror, 350);
-  }
-}, true);
-
-document.addEventListener('click', function(event) {
-  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker')) {
-    setTimeout(moneyWireSafeSpendMirror, 250);
-    setTimeout(moneyWireSafeSpendMirror, 850);
-  }
-}, true);
 
 
 // HARD FINAL FIX:
@@ -5510,6 +5117,366 @@ wireBottomBarActions();
     </div>
   </div>
 </div>
+
+
+<script>
+/*
+  CANONICAL DAILY CALC REBUILD
+  ------------------------------------
+  One source of truth for:
+  - Money Left per day
+  - Safe to spend today
+
+  Formula:
+    (Money Left - Unpaid Bills) / Option B days
+
+  Option B:
+    Include today, exclude selected/end/reset date.
+    Example: 12th -> 30th = 18 days.
+*/
+(function () {
+  const STATE = {
+    timer: null,
+    observerStarted: false,
+    intervalStarted: false
+  };
+
+  function parseMoney(value) {
+    const cleaned = String(value || "")
+      .replace(/,/g, "")
+      .replace(/£/g, "")
+      .replace(/[^\d.-]/g, "");
+    const n = parseFloat(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function fmtMoney(value) {
+    if (typeof window.fmtMoney === "function") return window.fmtMoney(value || 0);
+    const sign = value < 0 ? "-" : "";
+    return sign + "£" + Math.abs(value || 0).toFixed(2);
+  }
+
+  function getMoneyLeft() {
+    const input = document.getElementById("leftAmount");
+    return parseMoney(input ? input.value : 0);
+  }
+
+  function getCurrentRows() {
+    try {
+      const picker = document.getElementById("monthPicker");
+      const index = picker && picker.value !== "" ? picker.value : 0;
+      const table = (window.CACHED_TABLES && (window.CACHED_TABLES[index] || window.CACHED_TABLES[0])) || null;
+      return table && Array.isArray(table.rows) ? table.rows : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function isPaid(row) {
+    try {
+      if (typeof window.isRowPaid === "function") return window.isRowPaid(row);
+    } catch (e) {}
+    return false;
+  }
+
+  function getUnpaidTotal() {
+    return getCurrentRows().reduce((sum, row) => {
+      if (isPaid(row)) return sum;
+
+      // In this app row.paid has historically represented the outstanding/current unpaid amount.
+      const outstanding = Number(row && row.paid ? row.paid : 0);
+      const due = Number(row && row.due ? row.due : 0);
+
+      return sum + (outstanding || due || 0);
+    }, 0);
+  }
+
+  function findSelectedEndDateParts() {
+    const now = new Date();
+
+    // Try explicit end/reset date controls first, if the app has one.
+    const candidates = [
+      document.getElementById("endDate"),
+      document.getElementById("targetDate"),
+      document.getElementById("selectedDate"),
+      document.querySelector("[data-end-date]"),
+      document.querySelector("[data-reset-date]"),
+      document.querySelector("input[type='date']")
+    ].filter(Boolean);
+
+    for (const el of candidates) {
+      const raw =
+        (el.dataset && (el.dataset.endDate || el.dataset.resetDate)) ||
+        el.value ||
+        "";
+
+      if (!raw) continue;
+
+      const iso = String(raw).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (iso) {
+        return {
+          year: parseInt(iso[1], 10),
+          month: parseInt(iso[2], 10) - 1,
+          day: parseInt(iso[3], 10)
+        };
+      }
+
+      const uk = String(raw).match(/^(\d{1,2})[\/.-](\d{1,2})(?:[\/.-](\d{2,4}))?$/);
+      if (uk) {
+        const year = uk[3]
+          ? parseInt(uk[3].length === 2 ? "20" + uk[3] : uk[3], 10)
+          : now.getFullYear();
+
+        return {
+          year,
+          month: parseInt(uk[2], 10) - 1,
+          day: parseInt(uk[1], 10)
+        };
+      }
+    }
+
+    // Try to infer an end/reset day from visible text such as "30".
+    // This lets the chosen date drive the count if shown in the UI.
+    const possibleEndText = Array.from(document.querySelectorAll("[data-end-day], [data-reset-day], .end-day, .reset-day"))
+      .map(el => (el.dataset.endDay || el.dataset.resetDay || el.textContent || "").trim())
+      .find(Boolean);
+
+    if (possibleEndText) {
+      const m = possibleEndText.match(/(\d{1,2})/);
+      if (m) {
+        return {
+          year: now.getFullYear(),
+          month: now.getMonth(),
+          day: parseInt(m[1], 10)
+        };
+      }
+    }
+
+    // Fallback: use last day of current month.
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return {
+      year: end.getFullYear(),
+      month: end.getMonth(),
+      day: end.getDate()
+    };
+  }
+
+  function optionBDaysLeft() {
+    const now = new Date();
+
+    const todayUTC = Date.UTC(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+
+    const end = findSelectedEndDateParts();
+
+    const endUTC = Date.UTC(
+      end.year,
+      end.month,
+      end.day
+    );
+
+    // Option B = include today, exclude end/reset date.
+    // Therefore calendar-day difference is exactly the count.
+    // Example 12 -> 30 = 18.
+    const days = Math.floor((endUTC - todayUTC) / 86400000);
+
+    return Math.max(1, days);
+  }
+
+  function calculate() {
+    const left = getMoneyLeft();
+    const unpaid = getUnpaidTotal();
+    const days = optionBDaysLeft();
+    const perDay = (left - unpaid) / days;
+
+    return {
+      left,
+      unpaid,
+      days,
+      perDay,
+      amountText: fmtMoney(perDay),
+      daysText: `${days} day${days === 1 ? "" : "s"} left`,
+      unpaidText: fmtMoney(unpaid)
+    };
+  }
+
+  function setText(selectorList, text) {
+    selectorList.forEach(selector => {
+      document.querySelectorAll(selector).forEach(el => {
+        if (el && el.textContent !== text) el.textContent = text;
+      });
+    });
+  }
+
+  function updatePrimaryPerDay(calc) {
+    setText([
+      "#perDayValue",
+      "#perDayValueEl",
+      "[data-per-day-value]",
+      ".per-day .big"
+    ], calc.amountText);
+
+    setText([
+      "#perDayMeta",
+      "[data-per-day-meta]",
+      ".per-day .meta"
+    ], calc.daysText);
+  }
+
+  function updateHero(calc) {
+    setText([".money-hero-amount"], calc.amountText);
+
+    document.querySelectorAll(".money-hero-sub").forEach(el => {
+      const next = `${calc.daysText} · ${calc.unpaidText} still to pay`;
+      if (el.textContent !== next) el.textContent = next;
+    });
+
+    document.querySelectorAll(".money-insight").forEach(insight => {
+      const text = String(insight.textContent || "").toLowerCase();
+      if (text.includes("safe to spend") || text.includes("short by")) {
+        const target = insight.querySelector("span:not(.money-insight-icon)") || insight;
+        const next = `Safe to spend: ${calc.amountText} per day.`;
+        if (target.textContent !== next) target.textContent = next;
+      }
+    });
+  }
+
+  function patchDashboardBuilder() {
+    if (window.__canonicalDailyDashboardPatched) return;
+    if (typeof window.moneyBuildDashboardHTML !== "function") return;
+
+    window.__canonicalDailyDashboardPatched = true;
+    const original = window.moneyBuildDashboardHTML;
+
+    window.moneyBuildDashboardHTML = function (...args) {
+      let out = String(original.apply(this, args));
+      const calc = calculate();
+
+      out = out.replace(
+        /(<div class="money-hero-amount">)([\s\S]*?)(<\/div>)/,
+        `$1${calc.amountText}$3`
+      );
+
+      out = out.replace(
+        /(<div class="money-hero-sub">)([\s\S]*?)(<\/div>)/,
+        `$1${calc.daysText} · ${calc.unpaidText} still to pay$3`
+      );
+
+      out = out.replace(
+        /(Safe to spend: )[^<]+?( per day\.)/,
+        `$1${calc.amountText}$2`
+      );
+
+      out = out.replace(
+        /(You are short by )[^<]+?( per day\.)/,
+        `Safe to spend: ${calc.amountText} per day.`
+      );
+
+      return out;
+    };
+  }
+
+  function updateAll() {
+    patchDashboardBuilder();
+    const calc = calculate();
+    updatePrimaryPerDay(calc);
+    updateHero(calc);
+    return calc;
+  }
+
+  function scheduleUpdate(delay = 0) {
+    clearTimeout(STATE.timer);
+    STATE.timer = setTimeout(updateAll, delay);
+  }
+
+  function wireInput() {
+    const input = document.getElementById("leftAmount");
+    if (!input || input.dataset.canonicalDailyWired) return;
+
+    input.dataset.canonicalDailyWired = "1";
+    input.addEventListener("input", () => scheduleUpdate(0), true);
+    input.addEventListener("change", () => scheduleUpdate(0), true);
+    input.addEventListener("blur", () => scheduleUpdate(0), true);
+  }
+
+  function startObserver() {
+    if (STATE.observerStarted) return;
+    STATE.observerStarted = true;
+
+    const root = document.getElementById("content") || document.getElementById("app") || document.body;
+    if (!root) return;
+
+    const observer = new MutationObserver(() => {
+      wireInput();
+      scheduleUpdate(50);
+    });
+
+    observer.observe(root, {
+      childList: true,
+      subtree: true,
+      characterData: true
+    });
+  }
+
+  function startInterval() {
+    if (STATE.intervalStarted) return;
+    STATE.intervalStarted = true;
+    setInterval(() => {
+      wireInput();
+      updateAll();
+    }, 600);
+  }
+
+  function start() {
+    wireInput();
+    patchDashboardBuilder();
+    updateAll();
+    startObserver();
+    startInterval();
+  }
+
+  // Expose clean functions so old hooks route here.
+  window.moneyCanonicalDailyCalc = calculate;
+  window.moneyCanonicalDailyUpdate = updateAll;
+  window.moneyOptionBDaysLeft = optionBDaysLeft;
+  window.msMoneyLeftDays = optionBDaysLeft;
+  window.msUpdateMoneyLeftPerDaySimple = updateAll;
+  window.msMoneyLeftRecalc = updateAll;
+  window.msUpdateLeftAmountPerDay = updateAll;
+  window.msRecalculatePerDayFromLeftAmount = updateAll;
+  window.msWireLeftAmountUpdate = start;
+  window.moneyUpdateOriginalPerDayBoxOptionB = updateAll;
+  window.moneyApplySafeSpendOptionB = updateAll;
+  window.moneyForceSafeSpendMatch = updateAll;
+  window.moneyMirrorSafeSpendFromPrimary = updateAll;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    start();
+    setTimeout(start, 300);
+    setTimeout(start, 1000);
+    setTimeout(start, 1800);
+  });
+
+  document.addEventListener("click", event => {
+    if (event.target.closest(".tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker")) {
+      scheduleUpdate(120);
+      setTimeout(updateAll, 500);
+    }
+  }, true);
+
+  document.addEventListener("change", event => {
+    if (event.target && (event.target.id === "monthPicker" || event.target.id === "leftAmount")) {
+      scheduleUpdate(0);
+    }
+  }, true);
+
+  // Start immediately too, in case DOM is already ready.
+  setTimeout(start, 0);
+})();
+</script>
 
 </body>
 </html>

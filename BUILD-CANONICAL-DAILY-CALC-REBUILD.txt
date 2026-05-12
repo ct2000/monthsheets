@@ -1,0 +1,6 @@
+Built: 2026-05-12 21:30:10
+Base: money-safe-spend-force-match-20260512-212539.zip
+Rebuild: added one canonical daily calculation module at the end of the app. It updates both Money Left per day and Safe to spend today from the same source of truth.
+Formula: (Money Left - unpaid bills) / Option B days. Option B: include today, exclude end/reset date. Example 12 -> 30 = 18 days.
+JS syntax ok: True
+
