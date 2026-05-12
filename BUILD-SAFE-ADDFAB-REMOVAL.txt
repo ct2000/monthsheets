@@ -1,0 +1,3 @@
+Built: 2026-05-12 16:10:31
+Base: month-spread-two-button-bottom-bar-20260512-160615.zip
+Fix: restored from the two-button bottom bar package and safely removed/hidden only addFab.

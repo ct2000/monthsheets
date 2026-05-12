@@ -1,0 +1,3 @@
+Built: 2026-05-12 16:20:40
+Base: month-spread-hide-nav-mini-safe-20260512-161730.zip
+Fix: added safe bottom bar wiring and error/timeout display so spinner does not hang silently.

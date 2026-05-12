@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- modal close UX build: 2026-05-12 16:23:06 -->
+<!-- SAFE modal close only build: 2026-05-12 16:25:53 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -603,47 +603,15 @@ body.dark .bottom-nav .nav-btn strong,
 }
 
 
-/* === modal close UX patch 2026-05-12 16:23:06 === */
+/* === safe modal close patch 2026-05-12 16:25:53 === */
+.config-modal.open,
+.modal.open {
+  cursor: pointer;
+}
+
 .config-box,
 .sheet {
-  position: relative !important;
-}
-
-.modal-close {
-  position: absolute !important;
-  top: 12px !important;
-  right: 12px !important;
-  width: 34px !important;
-  height: 34px !important;
-  border-radius: 17px !important;
-  border: 1px solid rgba(107,114,128,.18) !important;
-  background: rgba(255,255,255,.82) !important;
-  color: #6b7280 !important;
-  font-size: 24px !important;
-  line-height: 1 !important;
-  display: grid !important;
-  place-items: center !important;
-  cursor: pointer !important;
-  box-shadow: 0 8px 22px rgba(16,24,40,.08) !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-}
-
-.modal-close:hover,
-.modal-close:active {
-  background: #f3f4f6 !important;
-}
-
-body.dark .modal-close,
-[data-theme="dark"] .modal-close {
-  background: rgba(255,255,255,.08) !important;
-  color: #d1d5db !important;
-  border-color: rgba(255,255,255,.12) !important;
-}
-
-.config-box h3,
-.sheet h2 {
-  padding-right: 42px !important;
+  cursor: auto;
 }
 
 </style>
@@ -659,9 +627,7 @@ body.dark .modal-close,
 </div>
 <div id="signin" class="signin" style="display:none"><div class="signin-card"><h1>Month Spread</h1><p>Sign in with Google to view and update your Month Spread spreadsheet.</p><button class="primary" id="signinBtn" disabled>Loading Google sign-in…</button><p><button class="secondary" id="settingsBtnSignin">Configure</button></p></div></div>
 <div class="bottom-bar" id="bottomBar" style="display:none"><button class="nav-mini active"><strong>⌂</strong>Home</button><button class="nav-mini" id="refreshNav"><strong>↻</strong>Refresh</button><button class="nav-mini" id="settingsNav"><strong>⚙</strong>Settings</button></div>
-<div class="modal" id="configModal"><div class="sheet">
-    <button type="button" class="modal-close" data-close-modal aria-label="Close">×</button>
-    <h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
+<div class="modal" id="configModal"><div class="sheet"><h2>Settings</h2><div class="field"><label>Google OAuth Client ID</label><input id="cfgClientId" placeholder="123…apps.googleusercontent.com"></div><div class="field"><label>Google Sheet File ID</label><input id="cfgFileId" placeholder="Sheet file ID"></div><div class="row"><button class="secondary" id="cfgCancel">Cancel</button><button class="primary" id="cfgSave">Save</button></div></div></div>
 <div class="modal" id="addModal"><div class="sheet"><h2>Add item</h2><div class="field"><label>Item name</label><input id="newName" placeholder="e.g. Car insurance"></div><div class="field"><label>Date due</label><input id="newDueDate" inputmode="numeric" placeholder="e.g. 14"></div><div class="field"><label>Amount</label><input id="newAmount" inputmode="decimal" placeholder="0.00"></div><div class="row"><button class="secondary" id="addCancel">Cancel</button><button class="primary" id="addSave">Add to Sheet</button></div></div></div>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
@@ -854,33 +820,46 @@ function wireCleanBottomBar() {
 }
 
 
-function closeAnyOpenModal() {
-  document.querySelectorAll('.config-modal.open, .modal.open').forEach(modal => {
+// Safe modal closing: Esc key, backdrop tap, and Cancel buttons.
+// This does not alter the app shell or modal markup.
+function closeAnyOpenModalSafe() {
+  document.querySelectorAll('.config-modal.open, .modal.open').forEach(function(modal) {
     modal.classList.remove('open');
   });
 }
 
 document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') {
-    closeAnyOpenModal();
-  }
+  if (event.key === 'Escape') closeAnyOpenModalSafe();
 });
 
 document.addEventListener('click', function(event) {
-  const closeBtn = event.target.closest('[data-close-modal]');
-  if (closeBtn) {
-    event.preventDefault();
-    closeAnyOpenModal();
-    return;
-  }
-
   const modal = event.target.closest('.config-modal.open, .modal.open');
   if (modal && event.target === modal) {
-    closeAnyOpenModal();
+    closeAnyOpenModalSafe();
   }
 });
 
 start();
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.config-box, .sheet').forEach(function(box) {
+    if (box.querySelector('[data-safe-close-modal]')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('data-safe-close-modal', '1');
+    btn.setAttribute('aria-label', 'Close');
+    btn.textContent = '×';
+    btn.style.cssText = 'position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:17px;border:1px solid rgba(107,114,128,.18);background:rgba(255,255,255,.9);color:#6b7280;font-size:24px;line-height:1;display:grid;place-items:center;cursor:pointer;z-index:5;';
+    box.style.position = box.style.position || 'relative';
+    btn.onclick = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      closeAnyOpenModalSafe();
+    };
+    box.appendChild(btn);
+  });
+});
+
 
 setTimeout(() => {
   const content = document.getElementById('content');

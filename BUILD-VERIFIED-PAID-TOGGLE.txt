@@ -1,0 +1,4 @@
+Built: 2026-05-12 15:47:01
+Verified: includes delegated click listener and msTogglePaid function that writes to Google Sheets Paid column.
+Bottom bar: Add and Refresh only.
+Sort pills: active unpaid red, active paid green, inactive white.

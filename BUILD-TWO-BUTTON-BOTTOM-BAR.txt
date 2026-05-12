@@ -1,0 +1,2 @@
+Built: 2026-05-12 16:06:15
+Only bottom bar buttons present: Add and Refresh.

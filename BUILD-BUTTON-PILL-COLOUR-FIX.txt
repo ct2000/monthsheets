@@ -1,0 +1,3 @@
+Built: 2026-05-12 15:52:24
+Base: month-spread-paid-toggle-verified-20260512-154701.zip
+Changes: Home/Add/Refresh bottom buttons same grey and same icon size; sort pills show unpaid/paid counts; active unpaid is red, active paid is green, inactive pills are white.

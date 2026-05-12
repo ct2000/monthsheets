@@ -1,0 +1,3 @@
+Built: 2026-05-12 15:41:10
+Base: month-spread-complete-final-20260512-153350.zip
+Changes: moved Add item to bottom bar, removed large Add button, sort pills are red/green only when active and white when inactive.

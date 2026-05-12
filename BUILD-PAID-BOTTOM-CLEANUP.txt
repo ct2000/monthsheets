@@ -1,0 +1,3 @@
+Built: 2026-05-12 15:46:40
+Base: month-spread-bottom-bar-sort-pills-20260512-154110.zip
+Fixes: paid/outstanding toggle writes to Sheets, bottom bar now Add + Refresh only, active sort colours are solid red/green and inactive pills are white.

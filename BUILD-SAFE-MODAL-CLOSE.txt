@@ -1,0 +1,5 @@
+Built: 2026-05-12 16:25:53
+Base: month-spread-spinner-fix-20260512-162040.zip
+JS syntax check ok: True
+
+Change: safe modal close only. No modal HTML restructuring. Esc and backdrop close; close buttons injected after DOMContentLoaded.

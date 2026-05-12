@@ -1,0 +1,3 @@
+Built: 2026-05-12 16:17:30
+Base: month-spread-safe-addfab-removal-20260512-161031.zip
+Safe fix: restored working app shell and only hides nav-mini using CSS. Bottom bar remains Add + Refresh.
