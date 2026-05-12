@@ -1047,6 +1047,25 @@ body.dark .tabs .badge,
   border-color:rgba(255,255,255,.12) !important;
 }
 
+
+/* === dark mode unpaid outline fix === */
+body.dark .tabs .tab,
+body.dark .tabs .tab.active,
+[data-theme="dark"] .tabs .tab,
+[data-theme="dark"] .tabs .tab.active{
+  border:0 !important;
+  outline:none !important;
+  box-shadow:none !important;
+}
+
+body.dark .tabs .tab:hover,
+body.dark .tabs .tab.active:hover,
+[data-theme="dark"] .tabs .tab:hover,
+[data-theme="dark"] .tabs .tab.active:hover{
+  border:0 !important;
+  outline:none !important;
+}
+
 </style>
 </head>
 <body>
