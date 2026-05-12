@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Apple iOS Liquid Glass visual makeover build: 2026-05-12 19:35:48 -->
+<!-- Money Left clone input fix build: 2026-05-12 19:54:10 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1579,6 +1579,14 @@ header h1{
   letter-spacing:-0.04em !important;
 }
 
+
+/* === Money Left clone input fix 2026-05-12 19:54:10 === */
+#leftAmount {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -1663,7 +1671,7 @@ function showSignInError(msg){showSignIn();document.querySelector('#signin p').t
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
-function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input id="leftAmount" value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" data-money="decimal" type="text" inputmode="decimal" autocomplete="off"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
+function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input  value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" data-money="decimal" id="leftAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
       <button type="button" class="sort-pill unpaid-sort" data-sort="unpaid">Unpaid</button>
       <button type="button" class="sort-pill paid-sort" data-sort="paid">Paid</button>
       <button type="button" class="sort-pill date-sort" data-sort="dateAsc">Due ↑</button>
@@ -2756,7 +2764,148 @@ function msSortRowsForCurrentSort(rows) {
   return arr;
 }
 
+
+// Final Money Left input fix.
+// Replaces #leftAmount with a clean clone so old handlers cannot limit/cursor-jump it.
+function msMoneyLeftParse(value) {
+  const raw = String(value || '')
+    .replace(/,/g, '')
+    .replace(/£/g, '')
+    .replace(/[^\d.]/g, '');
+  const dot = raw.indexOf('.');
+  const normalised = dot === -1 ? raw : raw.slice(0, dot + 1) + raw.slice(dot + 1).replace(/\./g, '');
+  const n = parseFloat(normalised);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function msMoneyLeftCleanForSave(value) {
+  const raw = String(value || '')
+    .replace(/,/g, '')
+    .replace(/£/g, '')
+    .replace(/[^\d.]/g, '');
+  const dot = raw.indexOf('.');
+  return dot === -1 ? raw : raw.slice(0, dot + 1) + raw.slice(dot + 1).replace(/\./g, '');
+}
+
+function msMoneyLeftStillToPay() {
+  try {
+    const picker = document.getElementById('monthPicker');
+    const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+    if (!table || !table.rows) return 0;
+    return table.rows.reduce((sum, row) => sum + (isRowPaid(row) ? 0 : (row.paid || 0)), 0);
+  } catch (e) {
+    return 0;
+  }
+}
+
+function msMoneyLeftDays() {
+  const now = new Date();
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  return Math.max(1, Math.ceil((end - now) / 86400000));
+}
+
+function msMoneyLeftRecalc() {
+  const input = document.getElementById('leftAmount');
+  if (!input) return;
+
+  const amount = msMoneyLeftParse(input.value);
+  const stillToPay = msMoneyLeftStillToPay();
+  const days = msMoneyLeftDays();
+  const perDay = (amount - stillToPay) / days;
+
+  const valueEl =
+    document.getElementById('perDayValue') ||
+    document.getElementById('perDayValueEl') ||
+    document.querySelector('[data-per-day-value]') ||
+    document.querySelector('.per-day .big');
+
+  const metaEl =
+    document.getElementById('perDayMeta') ||
+    document.querySelector('[data-per-day-meta]') ||
+    document.querySelector('.per-day .meta');
+
+  if (valueEl) {
+    valueEl.textContent = typeof fmtMoney === 'function' ? fmtMoney(perDay) : ('£' + perDay.toFixed(2));
+  }
+
+  if (metaEl) {
+    metaEl.textContent = `${days} day${days === 1 ? '' : 's'} left`;
+  }
+}
+
+function msMoneyLeftWriteBack(value, showError) {
+  const cleaned = msMoneyLeftCleanForSave(value);
+  if (!cleaned) return;
+
+  if (typeof msWriteLeftC4Visible === 'function') {
+    msWriteLeftC4Visible(cleaned, !!showError).catch(err => {
+      console.warn('Money Left write failed:', err);
+      if (showError) alert('Could not save Money Left: ' + (err.message || err));
+    });
+  } else if (typeof msWriteLeftC4Now === 'function') {
+    msWriteLeftC4Now(cleaned, !!showError).catch(err => {
+      console.warn('Money Left write failed:', err);
+      if (showError) alert('Could not save Money Left: ' + (err.message || err));
+    });
+  } else if (typeof msWriteLeftC4Strong === 'function') {
+    msWriteLeftC4Strong(cleaned).catch(err => {
+      console.warn('Money Left write failed:', err);
+      if (showError) alert('Could not save Money Left: ' + (err.message || err));
+    });
+  }
+}
+
+function msWireMoneyLeftCloneFix() {
+  const oldInput = document.getElementById('leftAmount');
+  if (!oldInput || oldInput.dataset.cloneFixed === '1') return;
+
+  const clone = oldInput.cloneNode(true);
+  clone.dataset.cloneFixed = '1';
+
+  clone.removeAttribute('max');
+  clone.removeAttribute('maxlength');
+  clone.removeAttribute('min');
+  clone.removeAttribute('step');
+  clone.removeAttribute('pattern');
+  clone.setAttribute('type', 'text');
+  clone.setAttribute('inputmode', 'decimal');
+  clone.setAttribute('autocomplete', 'off');
+
+  oldInput.parentNode.replaceChild(clone, oldInput);
+
+  let timer = null;
+
+  clone.addEventListener('input', function() {
+    // Do not change this.value while typing. This is the key fix.
+    msMoneyLeftRecalc();
+
+    clearTimeout(timer);
+    timer = setTimeout(() => msMoneyLeftWriteBack(this.value, false), 900);
+  });
+
+  clone.addEventListener('change', function() {
+    clearTimeout(timer);
+    msMoneyLeftRecalc();
+    msMoneyLeftWriteBack(this.value, true);
+  });
+
+  clone.addEventListener('blur', function() {
+    clearTimeout(timer);
+    msMoneyLeftRecalc();
+    msMoneyLeftWriteBack(this.value, true);
+  });
+
+  msMoneyLeftRecalc();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  msWireMoneyLeftCloneFix();
+  setTimeout(msWireMoneyLeftCloneFix, 250);
+  setTimeout(msWireMoneyLeftCloneFix, 1000);
+});
+
 start();
+msWireMoneyLeftCloneFix();
 setTimeout(msWireLeftC4VisibleWrite, 500);
 setTimeout(msAfterRenderLeftC4Strong, 500);
 setTimeout(() => { msWireLeftAmountC4Sync(); msPullLeftAmountC4(); }, 300);

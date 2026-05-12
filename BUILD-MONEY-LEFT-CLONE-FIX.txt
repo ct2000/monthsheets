@@ -1,0 +1,5 @@
+Built: 2026-05-12 19:54:10
+Base: money-title-update-20260512-194849.zip
+Fix: Money Left input is replaced by a clean clone after render, removing old conflicting handlers. It no longer modifies value while typing, so values like 1092.33 can be entered normally.
+JS syntax ok: True
+
