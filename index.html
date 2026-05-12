@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- patched build: 2026-05-12 15:12:59 | removed invalid Sheets API build query -->
+<!-- PWA style update build: 2026-05-12 15:20:40 | Orbis-style compact mobile refresh -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#6d28d9">
@@ -177,6 +177,297 @@ body.dark .month-picker,
 body.dark .icon-btn{
   background:rgba(255,255,255,0.08);
   color:#fff;
+}
+
+
+/* === Orbis-style mobile refresh — build 2026-05-12 15:20:40 === */
+:root {
+  --orb-bg: #f8fafc;
+  --orb-panel: #ffffff;
+  --orb-soft: #f4f6f8;
+  --orb-line: #edf0f4;
+  --orb-text: #111827;
+  --orb-muted: #6b7280;
+  --orb-green: #80e45e;
+  --orb-green-dark: #20a451;
+  --orb-purple: #5b46d6;
+  --orb-shadow: 0 12px 34px rgba(16,24,40,.07);
+}
+body.dark, [data-theme="dark"] {
+  --orb-bg: #101319;
+  --orb-panel: #171b23;
+  --orb-soft: #202631;
+  --orb-line: rgba(255,255,255,.09);
+  --orb-text: #f7f8fb;
+  --orb-muted: #a3a9b4;
+  --orb-shadow: 0 14px 36px rgba(0,0,0,.28);
+}
+html, body {
+  background: var(--orb-bg) !important;
+}
+body::before, body::after {
+  display: none !important;
+}
+body {
+  color: var(--orb-text) !important;
+}
+#app.app, .app {
+  max-width: 430px !important;
+  padding: max(18px, env(safe-area-inset-top)) 14px max(92px, env(safe-area-inset-bottom)) !important;
+  background: var(--orb-bg);
+}
+.header, .topbar {
+  margin: 8px 0 14px !important;
+  display: grid !important;
+  grid-template-columns: 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.title {
+  color: var(--orb-text) !important;
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  letter-spacing: -.02em !important;
+}
+.subtitle {
+  color: var(--orb-muted) !important;
+  font-size: 11px !important;
+  margin-top: 3px !important;
+}
+.toolbar {
+  gap: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+.month-picker {
+  width: 56px !important;
+  min-width: 56px !important;
+  max-width: 56px !important;
+  height: 32px !important;
+  padding: 0 6px !important;
+  border-radius: 16px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  text-align-last: center !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: var(--orb-panel) !important;
+  color: var(--orb-text) !important;
+  border: 1px solid var(--orb-line) !important;
+  box-shadow: var(--orb-shadow) !important;
+}
+.icon-btn {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 17px !important;
+  background: var(--orb-panel) !important;
+  color: var(--orb-text) !important;
+  border: 1px solid var(--orb-line) !important;
+  box-shadow: var(--orb-shadow) !important;
+}
+#content {
+  display: block !important;
+}
+.cards {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  margin: 12px 0 14px !important;
+}
+.card {
+  background: var(--orb-panel) !important;
+  border: 1px solid var(--orb-line) !important;
+  border-radius: 18px !important;
+  padding: 14px !important;
+  box-shadow: var(--orb-shadow) !important;
+}
+.card-label {
+  color: var(--orb-muted) !important;
+  font-size: 10px !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+.card-value {
+  color: var(--orb-text) !important;
+  font-size: 19px !important;
+  font-weight: 850 !important;
+  margin-top: 5px !important;
+}
+.card.items-count {
+  display: none !important;
+}
+.left-panel {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 12px 0 16px !important;
+}
+.left-panel .field {
+  background: var(--orb-panel) !important;
+  border: 1px solid var(--orb-line) !important;
+  border-radius: 18px !important;
+  padding: 14px !important;
+  box-shadow: var(--orb-shadow) !important;
+}
+.left-panel .field-label {
+  color: var(--orb-muted) !important;
+  font-size: 10px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.left-panel .field-input,
+.left-panel .readonly {
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--orb-text) !important;
+  padding: 0 !important;
+  font-size: 18px !important;
+  box-shadow: none !important;
+}
+.left-panel .meta {
+  color: var(--orb-muted) !important;
+  font-size: 11px !important;
+}
+.left-panel .per-day {
+  background: var(--orb-panel) !important;
+  border: 1px solid var(--orb-line) !important;
+  border-radius: 18px !important;
+  padding: 14px !important;
+  box-shadow: var(--orb-shadow) !important;
+  text-align: left !important;
+}
+.left-panel .per-day .big {
+  color: var(--orb-text) !important;
+  font-size: 22px !important;
+}
+.left-panel .per-day .small {
+  color: var(--orb-muted) !important;
+  font-size: 10px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+.section-title {
+  color: var(--orb-text) !important;
+  font-size: 18px !important;
+  font-weight: 850 !important;
+  margin: 18px 0 10px !important;
+}
+table.bills {
+  display: block !important;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+table.bills thead {
+  display: none !important;
+}
+table.bills tbody {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+table.bills tr {
+  display: grid !important;
+  grid-template-columns: 44px 1fr auto !important;
+  grid-template-areas:
+    "icon name amount"
+    "icon date status" !important;
+  gap: 2px 12px !important;
+  align-items: center !important;
+  background: var(--orb-panel) !important;
+  border: 1px solid var(--orb-line) !important;
+  border-radius: 18px !important;
+  padding: 13px 14px !important;
+  box-shadow: var(--orb-shadow) !important;
+  color: var(--orb-text) !important;
+}
+table.bills tr::before {
+  content: "£";
+  grid-area: icon;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: #eef7f0;
+  color: var(--orb-green-dark);
+  font-weight: 900;
+  font-size: 18px;
+}
+table.bills tr.paid::before {
+  background: #f1f2f5;
+  color: var(--orb-muted);
+}
+table.bills td {
+  display: block !important;
+  border: 0 !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+table.bills td.name {
+  grid-area: name !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  text-decoration: none !important;
+}
+table.bills td:nth-child(2) {
+  grid-area: date !important;
+  color: var(--orb-muted) !important;
+  font-size: 12px !important;
+}
+table.bills td:nth-child(2)::before {
+  content: "Due ";
+}
+table.bills td:nth-child(3) {
+  grid-area: amount !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+  text-align: right !important;
+}
+table.bills td:nth-child(4) {
+  display: none !important;
+}
+table.bills td:nth-child(5) {
+  grid-area: status !important;
+  text-align: right !important;
+}
+.status-pill {
+  border-radius: 999px !important;
+  padding: 5px 10px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+}
+.pill-paid {
+  background: #ecfdf3 !important;
+  color: var(--orb-green-dark) !important;
+}
+.pill-due {
+  background: #fff3df !important;
+  color: #b45309 !important;
+}
+.footer-note {
+  display: none !important;
+}
+.btn-primary, .action-btn {
+  background: var(--orb-green) !important;
+  color: #102012 !important;
+  border-radius: 16px !important;
+  font-weight: 850 !important;
+}
+.bottom-nav {
+  background: rgba(255,255,255,.92) !important;
+  border: 1px solid var(--orb-line) !important;
+  box-shadow: 0 -8px 30px rgba(16,24,40,.08) !important;
+  border-radius: 24px 24px 0 0 !important;
+}
+body.dark .bottom-nav, [data-theme="dark"] .bottom-nav {
+  background: rgba(23,27,35,.92) !important;
 }
 
 </style>
@@ -456,7 +747,7 @@ function render() {
     const opt = document.createElement('option');
     opt.value = idx;
     const paidCount = t.rows.filter(r => r.due > 0 && r.paid === 0).length;
-    opt.textContent = t.label + (paidCount > 0 ? '  (active)' : '');
+    opt.textContent = (t.label || 'Month').slice(0,3);
     if (idx === bestIndex) opt.selected = true;
     picker.appendChild(opt);
   });
@@ -485,7 +776,7 @@ function renderMonth(table) {
   const outstanding = table.rows.reduce((s, r) => s + outstandingAmount(r), 0);
 
   document.getElementById('subtitle').textContent =
-    `${table.label} — ${table.rows.length} bills · refreshed ${new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`;
+    `${table.label} · refreshed ${new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}`;
 
   const sorted = [...table.rows].sort((a, b) => {
     const da = parseInt(a.dueDate) || 99;
@@ -516,9 +807,8 @@ function renderMonth(table) {
 
   const cardsHtml = `
     <div class="cards">
-      <div class="card"><div class="card-label">Total Due</div><div class="card-value">${fmtMoney(totalDue)}</div></div>
-      <div class="card paid"><div class="card-label">Paid So Far</div><div class="card-value">${fmtMoney(totalPaid)}</div></div>
       <div class="card outstanding"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div></div>
+      <div class="card paid"><div class="card-label">Paid So Far</div><div class="card-value">${fmtMoney(totalPaid)}</div></div>
     </div>
   `;
 
@@ -581,7 +871,7 @@ function renderLeftPanel(table) {
       </div>
       <div class="per-day">
         <div class="big" id="perDayValue">—</div>
-        <div class="small">days remaining</div>
+        <div class="small">days left</div>
         <div class="meta" id="perDayMeta" style="margin-top:8px;">—</div>
       </div>
     </div>
@@ -605,11 +895,10 @@ function wireLeftPanel(table) {
 
     stillToPayEl.textContent = fmtMoney(stillToPay);
     const perDayValueEl = document.getElementById('perDayValue');
-    perDayValueEl.textContent = fmtMoney(perDay);
-    perDayValueEl.style.color = spendable < 0 ? '#b91c1c' : '';
+    perDayValueEl.textContent = String(days);
+    perDayValueEl.style.color = '';
     document.getElementById('daysMeta').textContent = `${days} day${days === 1 ? '' : 's'} to stretch across`;
-    document.getElementById('perDayMeta').textContent =
-      `${days} days left this month`;
+    document.getElementById('perDayMeta').textContent = `left in the selected period`;
     setStoredLeft(table, { amount, endDate });
   }
   amountEl.addEventListener('input', recompute);
