@@ -1,0 +1,5 @@
+Built: 2026-05-12 21:36:00
+Base: money-safe-spend-force-match-20260512-212539.zip
+Fix: restored dashboard renderer while adding a non-destructive canonical daily calculation layer. Dashboard sections should remain visible.
+JS syntax ok: True
+
