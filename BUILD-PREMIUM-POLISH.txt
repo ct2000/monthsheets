@@ -1,0 +1,5 @@
+Built: 2026-05-12 20:03:22
+Base: money-left-input-clone-fix-20260512-195410.zip
+Added premium iOS polish: Wallet-style summary cards, animated number pulse, pull-to-refresh hint/gesture, richer bill card tap states, toast UI, and smart-section styling. Logic kept intact.
+JS syntax ok: True
+

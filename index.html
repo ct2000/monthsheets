@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Money Left clone input fix build: 2026-05-12 19:54:10 -->
+<!-- Premium iOS polish build: 2026-05-12 20:03:22 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1587,6 +1587,180 @@ header h1{
   font-variant-numeric: tabular-nums !important;
 }
 
+
+/* === Premium iOS polish layer 2026-05-12 20:03:22 === */
+
+.summary-card,
+.card.summary,
+.balance-card,
+[class*="summary"] {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 30px !important;
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255,255,255,.95), rgba(255,255,255,.45) 38%, transparent 62%),
+    linear-gradient(145deg, rgba(255,255,255,.86), rgba(242,246,252,.72)) !important;
+  box-shadow:
+    0 22px 60px rgba(15,23,42,.12),
+    inset 0 1px 0 rgba(255,255,255,.75) !important;
+  border: 1px solid rgba(15,23,42,.075) !important;
+  backdrop-filter: blur(28px) saturate(1.35) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.35) !important;
+}
+
+body.dark .summary-card,
+body.dark .card.summary,
+body.dark .balance-card,
+body.dark [class*="summary"],
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .card.summary,
+[data-theme="dark"] .balance-card,
+[data-theme="dark"] [class*="summary"] {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255,255,255,.10), rgba(255,255,255,.03) 40%, transparent 64%),
+    linear-gradient(145deg, rgba(28,34,45,.86), rgba(15,19,28,.72)) !important;
+  box-shadow:
+    0 22px 60px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.08) !important;
+  border-color: rgba(255,255,255,.10) !important;
+}
+
+.summary-card::after,
+.card.summary::after,
+.balance-card::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: linear-gradient(120deg, rgba(255,255,255,.22), transparent 38%, rgba(255,255,255,.08) 72%, transparent) !important;
+  pointer-events: none !important;
+}
+
+.big,
+.amount,
+.total,
+[class*="amount"],
+[data-per-day-value] {
+  font-variant-numeric: tabular-nums !important;
+  transition:
+    color .22s ease,
+    opacity .18s ease,
+    transform .18s ease !important;
+}
+
+.bill-card,
+.item-card,
+.row-card,
+article[class*="bill"] {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 24px !important;
+  transform: translateZ(0) !important;
+  transition:
+    transform .18s cubic-bezier(.2,.8,.2,1),
+    box-shadow .18s ease,
+    background .18s ease,
+    opacity .18s ease !important;
+  will-change: transform !important;
+}
+
+.bill-card:hover,
+.item-card:hover,
+.row-card:hover,
+article[class*="bill"]:hover {
+  transform: translateY(-1px) !important;
+}
+
+.bill-card:active,
+.item-card:active,
+.row-card:active,
+article[class*="bill"]:active {
+  transform: scale(.985) !important;
+}
+
+.upcoming-week,
+.this-week,
+.smart-section,
+[data-section="upcoming"] {
+  margin: 14px 0 !important;
+  padding: 14px !important;
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.68) !important;
+  border: 1px solid rgba(15,23,42,.07) !important;
+  box-shadow: 0 10px 28px rgba(15,23,42,.07) !important;
+  backdrop-filter: blur(22px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.25) !important;
+}
+
+body.dark .upcoming-week,
+body.dark .this-week,
+body.dark .smart-section,
+body.dark [data-section="upcoming"],
+[data-theme="dark"] .upcoming-week,
+[data-theme="dark"] .this-week,
+[data-theme="dark"] .smart-section,
+[data-theme="dark"] [data-section="upcoming"] {
+  background: rgba(22,27,36,.68) !important;
+  border-color: rgba(255,255,255,.09) !important;
+}
+
+.pull-refresh-hint {
+  text-align: center !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: var(--ios-muted, #6b7280) !important;
+  padding: 8px 0 2px !important;
+  opacity: .72 !important;
+}
+
+.money-toast {
+  position: fixed !important;
+  left: 50% !important;
+  bottom: calc(92px + env(safe-area-inset-bottom)) !important;
+  transform: translateX(-50%) translateY(10px) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: 100000 !important;
+  padding: 11px 15px !important;
+  border-radius: 999px !important;
+  background: rgba(17,24,39,.88) !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  box-shadow: 0 14px 34px rgba(0,0,0,.24) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  transition: opacity .22s ease, transform .22s ease !important;
+}
+
+.money-toast.show {
+  opacity: 1 !important;
+  transform: translateX(-50%) translateY(0) !important;
+}
+
+body.dark .money-toast,
+[data-theme="dark"] .money-toast {
+  background: rgba(248,250,252,.90) !important;
+  color: #111827 !important;
+}
+
+.bill-list,
+.list,
+.items,
+main {
+  animation: moneyFadeUp .24s ease both;
+}
+
+@keyframes moneyFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -2904,7 +3078,91 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(msWireMoneyLeftCloneFix, 1000);
 });
 
+
+// Premium UI helpers: toasts, number pulse, pull-to-refresh hint, and lightweight refresh gesture.
+function moneyToast(message) {
+  let toast = document.getElementById('moneyToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'moneyToast';
+    toast.className = 'money-toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(window.__moneyToastTimer);
+  window.__moneyToastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+function moneyPulseNumbers() {
+  document.querySelectorAll('.big, .amount, [data-per-day-value]').forEach(el => {
+    el.style.transform = 'scale(1.018)';
+    el.style.opacity = '.86';
+    setTimeout(() => {
+      el.style.transform = '';
+      el.style.opacity = '';
+    }, 180);
+  });
+}
+
+function moneyAddRefreshHint() {
+  const app = document.getElementById('app');
+  if (!app || document.getElementById('pullRefreshHint')) return;
+  const hint = document.createElement('div');
+  hint.id = 'pullRefreshHint';
+  hint.className = 'pull-refresh-hint';
+  hint.textContent = 'Pull down to refresh';
+  app.prepend(hint);
+}
+
+function moneyWirePremiumRefresh() {
+  if (window.__moneyPremiumRefreshWired) return;
+  window.__moneyPremiumRefreshWired = true;
+
+  let startY = 0;
+  let armed = false;
+
+  window.addEventListener('touchstart', event => {
+    if (window.scrollY > 2) return;
+    startY = event.touches && event.touches[0] ? event.touches[0].clientY : 0;
+    armed = true;
+  }, { passive: true });
+
+  window.addEventListener('touchend', event => {
+    if (!armed) return;
+    armed = false;
+    const endY = event.changedTouches && event.changedTouches[0] ? event.changedTouches[0].clientY : 0;
+    if (window.scrollY <= 2 && endY - startY > 76) {
+      moneyToast('Refreshing…');
+      if (typeof loadSpreadsheet === 'function') {
+        loadSpreadsheet();
+        setTimeout(() => moneyToast('Updated ✓'), 900);
+      }
+    }
+  }, { passive: true });
+}
+
+function moneyWirePremiumUI() {
+  moneyAddRefreshHint();
+  moneyPulseNumbers();
+
+  document.querySelectorAll('.paid-toggle, [data-paid-row], #msAddItemSave, #reloadBarBtn').forEach(btn => {
+    if (btn.dataset.moneyPremiumWired) return;
+    btn.dataset.moneyPremiumWired = '1';
+    btn.addEventListener('click', () => {
+      setTimeout(moneyPulseNumbers, 250);
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  moneyWirePremiumUI();
+  moneyWirePremiumRefresh();
+  setTimeout(moneyWirePremiumUI, 800);
+});
+
 start();
+setTimeout(moneyWirePremiumUI, 500);
 msWireMoneyLeftCloneFix();
 setTimeout(msWireLeftC4VisibleWrite, 500);
 setTimeout(msAfterRenderLeftC4Strong, 500);
