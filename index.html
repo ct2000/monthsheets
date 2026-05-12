@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Left!C4 Amount Left sync build: 2026-05-12 17:46:55 -->
+<!-- Left!C4 sync v2 after-render build: 2026-05-12 17:53:13 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -987,7 +987,7 @@ async function appendBill(){const table=CACHED_TABLES[monthPicker.value]||CACHED
 async function loadSpreadsheet(){content.innerHTML='<div class="spinner">Fetching your spreadsheet…</div>';try{CACHED_TABLES=parseTablesFromGrid(await fetchSheet());render();setTimeout(msWireLeftAmountUpdate,50)}catch(e){if(String(e.message).toLowerCase().includes('sign')){showSignIn();return}content.innerHTML=`<div class="error"><strong>Couldn’t load spreadsheet:</strong><br>${escapeHtml(e.message||e)}</div>`}}
 function openConfig(){const c=getConfig();cfgClientId.value=c.clientId;cfgFileId.value=c.fileId;configModal.classList.add('open')}function closeConfig(){configModal.classList.remove('open')}function openAdd(){newName.value='';newDueDate.value='';newAmount.value='';addModal.classList.add('open')}function closeAdd(){addModal.classList.remove('open')}function applyTheme(t){document.documentElement.dataset.theme=t;localStorage.setItem('ms.theme',t);themeBtn.textContent=t==='dark'?'☀':'☾'}
 themeBtn.onclick=()=>applyTheme((document.documentElement.dataset.theme||'light')==='dark'?'light':'dark');applyTheme(localStorage.getItem('ms.theme')||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));settingsBtn.onclick=openConfig;settingsBtnSignin.onclick=openConfig;settingsNav.onclick=openConfig;refreshBtn.onclick=loadSpreadsheet;refreshNav.onclick=loadSpreadsheet;/* addFab removed */addCancel.onclick=closeAdd;addSave.onclick=appendBill;signinBtn.onclick=()=>requestSignIn(false);searchBills.oninput=()=>{if(CACHED_TABLES.length)renderMonth(CACHED_TABLES[monthPicker.value]||CACHED_TABLES[0])};cfgCancel.onclick=closeConfig;cfgSave.onclick=()=>{cfgClientId.value.trim()?localStorage.setItem('ms.clientId',cfgClientId.value.trim()):localStorage.removeItem('ms.clientId');cfgFileId.value.trim()?localStorage.setItem('ms.fileId',cfgFileId.value.trim()):localStorage.removeItem('ms.fileId');TOKEN_CLIENT=null;clearToken();closeConfig();start()};
-function waitForGoogle(timeout=10000){return new Promise((res,rej)=>{const t=Date.now();(function tick(){if(window.google?.accounts?.oauth2)return res();if(Date.now()-t>timeout)return rej(new Error('Google sign-in script failed to load'));setTimeout(tick,100)})()})}function start(){const c=getConfig();if(!c.clientId||!c.fileId){showSignIn();return}if(getToken()){showApp();loadSpreadsheet();return}waitForGoogle().then(()=>{initTokenClient();showSignIn();requestSignIn(true)}).catch(()=>showSignIn())}
+function waitForGoogle(timeout=10000){return new Promise((res,rej)=>{const t=Date.now();(function tick(){if(window.google?.accounts?.oauth2)return res();if(Date.now()-t>timeout)return rej(new Error('Google sign-in script failed to load'));setTimeout(tick,100)})()})}function start(){const c=getConfig();if(!c.clientId||!c.fileId){showSignIn();return}if(getToken()){showApp();loadSpreadsheet(); setTimeout(msAfterRenderLeftC4Strong,500);return}waitForGoogle().then(()=>{initTokenClient();showSignIn();requestSignIn(true)}).catch(()=>showSignIn())}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&getToken())loadSpreadsheet()});setInterval(()=>{if(getToken()&&document.visibilityState==='visible')loadSpreadsheet()},120000);if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js?v=20260512-153350').catch(()=>{}));
 
 
@@ -1672,24 +1672,7 @@ async function msWriteLeftAmountToSheet(value) {
   return res.json();
 }
 
-async function msPullLeftAmountC4() {
-  const input = document.getElementById('leftAmount');
-  if (!input) return;
-
-  try {
-    const value = await msReadLeftAmountFromSheet();
-    if (value !== '') {
-      const cleaned = typeof msCleanLooseMoney === 'function'
-        ? msCleanLooseMoney(value)
-        : String(value).replace(/,/g,'').replace(/£/g,'').replace(/[^0-9.]/g,'');
-      input.value = cleaned;
-    }
-
-    if (typeof msUpdateLeftAmountPerDay === 'function') msUpdateLeftAmountPerDay();
-  } catch (err) {
-    console.warn('Could not read Left!C4:', err);
-  }
-}
+async function msPullLeftAmountC4(){ return msApplyLeftC4ToInputStrong(); }
 
 function msWireLeftAmountC4Sync() {
   const input = document.getElementById('leftAmount');
@@ -1729,7 +1712,144 @@ async function msRefreshLeftC4AndSheet() {
   }, 100);
 }
 
+
+// Strong Left!C4 -> PWA sync.
+// This waits until #leftAmount exists, then applies the sheet value after render.
+async function msReadLeftC4ValueStrong() {
+  const { fileId } = getConfig();
+  const token = getToken();
+  if (!token) throw new Error('Not signed in');
+
+  const range = 'Left!C4';
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueRenderOption=FORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING`;
+
+  const res = await fetch(url, {
+    cache: 'no-store',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache'
+    }
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired — sign in again.');
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+  }
+
+  const json = await res.json();
+  return json.values && json.values[0] && json.values[0][0] != null ? String(json.values[0][0]) : '';
+}
+
+function msCleanLeftC4DisplayValue(value) {
+  return String(value || '')
+    .replace(/,/g, '')
+    .replace(/£/g, '')
+    .replace(/[^\d.]/g, '')
+    .replace(/(\..*)\./g, '$1');
+}
+
+async function msApplyLeftC4ToInputStrong() {
+  const input = document.getElementById('leftAmount');
+  if (!input) return false;
+
+  try {
+    const sheetValue = await msReadLeftC4ValueStrong();
+    const cleaned = msCleanLeftC4DisplayValue(sheetValue);
+
+    input.value = cleaned;
+    input.dataset.syncedFromLeftC4 = cleaned;
+
+    if (typeof msUpdateLeftAmountPerDay === 'function') msUpdateLeftAmountPerDay();
+    if (typeof msRecalcLeftAmountPerDay === 'function') msRecalcLeftAmountPerDay();
+    if (typeof msRecalculatePerDayFromLeftAmount === 'function') msRecalculatePerDayFromLeftAmount();
+
+    return true;
+  } catch (err) {
+    console.warn('Left!C4 pull failed:', err);
+    return false;
+  }
+}
+
+function msWaitAndApplyLeftC4Strong() {
+  let attempts = 0;
+  const timer = setInterval(async () => {
+    attempts++;
+    const ok = await msApplyLeftC4ToInputStrong();
+    if (ok || attempts >= 20) clearInterval(timer);
+  }, 250);
+}
+
+async function msWriteLeftC4Strong(value) {
+  const { fileId } = getConfig();
+  const token = getToken();
+  if (!token) throw new Error('Not signed in');
+
+  const range = 'Left!C4';
+  const amount = typeof msParseLooseMoney === 'function'
+    ? msParseLooseMoney(value)
+    : parseFloat(String(value || '').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.]/g,'')) || 0;
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${fileId}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`;
+
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      range,
+      majorDimension: 'ROWS',
+      values: [[amount]]
+    })
+  });
+
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired — sign in again.');
+  }
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Sheets API ${res.status}: ${text.slice(0, 220)}`);
+  }
+
+  return res.json();
+}
+
+function msWireLeftC4Strong() {
+  const input = document.getElementById('leftAmount');
+  if (!input || input.dataset.leftC4StrongWired) return;
+
+  input.dataset.leftC4StrongWired = '1';
+
+  let saveTimer = null;
+  input.addEventListener('input', function() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      msWriteLeftC4Strong(input.value).catch(err => console.warn('Left!C4 write failed:', err));
+    }, 700);
+  });
+
+  input.addEventListener('change', function() {
+    clearTimeout(saveTimer);
+    msWriteLeftC4Strong(input.value).catch(err => alert('Could not sync Amount Left: ' + (err.message || err)));
+  });
+}
+
+function msAfterRenderLeftC4Strong() {
+  msWireLeftC4Strong();
+  msWaitAndApplyLeftC4Strong();
+}
+
 start();
+setTimeout(msAfterRenderLeftC4Strong, 500);
 setTimeout(() => { msWireLeftAmountC4Sync(); msPullLeftAmountC4(); }, 300);
 msWireLeftAmountUpdate();
 msSafeWireSyncControls();

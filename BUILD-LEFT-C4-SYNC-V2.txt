@@ -1,0 +1,5 @@
+Built: 2026-05-12 17:53:13
+Base: month-spread-left-c4-sync-20260512-174655.zip
+Fix: stronger Left!C4 sync that waits for #leftAmount after render, applies C4 value to the input, recalculates per-day, and writes edits back to Left!C4.
+JS syntax ok: True
+
