@@ -1,0 +1,5 @@
+Built: 2026-05-12 18:58:40
+Base: month-spread-tabs-pure-white-20260512-185607.zip
+Changes: matching grey hover for Paid/Unpaid tabs and dark-mode compatible tab/badge colours.
+JS syntax ok: True
+

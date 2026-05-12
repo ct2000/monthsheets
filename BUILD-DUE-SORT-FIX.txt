@@ -1,0 +1,5 @@
+Built: 2026-05-12 19:07:41
+Base: month-spread-dark-outline-fix-20260512-190311.zip
+Fix: Due ↓ now uses dateDesc and sorts due dates high-to-low. Due ↑ sorts low-to-high.
+JS syntax ok: True
+

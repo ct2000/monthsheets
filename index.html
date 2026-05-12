@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- tabs hover and dark mode build: 2026-05-12 18:58:40 -->
+<!-- due date descending sort fix build: 2026-05-12 19:07:41 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#80e45e">
@@ -2167,6 +2167,75 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(msWireLeftC4VisibleWrite, 500);
   setTimeout(msWireLeftC4VisibleWrite, 1500);
 });
+
+
+// Final due-date sorting fix.
+// Supports Due ↑ and Due ↓ using the row dueDate field.
+function msDueSortValue(row) {
+  const raw = String(row && row.dueDate != null ? row.dueDate : '').trim();
+
+  // Simple day-of-month values: "1", "01", "14" etc.
+  const dayOnly = raw.match(/^(\d{1,2})$/);
+  if (dayOnly) return parseInt(dayOnly[1], 10);
+
+  // UK-ish full dates: 14/05/2026 or 14-05-2026.
+  const ukDate = raw.match(/^(\d{1,2})[\/\-.](\d{1,2})(?:[\/\-.](\d{2,4}))?$/);
+  if (ukDate) return parseInt(ukDate[1], 10);
+
+  // Text with first number in it: "Due 14th", "14 May" etc.
+  const anyNumber = raw.match(/(\d{1,2})/);
+  if (anyNumber) return parseInt(anyNumber[1], 10);
+
+  // Missing/unknown dates go to the end for ascending and beginning for descending via comparator.
+  return null;
+}
+
+function msSortRowsForCurrentSort(rows) {
+  const arr = [...rows];
+
+  if (CURRENT_SORT === 'dateAsc' || CURRENT_SORT === 'dateDesc') {
+    arr.sort((a, b) => {
+      const av = msDueSortValue(a);
+      const bv = msDueSortValue(b);
+
+      if (av == null && bv == null) return String(a.name || '').localeCompare(String(b.name || ''));
+      if (av == null) return CURRENT_SORT === 'dateDesc' ? -1 : 1;
+      if (bv == null) return CURRENT_SORT === 'dateDesc' ? 1 : -1;
+
+      if (av !== bv) {
+        return CURRENT_SORT === 'dateDesc' ? bv - av : av - bv;
+      }
+
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    });
+
+    return arr;
+  }
+
+  if (CURRENT_SORT === 'paid') {
+    arr.sort((a, b) => {
+      const ap = isRowPaid(a);
+      const bp = isRowPaid(b);
+      if (ap !== bp) return bp ? 1 : -1;
+      const av = msDueSortValue(a) ?? 99;
+      const bv = msDueSortValue(b) ?? 99;
+      return av - bv;
+    });
+    return arr;
+  }
+
+  // Default/unpaid first.
+  arr.sort((a, b) => {
+    const ap = isRowPaid(a);
+    const bp = isRowPaid(b);
+    if (ap !== bp) return ap ? 1 : -1;
+    const av = msDueSortValue(a) ?? 99;
+    const bv = msDueSortValue(b) ?? 99;
+    return av - bv;
+  });
+
+  return arr;
+}
 
 start();
 setTimeout(msWireLeftC4VisibleWrite, 500);
