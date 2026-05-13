@@ -14,6 +14,70 @@ document.addEventListener('click', event => {
 
 
 
+// Force unified summary card styling.
+function moneyUnifySummaryCard() {
+  const summary = Array.from(document.querySelectorAll('.summary-card, .card.summary, .balance-card, [class*="summary"]')).find(card => {
+    const t = String(card.textContent || '').toLowerCase();
+    return (
+      t.includes('outstanding') ||
+      t.includes('paid so far') ||
+      t.includes('money left') ||
+      t.includes('left per day')
+    );
+  });
+
+  if (!summary) return;
+
+  summary.classList.add('money-top-summary-anchor');
+
+  // Remove accidental spacing wrappers.
+  summary.querySelectorAll('[style*="margin"], [class*="gap"]').forEach(el => {
+    el.style.gap = '0';
+    el.style.margin = '0';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyUnifySummaryCard();
+  setTimeout(moneyUnifySummaryCard, 500);
+  setTimeout(moneyUnifySummaryCard, 1500);
+});
+
+
+
+// V2 layout polish helper.
+function moneyV2PolishLayout() {
+  const dock = document.querySelector('.bottom-nav, .bottom-dock, nav');
+  if (dock) {
+    dock.style.left = '50%';
+    dock.style.right = 'auto';
+    dock.style.transform = 'translateX(-50%)';
+    dock.style.width = 'calc(100vw - 32px)';
+    dock.style.maxWidth = '430px';
+  }
+
+  const summary = Array.from(document.querySelectorAll('.summary-card, .card.summary, .balance-card, [class*="summary"]')).find(card => {
+    const t = String(card.textContent || '').toLowerCase();
+    return t.includes('outstanding') || t.includes('paid so far') || t.includes('money left') || t.includes('left per day');
+  });
+
+  if (summary) {
+    summary.classList.add('money-top-summary-anchor');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyV2PolishLayout();
+  setTimeout(moneyV2PolishLayout, 500);
+  setTimeout(moneyV2PolishLayout, 1500);
+});
+
+document.addEventListener('click', function() {
+  setTimeout(moneyV2PolishLayout, 300);
+}, true);
+
+
+
 (function(){
   try {
     localStorage.setItem('money-pwa-version', 'v2-hotfix');

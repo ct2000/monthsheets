@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Unified summary card build: 2026-05-13 10:39:09 -->
 <!-- V2 layout polish build: 2026-05-13 10:33:45 -->
 <!-- Money PWA Version 2 | 2026-05-13 10:18:55 | v2-20260513-101855 -->
 <meta charset="utf-8">
@@ -4375,6 +4376,127 @@ body.dark .balance-card [class*="meta"],
   color: #a3a9b4 !important;
 }
 
+
+/* === unified summary card 2026-05-13 10:39:09 === */
+
+/* Main outer summary shell */
+.money-top-summary-anchor,
+.money-summary-under-search,
+.summary-card,
+.card.summary,
+.balance-card {
+  background: rgba(255,255,255,.78) !important;
+  border: 1px solid rgba(15,23,42,.07) !important;
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  gap: 0 !important;
+
+  box-shadow:
+    0 14px 38px rgba(15,23,42,.08),
+    inset 0 1px 0 rgba(255,255,255,.78) !important;
+
+  backdrop-filter: blur(26px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.2) !important;
+}
+
+/* Remove floating inner card look */
+.money-top-summary-anchor > *,
+.money-summary-under-search > *,
+.summary-card > *,
+.card.summary > *,
+.balance-card > * {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
+  margin: 0 !important;
+}
+
+/* Add subtle separators instead */
+.money-top-summary-anchor > * + *,
+.money-summary-under-search > * + *,
+.summary-card > * + *,
+.card.summary > * + *,
+.balance-card > * + * {
+  border-top: 1px solid rgba(15,23,42,.06) !important;
+}
+
+/* Inner spacing only */
+.money-top-summary-anchor > *,
+.money-summary-under-search > *,
+.summary-card > *,
+.card.summary > *,
+.balance-card > * {
+  padding: 14px 16px !important;
+}
+
+/* Numbers */
+.money-top-summary-anchor [class*="amount"],
+.money-summary-under-search [class*="amount"],
+.summary-card [class*="amount"],
+.card.summary [class*="amount"],
+.balance-card [class*="amount"],
+.money-top-summary-anchor .big,
+.money-summary-under-search .big,
+.summary-card .big,
+.card.summary .big,
+.balance-card .big {
+  font-size: 30px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.045em !important;
+  line-height: .92 !important;
+}
+
+/* Metadata */
+.money-top-summary-anchor small,
+.money-summary-under-search small,
+.summary-card small,
+.card.summary small,
+.balance-card small,
+.money-top-summary-anchor [class*="meta"],
+.money-summary-under-search [class*="meta"],
+.summary-card [class*="meta"],
+.card.summary [class*="meta"],
+.balance-card [class*="meta"] {
+  font-size: 11px !important;
+  opacity: .72 !important;
+  font-weight: 700 !important;
+}
+
+/* Dark mode unified shell */
+body.dark .money-top-summary-anchor,
+body.dark .money-summary-under-search,
+body.dark .summary-card,
+body.dark .card.summary,
+body.dark .balance-card,
+[data-theme="dark"] .money-top-summary-anchor,
+[data-theme="dark"] .money-summary-under-search,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .card.summary,
+[data-theme="dark"] .balance-card {
+  background: rgba(22,27,36,.84) !important;
+  border-color: rgba(255,255,255,.08) !important;
+
+  box-shadow:
+    0 18px 44px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+body.dark .money-top-summary-anchor > * + *,
+body.dark .money-summary-under-search > * + *,
+body.dark .summary-card > * + *,
+body.dark .card.summary > * + *,
+body.dark .balance-card > * + *,
+[data-theme="dark"] .money-top-summary-anchor > * + *,
+[data-theme="dark"] .money-summary-under-search > * + *,
+[data-theme="dark"] .summary-card > * + *,
+[data-theme="dark"] .card.summary > * + *,
+[data-theme="dark"] .balance-card > * + * {
+  border-top: 1px solid rgba(255,255,255,.06) !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -4410,6 +4532,37 @@ document.addEventListener('click', event => {
 
 </script>
 <script>
+
+// Force unified summary card styling.
+function moneyUnifySummaryCard() {
+  const summary = Array.from(document.querySelectorAll('.summary-card, .card.summary, .balance-card, [class*="summary"]')).find(card => {
+    const t = String(card.textContent || '').toLowerCase();
+    return (
+      t.includes('outstanding') ||
+      t.includes('paid so far') ||
+      t.includes('money left') ||
+      t.includes('left per day')
+    );
+  });
+
+  if (!summary) return;
+
+  summary.classList.add('money-top-summary-anchor');
+
+  // Remove accidental spacing wrappers.
+  summary.querySelectorAll('[style*="margin"], [class*="gap"]').forEach(el => {
+    el.style.gap = '0';
+    el.style.margin = '0';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyUnifySummaryCard();
+  setTimeout(moneyUnifySummaryCard, 500);
+  setTimeout(moneyUnifySummaryCard, 1500);
+});
+
+
 
 // V2 layout polish helper.
 function moneyV2PolishLayout() {
