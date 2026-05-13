@@ -1,13 +1,13 @@
 {
   "name": "Money",
   "short_name": "Money",
-  "description": "Clean rebuild of the Money spreadsheet-backed PWA",
-  "start_url": "./index.html?v=20260513-134814",
+  "description": "Modern iOS-style Money PWA",
+  "start_url": "./index.html?v=20260513-142819",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f4f7fb",
-  "theme_color": "#f4f7fb",
+  "background_color": "#f8fbff",
+  "theme_color": "#f8fbff",
   "icons": [
     {
       "src": "icon-192.png",
