@@ -1,8 +1,8 @@
 {
   "name": "Money",
   "short_name": "Money",
-  "description": "Money PWA gold master build",
-  "start_url": "./index.html?v=20260513-100120",
+  "description": "Money PWA Version 2",
+  "start_url": "./index.html?v=20260513-101855",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

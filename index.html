@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Money PWA Gold Master | 2026-05-13 10:01:20 | gold-master-20260513-100120 -->
+<!-- Money PWA Version 2 | 2026-05-13 10:18:55 | v2-20260513-101855 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3646,6 +3646,430 @@ body.dark article[class*="bill"],
     inset 0 1px 0 rgba(255,255,255,.055) !important;
 }
 
+
+/* ==========================================================
+   Money PWA Version 2 Visual Overhaul
+   Built: 2026-05-13 10:18:55
+   ========================================================== */
+
+:root {
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-28: 28px;
+
+  --anim-fast: .18s;
+  --anim-mid: .28s;
+  --spring: cubic-bezier(.2,.85,.2,1);
+
+  --accent-success: #34c759;
+  --accent-warning: #ff9f0a;
+  --accent-danger: #ff453a;
+
+  --money-glass-light:
+    radial-gradient(circle at top left,
+      rgba(255,255,255,.92),
+      rgba(255,255,255,.72) 40%,
+      rgba(255,255,255,.58));
+
+  --money-glass-dark:
+    linear-gradient(145deg,
+      rgba(22,27,36,.88),
+      rgba(15,20,28,.78));
+}
+
+body {
+  animation: moneyV2FadeIn .45s ease both;
+}
+
+#app,
+.app,
+.container,
+.shell {
+  padding-inline: var(--space-14) !important;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important;
+}
+
+/* Unified glass card system */
+.money-card,
+.summary-card,
+.card,
+.card.summary,
+.balance-card,
+.money-mini-analytics,
+.money-insights-card,
+.money-chart-card,
+.money-upcoming-card,
+.money-bills-section,
+.bill-card,
+.item-card,
+.row-card,
+article[class*="bill"] {
+  border-radius: var(--radius-24) !important;
+  background: var(--money-glass-light) !important;
+  border: 1px solid rgba(15,23,42,.06) !important;
+  box-shadow:
+    0 10px 30px rgba(15,23,42,.06),
+    inset 0 1px 0 rgba(255,255,255,.75) !important;
+  backdrop-filter: blur(26px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.2) !important;
+  transition:
+    transform var(--anim-fast) var(--spring),
+    box-shadow var(--anim-fast) ease,
+    opacity var(--anim-fast) ease !important;
+}
+
+body.dark .money-card,
+body.dark .summary-card,
+body.dark .card,
+body.dark .card.summary,
+body.dark .balance-card,
+body.dark .money-mini-analytics,
+body.dark .money-insights-card,
+body.dark .money-chart-card,
+body.dark .money-upcoming-card,
+body.dark .money-bills-section,
+body.dark .bill-card,
+body.dark .item-card,
+body.dark .row-card,
+body.dark article[class*="bill"],
+[data-theme="dark"] .money-card,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .card,
+[data-theme="dark"] .card.summary,
+[data-theme="dark"] .balance-card,
+[data-theme="dark"] .money-mini-analytics,
+[data-theme="dark"] .money-insights-card,
+[data-theme="dark"] .money-chart-card,
+[data-theme="dark"] .money-upcoming-card,
+[data-theme="dark"] .money-bills-section,
+[data-theme="dark"] .bill-card,
+[data-theme="dark"] .item-card,
+[data-theme="dark"] .row-card,
+[data-theme="dark"] article[class*="bill"] {
+  background: var(--money-glass-dark) !important;
+  border-color: rgba(255,255,255,.08) !important;
+  box-shadow:
+    0 18px 44px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.05) !important;
+}
+
+/* Tap feedback */
+.money-card:active,
+.summary-card:active,
+.card:active,
+.money-mini-analytics:active,
+.money-bills-section:active,
+.bill-card:active,
+.item-card:active,
+.row-card:active,
+article[class*="bill"]:active,
+button:active {
+  transform: scale(.985) !important;
+}
+
+/* Typography hierarchy */
+.money-hero-amount,
+.summary-total,
+.money-left-value,
+#perDayValue,
+#perDayValueEl,
+[data-per-day-value],
+.per-day .big {
+  font-size: 34px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.045em !important;
+  line-height: .92 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.money-section-title,
+.money-bills-section-title,
+.money-mini-analytics-title,
+h2,
+h3 {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.meta,
+.secondary,
+.days-left,
+.bill-date,
+.bill-card small,
+.bill-card [class*="meta"],
+.item-card small,
+.row-card small,
+#perDayMeta,
+[data-per-day-meta],
+.per-day .meta {
+  font-size: 11px !important;
+  opacity: .68 !important;
+  font-weight: 700 !important;
+}
+
+/* Better visual grouping */
+.summary-card,
+.card.summary,
+.balance-card,
+.money-top-summary-anchor,
+.money-summary-under-search {
+  margin: 10px 0 14px !important;
+  padding: var(--space-14) !important;
+}
+
+.money-mini-analytics,
+.money-insights-card,
+.money-chart-card,
+.money-upcoming-card,
+.money-bills-section {
+  margin: 12px 0 16px !important;
+  padding: var(--space-14) !important;
+}
+
+/* Premium compact bill rows */
+.money-bills-section-list,
+.bill-list,
+.items,
+.list {
+  display: grid !important;
+  gap: var(--space-8) !important;
+}
+
+.money-swipe-wrap {
+  margin-bottom: var(--space-8) !important;
+  border-radius: var(--radius-20) !important;
+}
+
+.bill-card,
+.item-card,
+.row-card,
+article[class*="bill"] {
+  display: grid !important;
+  grid-template-columns: 38px minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  min-height: 64px !important;
+  padding: 12px 14px !important;
+  border-radius: var(--radius-20) !important;
+  gap: var(--space-12) !important;
+  margin-bottom: 0 !important;
+}
+
+.money-bill-logo,
+.bill-icon {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  border-radius: 13px !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text,#111827) !important;
+  border: 1px solid rgba(15,23,42,.06) !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 15px !important;
+  font-weight: 850 !important;
+}
+
+body.dark .money-bill-logo,
+body.dark .bill-icon,
+[data-theme="dark"] .money-bill-logo,
+[data-theme="dark"] .bill-icon {
+  background: rgba(255,255,255,.08) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+
+.bill-name,
+[class*="bill-name"],
+.item-name,
+.row-name,
+article[class*="bill"] strong,
+.bill-card strong {
+  font-size: 14px !important;
+  line-height: 1.15 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.bill-card .amount,
+.bill-card [class*="amount"],
+.item-card .amount,
+.row-card .amount,
+article[class*="bill"] [class*="amount"] {
+  font-size: 14px !important;
+  line-height: 1.1 !important;
+  font-weight: 900 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.paid-toggle,
+[data-paid-row],
+.status-paid,
+.status-unpaid,
+.bill-status,
+.pill,
+.status-pill {
+  min-height: 28px !important;
+  height: 28px !important;
+  padding: 0 9px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+}
+
+/* Floating bottom dock */
+.bottom-nav,
+.bottom-dock {
+  position: fixed !important;
+  left: 16px !important;
+  right: 16px !important;
+  bottom: max(16px, env(safe-area-inset-bottom)) !important;
+  width: auto !important;
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  height: 68px !important;
+  border-radius: 26px !important;
+  background:
+    linear-gradient(145deg,
+      rgba(255,255,255,.72),
+      rgba(255,255,255,.56)) !important;
+  border: 1px solid rgba(15,23,42,.07) !important;
+  backdrop-filter: blur(28px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.25) !important;
+  box-shadow:
+    0 16px 44px rgba(15,23,42,.12),
+    inset 0 1px 0 rgba(255,255,255,.78) !important;
+  overflow: hidden !important;
+}
+
+body.dark .bottom-nav,
+body.dark .bottom-dock,
+[data-theme="dark"] .bottom-nav,
+[data-theme="dark"] .bottom-dock {
+  background:
+    linear-gradient(145deg,
+      rgba(22,27,36,.84),
+      rgba(15,20,28,.74)) !important;
+  border-color: rgba(255,255,255,.08) !important;
+  box-shadow:
+    0 18px 48px rgba(0,0,0,.42),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+/* Search and sort stay visually removed if present */
+#searchBills,
+#moneyBillsSectionSearch,
+.money-bills-section-search,
+.search-row,
+.search-wrap,
+input[type="search"],
+.tabs,
+#moneyBillsSectionControls,
+.money-bills-section-controls,
+.sort-row,
+.sort-controls,
+button[data-sort],
+[data-sort="unpaid"],
+[data-sort="paid"],
+[data-sort="dateAsc"],
+[data-sort="dateDesc"] {
+  display: none !important;
+}
+
+/* Loading splash */
+.money-v2-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(0,122,255,.12), transparent 34%),
+    linear-gradient(180deg, rgba(245,247,251,.96), rgba(238,242,247,.96));
+  transition: opacity .45s ease, visibility .45s ease;
+}
+
+.money-v2-splash.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.money-v2-splash-inner {
+  display: grid;
+  gap: 12px;
+  place-items: center;
+  text-align: center;
+}
+
+.money-v2-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 900;
+  background: var(--money-glass-light);
+  border: 1px solid rgba(15,23,42,.07);
+  box-shadow:
+    0 18px 44px rgba(15,23,42,.12),
+    inset 0 1px 0 rgba(255,255,255,.78);
+  animation: moneyV2Float 2.4s ease-in-out infinite;
+}
+
+.money-v2-loading-text {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ios-muted,#6b7280);
+}
+
+body.dark .money-v2-splash,
+[data-theme="dark"] .money-v2-splash {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(0,122,255,.14), transparent 34%),
+    linear-gradient(180deg, rgba(7,10,15,.97), rgba(17,24,39,.97));
+}
+
+body.dark .money-v2-logo,
+[data-theme="dark"] .money-v2-logo {
+  background: var(--money-glass-dark);
+  color: #f8fafc;
+  border-color: rgba(255,255,255,.08);
+}
+
+@keyframes moneyV2FadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes moneyV2Float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -3681,6 +4105,52 @@ document.addEventListener('click', event => {
 
 </script>
 <script>
+
+// Money PWA Version 2 visual layer
+window.MONEY_PWA_VERSION = "v2-20260513-101855";
+
+function moneyV2Splash() {
+  if (document.getElementById('moneyV2Splash')) return;
+
+  const splash = document.createElement('div');
+  splash.id = 'moneyV2Splash';
+  splash.className = 'money-v2-splash';
+  splash.innerHTML = `
+    <div class="money-v2-splash-inner">
+      <div class="money-v2-logo">£</div>
+      <div class="money-v2-loading-text">Syncing your month…</div>
+    </div>
+  `;
+  document.body.appendChild(splash);
+
+  setTimeout(() => splash.classList.add('hide'), 900);
+  setTimeout(() => splash.remove(), 1500);
+}
+
+function moneyV2ApplyClasses() {
+  document.querySelectorAll('.summary-card, .card.summary, .balance-card, .money-mini-analytics, .money-insights-card, .money-chart-card, .money-upcoming-card, .money-bills-section').forEach(el => {
+    el.classList.add('money-card', 'fade-in');
+  });
+
+  document.querySelectorAll('.bill-card, .item-card, .row-card, article[class*="bill"]').forEach(el => {
+    el.classList.add('fade-in');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  moneyV2Splash();
+  moneyV2ApplyClasses();
+  setTimeout(moneyV2ApplyClasses, 700);
+  setTimeout(moneyV2ApplyClasses, 1600);
+});
+
+document.addEventListener('click', event => {
+  if (event.target.closest('#reloadBarBtn, .paid-toggle, [data-paid-row], #moneyBillsSectionHeader')) {
+    setTimeout(moneyV2ApplyClasses, 300);
+  }
+}, true);
+
+
 
 // Gold Master version marker
 window.MONEY_PWA_VERSION = "gold-master-20260513-100120";
