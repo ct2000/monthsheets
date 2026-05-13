@@ -1513,6 +1513,28 @@ body::after{
   opacity:.72 !important;
 }
 
+
+/* === Flow top status removal === */
+
+/* Keep Flow name, hide the refreshed/status pill from the top */
+#subtitle,
+.subtitle{
+  display:none !important;
+}
+
+/* Header stays clean: logo + Flow + controls */
+.title-wrap{
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+}
+
+/* Footer/bottom dock status remains the only visible status */
+#dockStatus,
+.dock-status{
+  display:block !important;
+}
+
 </style>
 </head>
 
@@ -1606,6 +1628,40 @@ body::after{
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 
+// Flow top status removal
+window.MONEY_PWA_VERSION = "flow-status-fix-20260513-152200";
+
+function flowKeepStatusInFooterOnly() {
+  const subtitle = document.getElementById('subtitle');
+  if (subtitle) {
+    subtitle.style.display = 'none';
+    subtitle.setAttribute('aria-hidden', 'true');
+  }
+
+  const dock = document.getElementById('bottomDock');
+  if (dock && !document.getElementById('dockStatus')) {
+    const status = document.createElement('div');
+    status.id = 'dockStatus';
+    status.className = 'dock-status';
+    status.textContent = 'Ready';
+    dock.appendChild(status);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowKeepStatusInFooterOnly();
+  setTimeout(flowKeepStatusInFooterOnly, 500);
+  setTimeout(flowKeepStatusInFooterOnly, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave')) {
+    setTimeout(flowKeepStatusInFooterOnly, 250);
+  }
+}, true);
+
+
+
 // Flow brand update
 window.MONEY_PWA_VERSION = "flow-brand-20260513-151740";
 
@@ -1619,7 +1675,7 @@ function flowBrandUpdate() {
   if (subtitle) {
     const text = String(subtitle.textContent || '').replace(/^Calm Finance\s*·\s*/i, '').trim();
     if (!subtitle.dataset.flowBrandApplied) {
-      subtitle.textContent = text && text !== 'Ready' ? 'Calm Finance · ' + text : 'Calm Finance';
+      subtitle.textContent = text && text !== 'Ready' ? 'Calm Finance · ' + text : 'Calm Finance'; subtitle.style.display = 'none';
       subtitle.dataset.flowBrandApplied = '1';
     }
   }
@@ -1908,7 +1964,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-brand-20260513-151740";
+const VERSION = "flow-status-fix-20260513-152200";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2533,7 +2589,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-151740").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-152200").catch(()=>{}));
 }
 
 wireStatic();

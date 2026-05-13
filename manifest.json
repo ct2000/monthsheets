@@ -2,7 +2,7 @@
   "name": "Flow",
   "short_name": "Flow",
   "description": "Flow \u2014 calm finance for everyday budgeting",
-  "start_url": "./index.html?v=20260513-151740",
+  "start_url": "./index.html?v=20260513-152200",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
