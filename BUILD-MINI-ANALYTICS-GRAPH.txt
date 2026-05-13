@@ -1,0 +1,5 @@
+Built: 2026-05-13 08:44:38
+Base: money-summary-under-search-20260513-083310.zip
+Added compact iOS-style mini analytics graph with money left, unpaid and paid legend. Sync/business logic untouched.
+JS syntax ok: True
+

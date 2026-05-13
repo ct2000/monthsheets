@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Move summary card under search build: 2026-05-13 08:33:10 -->
+<!-- Mini analytics graph build: 2026-05-13 08:44:38 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2759,6 +2759,161 @@ body.dark .bill-icon::after,
   order: 2 !important;
 }
 
+
+/* === mini analytics graph 2026-05-13 08:44:38 === */
+.money-mini-analytics {
+  margin: 12px 0 14px !important;
+  padding: 14px !important;
+  border-radius: 26px !important;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.85), rgba(255,255,255,.45) 40%, transparent 65%),
+    linear-gradient(145deg, rgba(255,255,255,.78), rgba(245,248,252,.62)) !important;
+  border: 1px solid rgba(15,23,42,.07) !important;
+  box-shadow:
+    0 14px 36px rgba(15,23,42,.08),
+    inset 0 1px 0 rgba(255,255,255,.75) !important;
+  backdrop-filter: blur(26px) saturate(1.3) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.3) !important;
+  overflow: hidden !important;
+}
+
+.money-mini-analytics-head {
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.money-mini-analytics-title {
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--ios-text,#111827) !important;
+}
+
+.money-mini-analytics-sub {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: var(--ios-muted,#6b7280) !important;
+}
+
+.money-mini-chart {
+  width: 100% !important;
+  height: 92px !important;
+  display: block !important;
+  overflow: visible !important;
+}
+
+.money-mini-chart .grid {
+  stroke: rgba(15,23,42,.08);
+  stroke-width: 1;
+}
+
+.money-mini-chart .area {
+  fill: rgba(17,24,39,.055);
+}
+
+.money-mini-chart .line {
+  fill: none;
+  stroke: #111827;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 5px 8px rgba(15,23,42,.12));
+}
+
+.money-mini-chart .dot {
+  fill: #111827;
+  stroke: rgba(255,255,255,.9);
+  stroke-width: 2;
+}
+
+.money-mini-legend {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+
+.money-mini-legend-item {
+  padding: 8px !important;
+  border-radius: 16px !important;
+  background: rgba(255,255,255,.58) !important;
+  border: 1px solid rgba(15,23,42,.055) !important;
+}
+
+.money-mini-legend-item strong {
+  display: block !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  color: var(--ios-text,#111827) !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.money-mini-legend-item span {
+  display: block !important;
+  margin-top: 2px !important;
+  font-size: 10px !important;
+  font-weight: 850 !important;
+  color: var(--ios-muted,#6b7280) !important;
+  text-transform: uppercase !important;
+  letter-spacing: .02em !important;
+}
+
+body.dark .money-mini-analytics,
+[data-theme="dark"] .money-mini-analytics {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255,255,255,.10), rgba(255,255,255,.035) 40%, transparent 65%),
+    linear-gradient(145deg, rgba(30,37,49,.78), rgba(16,20,29,.66)) !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 16px 44px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+body.dark .money-mini-chart .grid,
+[data-theme="dark"] .money-mini-chart .grid {
+  stroke: rgba(255,255,255,.08);
+}
+
+body.dark .money-mini-chart .area,
+[data-theme="dark"] .money-mini-chart .area {
+  fill: rgba(255,255,255,.06);
+}
+
+body.dark .money-mini-chart .line,
+[data-theme="dark"] .money-mini-chart .line {
+  stroke: #f8fafc;
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,.28));
+}
+
+body.dark .money-mini-chart .dot,
+[data-theme="dark"] .money-mini-chart .dot {
+  fill: #f8fafc;
+  stroke: rgba(15,23,42,.9);
+}
+
+body.dark .money-mini-legend-item,
+[data-theme="dark"] .money-mini-legend-item {
+  background: rgba(255,255,255,.065) !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+
+body.dark .money-mini-analytics-title,
+body.dark .money-mini-legend-item strong,
+[data-theme="dark"] .money-mini-analytics-title,
+[data-theme="dark"] .money-mini-legend-item strong {
+  color: #f8fafc !important;
+}
+
+body.dark .money-mini-analytics-sub,
+body.dark .money-mini-legend-item span,
+[data-theme="dark"] .money-mini-analytics-sub,
+[data-theme="dark"] .money-mini-legend-item span {
+  color: #a3a9b4 !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -5493,7 +5648,170 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Mini analytics graph: compact iOS-style monthly snapshot.
+function moneyMiniAnalyticsParse(text) {
+  const n = parseFloat(String(text || '').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.-]/g,''));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function moneyMiniAnalyticsFmt(n) {
+  if (typeof fmtMoney === 'function') return fmtMoney(n || 0);
+  return '£' + (n || 0).toFixed(2);
+}
+
+function moneyMiniAnalyticsRows() {
+  try {
+    const picker = document.getElementById('monthPicker');
+    const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+    return table && Array.isArray(table.rows) ? table.rows : [];
+  } catch(e) {
+    return [];
+  }
+}
+
+function moneyMiniAnalyticsMetrics() {
+  const rows = moneyMiniAnalyticsRows();
+  const paidRows = rows.filter(r => typeof isRowPaid === 'function' ? isRowPaid(r) : false);
+  const unpaidRows = rows.filter(r => !(typeof isRowPaid === 'function' ? isRowPaid(r) : false));
+
+  const paid = paidRows.reduce((s,r)=>s + Number(r.due || 0), 0);
+  const unpaid = unpaidRows.reduce((s,r)=>s + (Number(r.paid || 0) || Number(r.due || 0)), 0);
+
+  const leftInput = document.getElementById('leftAmount');
+  const left = moneyMiniAnalyticsParse(leftInput ? leftInput.value : 0);
+
+  const perDayText = (
+    document.getElementById('perDayValue') ||
+    document.getElementById('perDayValueEl') ||
+    document.querySelector('[data-per-day-value]') ||
+    document.querySelector('.per-day .big')
+  )?.textContent || '';
+
+  const perDay = moneyMiniAnalyticsParse(perDayText);
+
+  return { paid, unpaid, left, perDay };
+}
+
+function moneyMiniAnalyticsPath(values, width, height, pad) {
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values, 0);
+  const range = Math.max(1, max - min);
+  const step = (width - pad * 2) / Math.max(1, values.length - 1);
+
+  const points = values.map((v, i) => {
+    const x = pad + i * step;
+    const y = height - pad - ((v - min) / range) * (height - pad * 2);
+    return [x, y];
+  });
+
+  const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ');
+  const area = `${d} L ${points[points.length-1][0].toFixed(1)} ${(height-pad).toFixed(1)} L ${points[0][0].toFixed(1)} ${(height-pad).toFixed(1)} Z`;
+
+  return { d, area, points };
+}
+
+function moneyRenderMiniAnalytics() {
+  const content = document.getElementById('content') || document.getElementById('app') || document.body;
+  if (!content) return;
+
+  let card = document.getElementById('moneyMiniAnalytics');
+  if (!card) {
+    card = document.createElement('section');
+    card.id = 'moneyMiniAnalytics';
+    card.className = 'money-mini-analytics';
+
+    const summary = document.querySelector('.money-summary-under-search');
+    const dashboard = document.getElementById('moneySmartDashboard');
+    const tabs = document.querySelector('.tabs');
+
+    if (summary && summary.parentNode) {
+      summary.parentNode.insertBefore(card, summary.nextSibling);
+    } else if (dashboard && dashboard.parentNode) {
+      dashboard.parentNode.insertBefore(card, dashboard.firstChild);
+    } else if (tabs && tabs.parentNode) {
+      tabs.parentNode.insertBefore(card, tabs);
+    } else {
+      content.prepend(card);
+    }
+  }
+
+  const m = moneyMiniAnalyticsMetrics();
+
+  // Synthetic trend: starts with left + unpaid, then gradually moves towards remaining buffer.
+  // It is intentionally a compact "health curve", not bank history.
+  const start = Math.max(0, m.left + m.unpaid * 0.28);
+  const mid1 = Math.max(0, m.left + m.unpaid * 0.14);
+  const mid2 = Math.max(0, m.left - m.unpaid * 0.20);
+  const end = Math.max(0, m.left - m.unpaid);
+  const values = [start, mid1, m.left, mid2, end];
+
+  const width = 360;
+  const height = 92;
+  const pad = 10;
+  const chart = moneyMiniAnalyticsPath(values, width, height, pad);
+  const last = chart.points[chart.points.length - 1];
+
+  card.innerHTML = `
+    <div class="money-mini-analytics-head">
+      <div>
+        <div class="money-mini-analytics-title">Mini analytics</div>
+        <div class="money-mini-analytics-sub">Month health curve</div>
+      </div>
+      <div class="money-mini-analytics-sub">${m.perDay ? moneyMiniAnalyticsFmt(m.perDay) + '/day' : 'Live'}</div>
+    </div>
+
+    <svg class="money-mini-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Mini analytics graph">
+      <line class="grid" x1="${pad}" y1="${height-pad}" x2="${width-pad}" y2="${height-pad}"></line>
+      <line class="grid" x1="${pad}" y1="${height/2}" x2="${width-pad}" y2="${height/2}"></line>
+      <path class="area" d="${chart.area}"></path>
+      <path class="line" d="${chart.d}"></path>
+      <circle class="dot" cx="${last[0].toFixed(1)}" cy="${last[1].toFixed(1)}" r="4"></circle>
+    </svg>
+
+    <div class="money-mini-legend">
+      <div class="money-mini-legend-item"><strong>${moneyMiniAnalyticsFmt(m.left)}</strong><span>Money left</span></div>
+      <div class="money-mini-legend-item"><strong>${moneyMiniAnalyticsFmt(m.unpaid)}</strong><span>Unpaid</span></div>
+      <div class="money-mini-legend-item"><strong>${moneyMiniAnalyticsFmt(m.paid)}</strong><span>Paid</span></div>
+    </div>
+  `;
+}
+
+function moneyWireMiniAnalytics() {
+  moneyRenderMiniAnalytics();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  if (root && !root.dataset.miniAnalyticsObserver) {
+    root.dataset.miniAnalyticsObserver = '1';
+    new MutationObserver(() => {
+      clearTimeout(window.__moneyMiniAnalyticsTimer);
+      window.__moneyMiniAnalyticsTimer = setTimeout(moneyRenderMiniAnalytics, 120);
+    }).observe(root, { childList: true, subtree: true, characterData: true });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyWireMiniAnalytics();
+  setTimeout(moneyWireMiniAnalytics, 700);
+  setTimeout(moneyWireMiniAnalytics, 1600);
+});
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyRenderMiniAnalytics, 80);
+    setTimeout(moneyRenderMiniAnalytics, 350);
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker')) {
+    setTimeout(moneyRenderMiniAnalytics, 300);
+    setTimeout(moneyRenderMiniAnalytics, 900);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireMiniAnalytics, 900);
 setTimeout(moneyWireMoveSummaryUnderSearch, 700);
 setTimeout(moneyStartSafeSpendForceMatch, 800);
 setTimeout(moneyWireSafeSpendMirror, 800);
