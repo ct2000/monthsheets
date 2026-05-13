@@ -2,7 +2,7 @@
   "name": "Flow",
   "short_name": "Flow",
   "description": "Flow \u2014 calm finance with premium polish",
-  "start_url": "./index.html?v=20260513-162754",
+  "start_url": "./index.html?v=20260513-163445",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -40,5 +40,5 @@
       "purpose": "any"
     }
   ],
-  "version": "Flow v2.0.0513-progressfix"
+  "version": "Flow v2.1 Tier1"
 }

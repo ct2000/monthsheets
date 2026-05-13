@@ -2267,6 +2267,106 @@ html[data-theme="dark"] body.flow-refreshing::before{
   display:block !important;
 }
 
+
+/* === Tier 1 premium polish === */
+
+/* Number animations */
+.flow-animated-number{
+  transition:
+    transform .28s cubic-bezier(.2,.9,.2,1),
+    opacity .22s ease,
+    filter .3s ease;
+}
+
+.flow-number-update{
+  transform:translateY(-1px) scale(1.015);
+  filter:brightness(1.05);
+}
+
+/* Adaptive hero moods */
+#availableTodayHero{
+  position:relative;
+  overflow:hidden;
+}
+
+#availableTodayHero::before{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  opacity:.55;
+  pointer-events:none;
+  filter:blur(40px);
+  transition:
+    background 1s ease,
+    opacity .8s ease;
+}
+
+body.flow-mood-good #availableTodayHero::before{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0,122,255,.20), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(175,82,222,.18), transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(90,200,250,.12), transparent 50%);
+}
+
+body.flow-mood-tight #availableTodayHero::before{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,159,10,.20), transparent 40%),
+    radial-gradient(circle at 80% 30%, rgba(255,69,58,.12), transparent 45%);
+}
+
+body.flow-mood-warning #availableTodayHero::before{
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,69,58,.22), transparent 42%),
+    radial-gradient(circle at 80% 30%, rgba(255,55,95,.16), transparent 45%);
+}
+
+/* Ambient movement */
+@keyframes flowAmbientDrift{
+  0%{ transform:translate3d(-1%,0,0) scale(1); }
+  50%{ transform:translate3d(1.5%,-1%,0) scale(1.03); }
+  100%{ transform:translate3d(-1%,0,0) scale(1); }
+}
+
+#availableTodayHero::before{
+  animation:flowAmbientDrift 14s ease-in-out infinite;
+}
+
+/* Micro interactions */
+.card,
+.bill-card,
+.dock-btn,
+.status-pill{
+  transition:
+    transform .22s cubic-bezier(.2,.9,.2,1),
+    box-shadow .24s ease,
+    background .25s ease;
+}
+
+.card:active,
+.bill-card:active{
+  transform:scale(.992);
+}
+
+.dock-btn:active,
+.status-pill:active{
+  transform:translateY(1px) scale(.97);
+}
+
+.bill-card:hover{
+  transform:translateY(-1px);
+}
+
+/* Gentle pulse after payment */
+@keyframes flowPaidPulse{
+  0%{ transform:scale(1); }
+  40%{ transform:scale(1.012); }
+  100%{ transform:scale(1); }
+}
+
+.bill-card.flow-paid-feedback{
+  animation:flowPaidPulse .45s cubic-bezier(.2,.9,.2,1);
+}
+
 </style>
 </head>
 
@@ -2359,6 +2459,164 @@ html[data-theme="dark"] body.flow-refreshing::before{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+window.MONEY_PWA_VERSION = "Flow v2.1 Tier1";
+
+/* ===== Haptics ===== */
+function flowHaptic(type='light') {
+  try {
+    if (navigator.vibrate) {
+      if (type === 'success') navigator.vibrate([12, 18, 18]);
+      else navigator.vibrate(10);
+    }
+  } catch(e){}
+}
+
+/* ===== Smooth number animations ===== */
+function flowAnimateNumbers() {
+  const targets = document.querySelectorAll('.value, .available-amount, .bill-amount');
+
+  targets.forEach(el => {
+    const raw = (el.textContent || '').trim();
+    const num = parseFloat(raw.replace(/,/g,'').replace(/£/g,'').replace(/[^\d.-]/g,''));
+
+    if (!Number.isFinite(num)) return;
+
+    const previous = parseFloat(el.dataset.flowPrev || num);
+
+    if (Math.abs(previous - num) < 0.01) return;
+
+    const start = previous;
+    const end = num;
+    const duration = 520;
+    const started = performance.now();
+
+    el.classList.add('flow-number-update');
+    el.classList.add('flow-animated-number');
+
+    function frame(now){
+      const p = Math.min(1, (now - started) / duration);
+      const eased = 1 - Math.pow(1-p, 3);
+      const current = start + ((end - start) * eased);
+
+      const formatted = '£' + current.toLocaleString('en-GB', {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      });
+
+      el.textContent = formatted;
+
+      if (p < 1) requestAnimationFrame(frame);
+      else {
+        el.textContent = '£' + end.toLocaleString('en-GB', {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        });
+
+        setTimeout(() => el.classList.remove('flow-number-update'), 180);
+      }
+    }
+
+    requestAnimationFrame(frame);
+    el.dataset.flowPrev = num;
+  });
+}
+
+function flowStoreCurrentNumbers(){
+  document.querySelectorAll('.value, .available-amount, .bill-amount').forEach(el => {
+    const raw = (el.textContent || '').trim();
+    const num = parseFloat(raw.replace(/,/g,'').replace(/£/g,'').replace(/[^\d.-]/g,''));
+    if (Number.isFinite(num)) {
+      el.dataset.flowPrev = num;
+    }
+  });
+}
+
+/* ===== Adaptive mood ===== */
+function flowApplyMood(){
+  const hero = document.querySelector('#availableTodayHero .available-amount');
+  if (!hero) return;
+
+  const num = parseFloat(hero.textContent.replace(/,/g,'').replace(/£/g,'').replace(/[^\d.-]/g,''));
+
+  document.body.classList.remove('flow-mood-good','flow-mood-tight','flow-mood-warning');
+
+  if (!Number.isFinite(num)) return;
+
+  if (num >= 25) {
+    document.body.classList.add('flow-mood-good');
+  } else if (num >= 5) {
+    document.body.classList.add('flow-mood-tight');
+  } else {
+    document.body.classList.add('flow-mood-warning');
+  }
+}
+
+/* ===== Micro interactions + haptics ===== */
+function flowWireInteractions(){
+  document.querySelectorAll('.status-pill').forEach(btn => {
+    if (btn.dataset.flowTier1) return;
+    btn.dataset.flowTier1 = '1';
+
+    btn.addEventListener('click', () => {
+      flowHaptic('success');
+
+      const card = btn.closest('.bill-card');
+      if (card) {
+        card.classList.remove('flow-paid-feedback');
+        void card.offsetWidth;
+        card.classList.add('flow-paid-feedback');
+      }
+
+      setTimeout(() => {
+        flowAnimateNumbers();
+        flowApplyMood();
+      }, 120);
+    });
+  });
+
+  const refresh = document.getElementById('refreshBtn');
+  if (refresh && !refresh.dataset.flowTier1) {
+    refresh.dataset.flowTier1 = '1';
+    refresh.addEventListener('click', () => flowHaptic('light'));
+  }
+
+  const month = document.getElementById('monthPicker');
+  if (month && !month.dataset.flowTier1) {
+    month.dataset.flowTier1 = '1';
+    month.addEventListener('change', () => flowHaptic('light'));
+  }
+}
+
+function flowTier1Init(){
+  flowStoreCurrentNumbers();
+  flowApplyMood();
+  flowWireInteractions();
+
+  setTimeout(() => {
+    flowAnimateNumbers();
+    flowApplyMood();
+  }, 300);
+}
+
+document.addEventListener('DOMContentLoaded', flowTier1Init);
+
+document.addEventListener('click', function(event){
+  if(event.target.closest('#refreshBtn,.status-pill,#monthPicker,#addSave')){
+    setTimeout(() => {
+      flowAnimateNumbers();
+      flowApplyMood();
+      flowWireInteractions();
+    }, 220);
+
+    setTimeout(() => {
+      flowAnimateNumbers();
+      flowApplyMood();
+    }, 900);
+  }
+}, true);
+
+
 
 // Single month progress bar fix
 window.MONEY_PWA_VERSION = "Flow v2.0.0513-progressfix";
@@ -3355,7 +3613,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "Flow v2.0.0513-progressfix";
+const VERSION = "Flow v2.1 Tier1";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
