@@ -1,4 +1,4 @@
-const CACHE = 'money-v3-calm-finance-20260513-145323';
+const CACHE = 'money-v3-orb-icon-20260513-145947';
 const SHELL = [
   './',
   './index.html',

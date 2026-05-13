@@ -2,12 +2,12 @@
   "name": "Money",
   "short_name": "Money",
   "description": "Calm Finance \u2014 premium iOS-style budgeting PWA",
-  "start_url": "./index.html?v=20260513-145323",
+  "start_url": "./index.html?v=20260513-145947",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f8fbff",
-  "theme_color": "#f8fbff",
+  "background_color": "#081020",
+  "theme_color": "#081020",
   "icons": [
     {
       "src": "icon-192.png",
