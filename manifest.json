@@ -1,13 +1,13 @@
 {
-  "name": "Money v2",
+  "name": "Money",
   "short_name": "Money",
-  "description": "Money PWA Version 2",
-  "start_url": "./index.html?v=20260513-132134",
+  "description": "Clean rebuild of the Money spreadsheet-backed PWA",
+  "start_url": "./index.html?v=20260513-134814",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f5f7fb",
-  "theme_color": "#f5f7fb",
+  "background_color": "#f4f7fb",
+  "theme_color": "#f4f7fb",
   "icons": [
     {
       "src": "icon-192.png",
@@ -30,6 +30,12 @@
     {
       "src": "apple-touch-icon.png",
       "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.png",
+      "sizes": "64x64",
       "type": "image/png",
       "purpose": "any"
     }
