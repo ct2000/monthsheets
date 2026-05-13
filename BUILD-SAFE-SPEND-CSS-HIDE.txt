@@ -1,0 +1,5 @@
+Built: 2026-05-13 08:28:21
+Base: money-dashboard-restored-calc-20260512-213600.zip
+Fix: rolled back from broken HTML removal and hides Safe to Spend card using CSS only. Dashboard/app code left intact.
+JS syntax ok: True
+
