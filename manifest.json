@@ -2,7 +2,7 @@
   "name": "Flow",
   "short_name": "Flow",
   "description": "Flow \u2014 calm finance with premium polish",
-  "start_url": "./index.html?v=20260513-155838",
+  "start_url": "./index.html?v=20260513-160634",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

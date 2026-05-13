@@ -1909,15 +1909,46 @@ body.flow-caution .available-ring{
 }
 
 
-/* === Smart Insights label cleanup === */
+/* === Rebuilt Smart Insights === */
 
-.insight-text{
-  line-height:1.4 !important;
+.flow-smart-insights-clean .insights{
+  display:grid !important;
+  gap:9px !important;
 }
 
-.insight-text strong{
-  display:inline-block !important;
-  margin-right:4px !important;
+.flow-smart-insights-clean .insight{
+  display:grid !important;
+  grid-template-columns:28px 1fr !important;
+  gap:10px !important;
+  align-items:start !important;
+  padding:11px !important;
+  border-radius:20px !important;
+}
+
+.flow-smart-insights-clean .insight::after{
+  display:none !important;
+}
+
+.flow-smart-insights-clean .insight-icon{
+  width:28px !important;
+  height:28px !important;
+  border-radius:12px !important;
+  font-size:14px !important;
+}
+
+.flow-smart-insights-clean .insight-text{
+  font-size:12px !important;
+  line-height:1.38 !important;
+  font-weight:760 !important;
+}
+
+.flow-smart-insights-clean .insight-text strong{
+  display:block !important;
+  margin:0 0 2px !important;
+  font-size:12px !important;
+  line-height:1.2 !important;
+  font-weight:950 !important;
+  color:var(--text) !important;
 }
 
 </style>
@@ -2013,49 +2044,147 @@ body.flow-caution .available-ring{
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 
-// Smart Insights cleanup
-window.MONEY_PWA_VERSION = "flow-insights-cleanup-20260513-155838";
+// Full Smart Insights rebuild
+window.MONEY_PWA_VERSION = "flow-smart-insights-rebuild-20260513-160634";
 
-function flowCleanInsightText(text) {
-  return String(text || '')
-    .replace(/Heads up:\s*/gi, '')
-    .replace(/Biggest pressure point:\s*/gi, '')
-    .replace(/Watch point:\s*/gi, '')
-    .replace(/Daily rhythm:\s*/gi, '')
-    .replace(/Daily pace:\s*/gi, '')
-    .replace(/This week:\s*/gi, '')
-    .replace(/Largest unpaid bill:\s*/gi, '')
-    .trim();
+function flowMoneyValue(text) {
+  const n = parseFloat(String(text || '').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.-]/g,''));
+  return Number.isFinite(n) ? n : 0;
 }
 
-function flowFixInsights() {
-  const insights = document.querySelectorAll('.insight-text');
-
-  insights.forEach((el, i) => {
-    const clean = flowCleanInsightText(el.textContent);
-
-    if (!clean) return;
-
-    if (i === 0) {
-      el.innerHTML = '<strong>This week:</strong> ' + clean;
-    } else if (i === 1) {
-      el.innerHTML = '<strong>Watch point:</strong> ' + clean;
-    } else if (i === 2) {
-      el.innerHTML = '<strong>Daily pace:</strong> ' + clean;
-    }
+function flowCleanCurrency(n) {
+  const sign = n < 0 ? '-' : '';
+  return sign + '£' + Math.abs(n || 0).toLocaleString('en-GB', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  flowFixInsights();
-  setTimeout(flowFixInsights, 400);
-  setTimeout(flowFixInsights, 1200);
-});
+function flowFindSmartInsightsCard() {
+  return Array.from(document.querySelectorAll('.card')).find(card => {
+    const title = card.querySelector('.section-title');
+    return title && /smart insights/i.test(title.textContent || '');
+  });
+}
+
+function flowGetSummaryNumbers() {
+  const summary = document.getElementById('summaryCard');
+  const values = summary ? summary.querySelectorAll('.value') : [];
+  return {
+    outstanding: values[0] ? flowMoneyValue(values[0].textContent) : 0,
+    paid: values[1] ? flowMoneyValue(values[1].textContent) : 0,
+    perDay: values[2] ? flowMoneyValue(values[2].textContent) : 0
+  };
+}
+
+function flowBillRows() {
+  return Array.from(document.querySelectorAll('.bill-card')).map(card => {
+    const name = (card.querySelector('.bill-name')?.textContent || '').trim();
+    const amount = flowMoneyValue(card.querySelector('.bill-amount')?.textContent || '');
+    const meta = (card.querySelector('.bill-meta')?.textContent || '').trim();
+    const paid = card.classList.contains('paid');
+    return { name, amount, meta, paid };
+  });
+}
+
+function flowBuildInsightData() {
+  const summary = flowGetSummaryNumbers();
+  const rows = flowBillRows();
+  const unpaid = rows.filter(r => !r.paid);
+  const paid = rows.filter(r => r.paid);
+
+  const upcomingText = unpaid.length
+    ? `${unpaid.length} bill${unpaid.length === 1 ? '' : 's'} still need attention.`
+    : `Everything looks covered right now.`;
+
+  const largest = unpaid.slice().sort((a,b) => b.amount - a.amount)[0];
+  const watchText = largest
+    ? `${largest.name} is your largest remaining bill at ${flowCleanCurrency(largest.amount)}.`
+    : `No pressure points showing.`;
+
+  let paceText = `Your current daily flow is ${flowCleanCurrency(summary.perDay)}.`;
+  if (summary.perDay < 0) {
+    paceText = `You are over pace by ${flowCleanCurrency(Math.abs(summary.perDay))} per day.`;
+  } else if (summary.perDay < 10) {
+    paceText = `Your daily flow is tight at ${flowCleanCurrency(summary.perDay)}.`;
+  } else if (summary.perDay >= 10) {
+    paceText = `You have a steady daily flow of ${flowCleanCurrency(summary.perDay)}.`;
+  }
+
+  return [
+    { icon: '✨', title: 'This week', body: upcomingText },
+    { icon: '◷', title: 'Watch point', body: watchText },
+    { icon: '〰', title: 'Daily pace', body: paceText }
+  ];
+}
+
+function flowRebuildSmartInsights() {
+  const card = flowFindSmartInsightsCard();
+  if (!card) return false;
+
+  card.classList.add('flow-smart-insights-clean');
+
+  const title = card.querySelector('.section-title');
+  if (title) {
+    const first = title.querySelector('span:first-child');
+    if (first) first.textContent = 'Smart insights';
+
+    const note = title.querySelector('.section-note');
+    if (note) note.textContent = 'Live';
+  }
+
+  let insights = card.querySelector('.insights');
+  if (!insights) {
+    insights = document.createElement('div');
+    insights.className = 'insights';
+    card.appendChild(insights);
+  }
+
+  const data = flowBuildInsightData();
+
+  insights.innerHTML = data.map(item => `
+    <div class="insight">
+      <span class="insight-icon">${item.icon}</span>
+      <span class="insight-text"><strong>${item.title}</strong>${item.body}</span>
+    </div>
+  `).join('');
+
+  return true;
+}
+
+function flowWireSmartInsightsRebuild() {
+  flowRebuildSmartInsights();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+
+  if (root && !root.dataset.flowSmartInsightsRebuildObserver) {
+    root.dataset.flowSmartInsightsRebuildObserver = '1';
+
+    new MutationObserver(() => {
+      clearTimeout(window.__flowSmartInsightsRebuildTimer);
+      window.__flowSmartInsightsRebuildTimer = setTimeout(flowRebuildSmartInsights, 120);
+    }).observe(root, {
+      childList:true,
+      subtree:true
+    });
+  }
+
+  [250, 700, 1400, 2500].forEach(ms => setTimeout(flowRebuildSmartInsights, ms));
+}
+
+document.addEventListener('DOMContentLoaded', flowWireSmartInsightsRebuild);
+window.addEventListener('load', flowWireSmartInsightsRebuild);
 
 document.addEventListener('click', function(event) {
-  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave')) {
-    setTimeout(flowFixInsights, 250);
-    setTimeout(flowFixInsights, 900);
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave, #billsHeader')) {
+    setTimeout(flowRebuildSmartInsights, 250);
+    setTimeout(flowRebuildSmartInsights, 900);
+  }
+}, true);
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(flowRebuildSmartInsights, 100);
   }
 }, true);
 
@@ -2771,7 +2900,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-insights-cleanup-20260513-155838";
+const VERSION = "flow-smart-insights-rebuild-20260513-160634";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -3396,7 +3525,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-155838").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-160634").catch(()=>{}));
 }
 
 wireStatic();
