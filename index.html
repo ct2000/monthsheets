@@ -1041,6 +1041,229 @@ body::before {
   justify-self: end !important;
 }
 
+
+/* === Premium Top 5 UX Layer === */
+
+/* 1 + 3: motion and living gradient background */
+body::after{
+  content:"";
+  position:fixed;
+  inset:-30%;
+  pointer-events:none;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(0,122,255,.18), transparent 26%),
+    radial-gradient(circle at 78% 14%, rgba(175,82,222,.14), transparent 24%),
+    radial-gradient(circle at 48% 88%, rgba(52,199,89,.08), transparent 24%);
+  filter: blur(18px);
+  animation: moneyAmbientDrift 14s ease-in-out infinite alternate;
+}
+
+@keyframes moneyAmbientDrift{
+  from{ transform: translate3d(-1.5%, -1%, 0) scale(1); }
+  to{ transform: translate3d(1.5%, 1.2%, 0) scale(1.04); }
+}
+
+.card,
+.bill-card,
+.bottom-dock,
+.icon-btn,
+.month-select{
+  animation: moneySoftReveal .42s cubic-bezier(.2,.85,.2,1) both;
+}
+
+.card:nth-child(1){ animation-delay:.02s; }
+.card:nth-child(2){ animation-delay:.07s; }
+.card:nth-child(3){ animation-delay:.12s; }
+.card:nth-child(4){ animation-delay:.17s; }
+.card:nth-child(5){ animation-delay:.22s; }
+
+@keyframes moneySoftReveal{
+  from{ opacity:0; transform: translateY(10px) scale(.985); }
+  to{ opacity:1; transform: translateY(0) scale(1); }
+}
+
+.card:active,
+.bill-card:active,
+.dock-btn:active,
+.icon-btn:active{
+  transform: scale(.985) !important;
+}
+
+/* 2: Available Today hero */
+.available-hero{
+  position:relative;
+  overflow:hidden;
+  padding:18px !important;
+  border-radius:32px;
+  min-height:172px;
+}
+
+.available-hero::before{
+  content:"";
+  position:absolute;
+  inset:-40% -20% auto auto;
+  width:220px;
+  height:220px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(0,122,255,.22), transparent 62%);
+  pointer-events:none;
+}
+
+.available-hero::after{
+  content:"";
+  position:absolute;
+  inset:auto auto -45% -20%;
+  width:210px;
+  height:210px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(175,82,222,.16), transparent 64%);
+  pointer-events:none;
+}
+
+.available-hero-inner{
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns: 1fr 96px;
+  gap:16px;
+  align-items:center;
+}
+
+.available-label{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  width:max-content;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(0,122,255,.11);
+  color:var(--ios-blue,#007aff);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+.available-label::before{
+  content:"●";
+  font-size:7px;
+  color:var(--ios-green,#34c759);
+}
+
+.available-amount{
+  margin-top:10px;
+  font-size:46px;
+  line-height:.9;
+  font-weight:950;
+  letter-spacing:-.075em;
+  background:linear-gradient(135deg,var(--ios-blue,#007aff),var(--ios-purple,#af52de));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.available-sub{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+}
+
+.available-ring{
+  width:94px;
+  height:94px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:
+    conic-gradient(var(--ios-blue,#007aff) var(--ring-progress, 62%), rgba(15,23,42,.08) 0);
+  box-shadow:0 14px 34px rgba(0,122,255,.16);
+  animation: moneyRingPulse 2.8s ease-in-out infinite;
+}
+
+.available-ring::before{
+  content:"";
+  width:72px;
+  height:72px;
+  border-radius:999px;
+  background:var(--panel-solid,#fff);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.75);
+}
+
+.available-ring span{
+  position:absolute;
+  font-size:12px;
+  font-weight:950;
+  color:var(--text);
+}
+
+@keyframes moneyRingPulse{
+  0%,100%{ transform:scale(1); filter:saturate(1); }
+  50%{ transform:scale(1.035); filter:saturate(1.15); }
+}
+
+/* 4: better chart animation */
+.chart .area{
+  animation: moneyChartFade .8s ease both;
+}
+
+.chart .line{
+  stroke-dasharray: 520;
+  stroke-dashoffset: 520;
+  animation: moneyDrawLine 1.1s cubic-bezier(.2,.85,.2,1) forwards;
+}
+
+.chart .dot{
+  opacity:0;
+  transform-origin:center;
+  animation: moneyDotPop .35s ease forwards;
+  animation-delay: .95s;
+}
+
+@keyframes moneyDrawLine{
+  to{ stroke-dashoffset:0; }
+}
+@keyframes moneyChartFade{
+  from{ opacity:0; transform:translateY(4px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+@keyframes moneyDotPop{
+  from{ opacity:0; transform:scale(.4); }
+  to{ opacity:1; transform:scale(1); }
+}
+
+/* 5: AI-style insight language card details */
+.insight{
+  position:relative;
+}
+
+.insight::after{
+  content:"";
+  position:absolute;
+  left:43px;
+  right:10px;
+  bottom:0;
+  height:1px;
+  background:linear-gradient(90deg, var(--line), transparent);
+  opacity:.65;
+}
+
+.insight:last-child::after{
+  display:none;
+}
+
+.insight-text strong{
+  color:var(--text);
+}
+
+/* polish hero placement */
+#availableTodayHero{
+  margin-top:0;
+}
+
 </style>
 </head>
 
@@ -1134,6 +1357,124 @@ body::before {
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 
+// Premium Top 5 UX Layer
+window.MONEY_PWA_VERSION = "v3-premium-top5-20260513-144507";
+
+function moneyParseAmountText(text) {
+  const n = parseFloat(String(text || '').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.-]/g,''));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function moneyFormatHeroAmount(text) {
+  const n = moneyParseAmountText(text);
+  if (!Number.isFinite(n)) return text || '£0.00';
+  const sign = n < 0 ? '-' : '';
+  return sign + '£' + Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function moneyAddAvailableTodayHero() {
+  const summary = document.getElementById('summaryCard');
+  if (!summary || document.getElementById('availableTodayHero')) return;
+
+  const values = summary.querySelectorAll('.value');
+  const meta = summary.querySelector('.summary-bottom .meta');
+  const perDayText = values[2] ? values[2].textContent.trim() : '£0.00';
+  const outstanding = values[0] ? moneyParseAmountText(values[0].textContent) : 0;
+  const paid = values[1] ? moneyParseAmountText(values[1].textContent) : 0;
+  const total = Math.max(1, outstanding + paid);
+  const progress = Math.max(8, Math.min(92, Math.round((paid / total) * 100)));
+
+  const hero = document.createElement('section');
+  hero.id = 'availableTodayHero';
+  hero.className = 'card available-hero';
+  hero.style.setProperty('--ring-progress', progress + '%');
+
+  hero.innerHTML = `
+    <div class="available-hero-inner">
+      <div>
+        <div class="available-label">Available today</div>
+        <div class="available-amount">${moneyFormatHeroAmount(perDayText)}</div>
+        <div class="available-sub">${meta ? meta.textContent : 'Daily allowance after bills'}</div>
+      </div>
+      <div class="available-ring"><span>${progress}%</span></div>
+    </div>
+  `;
+
+  summary.parentNode.insertBefore(hero, summary);
+}
+
+function moneyRefreshAvailableTodayHero() {
+  const hero = document.getElementById('availableTodayHero');
+  const summary = document.getElementById('summaryCard');
+  if (!hero || !summary) return;
+
+  const values = summary.querySelectorAll('.value');
+  const meta = summary.querySelector('.summary-bottom .meta');
+  const perDayText = values[2] ? values[2].textContent.trim() : '£0.00';
+  const outstanding = values[0] ? moneyParseAmountText(values[0].textContent) : 0;
+  const paid = values[1] ? moneyParseAmountText(values[1].textContent) : 0;
+  const total = Math.max(1, outstanding + paid);
+  const progress = Math.max(8, Math.min(92, Math.round((paid / total) * 100)));
+
+  const amount = hero.querySelector('.available-amount');
+  const sub = hero.querySelector('.available-sub');
+  const ring = hero.querySelector('.available-ring span');
+
+  if (amount) amount.textContent = moneyFormatHeroAmount(perDayText);
+  if (sub && meta) sub.textContent = meta.textContent;
+  if (ring) ring.textContent = progress + '%';
+  hero.style.setProperty('--ring-progress', progress + '%');
+}
+
+function moneyUpgradeInsightLanguage() {
+  document.querySelectorAll('.insight-text').forEach((el, i) => {
+    const text = el.textContent.trim();
+    if (!text) return;
+
+    if (i === 0 && !el.dataset.aiText) {
+      el.innerHTML = '<strong>Heads up:</strong> ' + text;
+      el.dataset.aiText = '1';
+    }
+
+    if (i === 1 && !el.dataset.aiText) {
+      el.innerHTML = '<strong>Biggest pressure point:</strong> ' + text;
+      el.dataset.aiText = '1';
+    }
+
+    if (i === 2 && !el.dataset.aiText) {
+      el.innerHTML = '<strong>Daily rhythm:</strong> ' + text;
+      el.dataset.aiText = '1';
+    }
+  });
+}
+
+function moneyPremiumTop5Apply() {
+  moneyAddAvailableTodayHero();
+  moneyRefreshAvailableTodayHero();
+  moneyUpgradeInsightLanguage();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyPremiumTop5Apply();
+  setTimeout(moneyPremiumTop5Apply, 500);
+  setTimeout(moneyPremiumTop5Apply, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #addSave, .status-pill, #monthPicker, #billsHeader')) {
+    setTimeout(moneyPremiumTop5Apply, 250);
+    setTimeout(moneyPremiumTop5Apply, 900);
+  }
+}, true);
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyPremiumTop5Apply, 80);
+  }
+}, true);
+
+
+
 // Header polish version marker
 window.MONEY_PWA_VERSION = "v3-ios-header-polish-20260513-143734";
 
@@ -1154,7 +1495,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "v3-ios-header-polish-20260513-143734";
+const VERSION = "v3-premium-top5-20260513-144507";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -1779,7 +2120,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-143734").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-144507").catch(()=>{}));
 }
 
 wireStatic();

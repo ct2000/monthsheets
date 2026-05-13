@@ -1,8 +1,8 @@
 {
   "name": "Money",
   "short_name": "Money",
-  "description": "Modern iOS-style Money PWA",
-  "start_url": "./index.html?v=20260513-143734",
+  "description": "Premium iOS-style Money PWA",
+  "start_url": "./index.html?v=20260513-144507",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
