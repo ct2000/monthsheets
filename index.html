@@ -2252,6 +2252,21 @@ html[data-theme="dark"] body.flow-refreshing::before{
   overflow:visible !important;
 }
 
+
+/* === Single month progress bar fix === */
+
+/* Hide older progress bar variant so only #flowMonthProgress remains */
+.available-hero > .month-progress-wrap,
+.available-hero .month-progress-wrap,
+.available-hero .month-progress-text{
+  display:none !important;
+}
+
+/* Keep canonical progress visible */
+#flowMonthProgress{
+  display:block !important;
+}
+
 </style>
 </head>
 
@@ -2344,6 +2359,42 @@ html[data-theme="dark"] body.flow-refreshing::before{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Single month progress bar fix
+window.MONEY_PWA_VERSION = "Flow v2.0.0513-progressfix";
+
+function flowRemoveDuplicateProgressBars() {
+  const hero =
+    document.getElementById('availableTodayHero') ||
+    document.querySelector('.available-hero');
+
+  if (!hero) return;
+
+  // Remove older progress implementation.
+  hero.querySelectorAll('.month-progress-wrap, .month-progress-text').forEach(el => el.remove());
+
+  // If somehow multiple canonical progress bars exist, keep the first.
+  const canonical = Array.from(hero.querySelectorAll('#flowMonthProgress, .flow-month-progress'));
+  canonical.forEach((el, index) => {
+    if (index > 0) el.remove();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowRemoveDuplicateProgressBars();
+  setTimeout(flowRemoveDuplicateProgressBars, 300);
+  setTimeout(flowRemoveDuplicateProgressBars, 1000);
+  setTimeout(flowRemoveDuplicateProgressBars, 1800);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave')) {
+    setTimeout(flowRemoveDuplicateProgressBars, 250);
+    setTimeout(flowRemoveDuplicateProgressBars, 900);
+  }
+}, true);
+
+
 
 // Final header fix
 window.MONEY_PWA_VERSION = "Flow v2.0.0513-headerfix";
@@ -3304,7 +3355,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "Flow v2.0.0513-headerfix";
+const VERSION = "Flow v2.0.0513-progressfix";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -3929,7 +3980,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-162004").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-162754").catch(()=>{}));
 }
 
 wireStatic();
