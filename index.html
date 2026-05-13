@@ -4599,72 +4599,62 @@ body.money-bills-section-collapsed .balance-card {
 }
 
 
-/* === summary layout + duplicate prevention fix 2026-05-13 10:56:44 === */
-
-/* Canonical top summary card */
-.money-top-summary-anchor {
-  position: relative !important;
-  z-index: 2 !important;
+/* === summary persist fix === */
+.money-top-summary-anchor,
+.money-top-summary-anchor.money-summary-duplicate-hidden,
+.summary-card.money-top-summary-anchor,
+.card.summary.money-top-summary-anchor,
+.balance-card.money-top-summary-anchor {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-height: none !important;
+  pointer-events: auto !important;
+  transform: none !important;
 }
 
-/* Horizontal top stats row */
+body > .summary-card:last-of-type,
+body > .balance-card:last-of-type {
+  display: block !important;
+}
+
+.money-summary-duplicate-hidden:not(.money-top-summary-anchor) {
+  display: none !important;
+}
+
+.money-top-summary-anchor {
+  position: relative !important;
+  z-index: 5 !important;
+  overflow: hidden !important;
+}
+
 .money-summary-top-row {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 0 !important;
-  align-items: stretch !important;
 }
 
-/* Each stat cell */
 .money-summary-top-row > * {
   padding: 14px 16px !important;
-  min-width: 0 !important;
 }
 
-/* Divider between Outstanding and Paid */
 .money-summary-top-row > * + * {
   border-left: 1px solid rgba(15,23,42,.06) !important;
 }
 
-body.dark .money-summary-top-row > * + *,
-[data-theme="dark"] .money-summary-top-row > * + * {
-  border-left: 1px solid rgba(255,255,255,.06) !important;
-}
-
-/* Bottom money left section */
 .money-summary-bottom-row {
   border-top: 1px solid rgba(15,23,42,.06) !important;
   padding: 14px 16px !important;
 }
 
+body.dark .money-summary-top-row > * + *,
+[data-theme="dark"] .money-summary-top-row > * + * {
+  border-left-color: rgba(255,255,255,.06) !important;
+}
+
 body.dark .money-summary-bottom-row,
 [data-theme="dark"] .money-summary-bottom-row {
-  border-top: 1px solid rgba(255,255,255,.06) !important;
-}
-
-/* Prevent accidental duplicate summary cards */
-.money-summary-duplicate-hidden {
-  display: none !important;
-}
-
-/* Remove bottom duplicates visually if scripts fail */
-body > .summary-card:last-of-type,
-body > .balance-card:last-of-type {
-  display: none;
-}
-
-/* Keep top summary compact and premium */
-.money-top-summary-anchor [class*="amount"],
-.money-top-summary-anchor .big {
-  font-size: 28px !important;
-  line-height: .92 !important;
-  letter-spacing: -0.045em !important;
-}
-
-.money-top-summary-anchor small,
-.money-top-summary-anchor [class*="meta"] {
-  font-size: 11px !important;
-  opacity: .72 !important;
+  border-top-color: rgba(255,255,255,.06) !important;
 }
 
 </style>
@@ -4703,12 +4693,10 @@ document.addEventListener('click', event => {
 </script>
 <script>
 
-// Canonical top summary manager.
-// Ensures only ONE summary card exists and keeps it pinned to the top.
-
-function moneyFindSummaryCards() {
+// Safer summary persistence.
+function moneySummarySafeCards() {
   return Array.from(document.querySelectorAll(
-    '.money-top-summary-anchor, .money-summary-under-search, .summary-card, .card.summary, .balance-card, [class*="summary"]'
+    '.money-top-summary-anchor, .money-summary-under-search, .summary-card, .card.summary, .balance-card'
   )).filter(card => {
     const t = String(card.textContent || '').toLowerCase();
     return (
@@ -4720,90 +4708,107 @@ function moneyFindSummaryCards() {
   });
 }
 
-function moneyPinSingleSummaryToTop() {
-  const cards = moneyFindSummaryCards();
-  if (!cards.length) return;
+function moneySummaryPickCanonical(cards) {
+  if (!cards.length) return null;
+  const alreadyTop = cards.find(card => card.classList.contains('money-top-summary-anchor'));
+  if (alreadyTop) return alreadyTop;
 
-  // Pick the best canonical card.
-  const canonical = cards[0];
+  const visible = cards.find(card => {
+    const style = window.getComputedStyle(card);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+  });
+
+  return visible || cards[0];
+}
+
+function moneySummaryEnsureHorizontalLayout(summary) {
+  if (!summary || summary.querySelector('.money-summary-top-row')) return;
+
+  const directChildren = Array.from(summary.children)
+    .filter(el => !el.classList.contains('money-summary-duplicate-hidden'));
+
+  if (directChildren.length < 3) return;
+
+  const top = document.createElement('div');
+  top.className = 'money-summary-top-row';
+
+  const bottom = document.createElement('div');
+  bottom.className = 'money-summary-bottom-row';
+
+  top.appendChild(directChildren[0]);
+  top.appendChild(directChildren[1]);
+  bottom.appendChild(directChildren[2]);
+
+  summary.appendChild(top);
+  summary.appendChild(bottom);
+}
+
+function moneySummaryPinTopSafely() {
+  const cards = moneySummarySafeCards();
+  const canonical = moneySummaryPickCanonical(cards);
+  if (!canonical) return;
+
+  canonical.classList.remove('money-summary-duplicate-hidden');
   canonical.classList.add('money-top-summary-anchor');
 
-  const bills = document.getElementById('moneyBillsSection');
-  const mini = document.getElementById('moneyMiniAnalytics');
-  const dashboard = document.getElementById('moneySmartDashboard');
+  canonical.style.display = '';
+  canonical.style.visibility = '';
+  canonical.style.opacity = '';
+  canonical.style.maxHeight = '';
+  canonical.style.pointerEvents = '';
+  canonical.style.transform = '';
 
-  // Keep summary above analytics/dashboard/bills.
-  const anchor = mini || dashboard || bills;
-  if (anchor && canonical.parentNode && canonical !== anchor.previousElementSibling) {
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  const anchor =
+    document.getElementById('moneyMiniAnalytics') ||
+    document.getElementById('moneySmartDashboard') ||
+    document.getElementById('moneyBillsSection') ||
+    root.firstElementChild;
+
+  if (anchor && anchor !== canonical && anchor.parentNode) {
     anchor.parentNode.insertBefore(canonical, anchor);
+  } else if (root && canonical.parentNode !== root) {
+    root.prepend(canonical);
   }
 
-  // Hide duplicate cards.
-  cards.slice(1).forEach(card => {
+  cards.forEach(card => {
+    if (card === canonical) return;
     card.classList.add('money-summary-duplicate-hidden');
   });
 
-  // Build horizontal layout only once.
-  if (!canonical.querySelector('.money-summary-top-row')) {
-    const children = Array.from(canonical.children).filter(el => el.offsetParent !== null);
-
-    if (children.length >= 3) {
-      const top = document.createElement('div');
-      top.className = 'money-summary-top-row';
-
-      const bottom = document.createElement('div');
-      bottom.className = 'money-summary-bottom-row';
-
-      // Outstanding + Paid side-by-side
-      top.appendChild(children[0]);
-      top.appendChild(children[1]);
-
-      // Money left section full width underneath
-      bottom.appendChild(children[2]);
-
-      // Remove existing nodes safely.
-      children.forEach(ch => {
-        if (ch.parentNode === canonical) {
-          canonical.removeChild(ch);
-        }
-      });
-
-      canonical.appendChild(top);
-      canonical.appendChild(bottom);
-    }
-  }
+  moneySummaryEnsureHorizontalLayout(canonical);
 }
 
-function moneySummaryLayoutFixWire() {
-  moneyPinSingleSummaryToTop();
+function moneySummaryPersistWire() {
+  moneySummaryPinTopSafely();
 
   const root = document.getElementById('content') || document.getElementById('app') || document.body;
-
-  if (root && !root.dataset.summaryLayoutFixObserver) {
-    root.dataset.summaryLayoutFixObserver = '1';
+  if (root && !root.dataset.summaryPersistObserver) {
+    root.dataset.summaryPersistObserver = '1';
 
     new MutationObserver(() => {
-      clearTimeout(window.__moneySummaryLayoutTimer);
-      window.__moneySummaryLayoutTimer = setTimeout(moneyPinSingleSummaryToTop, 120);
+      clearTimeout(window.__moneySummaryPersistTimer);
+      window.__moneySummaryPersistTimer = setTimeout(moneySummaryPinTopSafely, 120);
     }).observe(root, {
       childList: true,
       subtree: true,
-      attributes: true
+      attributes: true,
+      attributeFilter: ['class', 'style']
     });
   }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  moneySummaryLayoutFixWire();
-  setTimeout(moneySummaryLayoutFixWire, 500);
-  setTimeout(moneySummaryLayoutFixWire, 1400);
-  setTimeout(moneySummaryLayoutFixWire, 2400);
+  moneySummaryPersistWire();
+  setTimeout(moneySummaryPersistWire, 400);
+  setTimeout(moneySummaryPersistWire, 1200);
+  setTimeout(moneySummaryPersistWire, 2500);
 });
 
 document.addEventListener('click', function(event) {
   if (event.target.closest('#reloadBarBtn, #monthPicker, .paid-toggle, [data-paid-row], #moneyBillsSectionHeader')) {
-    setTimeout(moneySummaryLayoutFixWire, 250);
-    setTimeout(moneySummaryLayoutFixWire, 900);
+    setTimeout(moneySummaryPersistWire, 250);
+    setTimeout(moneySummaryPersistWire, 900);
   }
 }, true);
 
