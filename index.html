@@ -4598,6 +4598,75 @@ body.money-bills-section-collapsed .balance-card {
   transform: none !important;
 }
 
+
+/* === summary layout + duplicate prevention fix 2026-05-13 10:56:44 === */
+
+/* Canonical top summary card */
+.money-top-summary-anchor {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* Horizontal top stats row */
+.money-summary-top-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+}
+
+/* Each stat cell */
+.money-summary-top-row > * {
+  padding: 14px 16px !important;
+  min-width: 0 !important;
+}
+
+/* Divider between Outstanding and Paid */
+.money-summary-top-row > * + * {
+  border-left: 1px solid rgba(15,23,42,.06) !important;
+}
+
+body.dark .money-summary-top-row > * + *,
+[data-theme="dark"] .money-summary-top-row > * + * {
+  border-left: 1px solid rgba(255,255,255,.06) !important;
+}
+
+/* Bottom money left section */
+.money-summary-bottom-row {
+  border-top: 1px solid rgba(15,23,42,.06) !important;
+  padding: 14px 16px !important;
+}
+
+body.dark .money-summary-bottom-row,
+[data-theme="dark"] .money-summary-bottom-row {
+  border-top: 1px solid rgba(255,255,255,.06) !important;
+}
+
+/* Prevent accidental duplicate summary cards */
+.money-summary-duplicate-hidden {
+  display: none !important;
+}
+
+/* Remove bottom duplicates visually if scripts fail */
+body > .summary-card:last-of-type,
+body > .balance-card:last-of-type {
+  display: none;
+}
+
+/* Keep top summary compact and premium */
+.money-top-summary-anchor [class*="amount"],
+.money-top-summary-anchor .big {
+  font-size: 28px !important;
+  line-height: .92 !important;
+  letter-spacing: -0.045em !important;
+}
+
+.money-top-summary-anchor small,
+.money-top-summary-anchor [class*="meta"] {
+  font-size: 11px !important;
+  opacity: .72 !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -4633,6 +4702,112 @@ document.addEventListener('click', event => {
 
 </script>
 <script>
+
+// Canonical top summary manager.
+// Ensures only ONE summary card exists and keeps it pinned to the top.
+
+function moneyFindSummaryCards() {
+  return Array.from(document.querySelectorAll(
+    '.money-top-summary-anchor, .money-summary-under-search, .summary-card, .card.summary, .balance-card, [class*="summary"]'
+  )).filter(card => {
+    const t = String(card.textContent || '').toLowerCase();
+    return (
+      t.includes('outstanding') ||
+      t.includes('paid so far') ||
+      t.includes('money left') ||
+      t.includes('left per day')
+    );
+  });
+}
+
+function moneyPinSingleSummaryToTop() {
+  const cards = moneyFindSummaryCards();
+  if (!cards.length) return;
+
+  // Pick the best canonical card.
+  const canonical = cards[0];
+  canonical.classList.add('money-top-summary-anchor');
+
+  const bills = document.getElementById('moneyBillsSection');
+  const mini = document.getElementById('moneyMiniAnalytics');
+  const dashboard = document.getElementById('moneySmartDashboard');
+
+  // Keep summary above analytics/dashboard/bills.
+  const anchor = mini || dashboard || bills;
+  if (anchor && canonical.parentNode && canonical !== anchor.previousElementSibling) {
+    anchor.parentNode.insertBefore(canonical, anchor);
+  }
+
+  // Hide duplicate cards.
+  cards.slice(1).forEach(card => {
+    card.classList.add('money-summary-duplicate-hidden');
+  });
+
+  // Build horizontal layout only once.
+  if (!canonical.querySelector('.money-summary-top-row')) {
+    const children = Array.from(canonical.children).filter(el => el.offsetParent !== null);
+
+    if (children.length >= 3) {
+      const top = document.createElement('div');
+      top.className = 'money-summary-top-row';
+
+      const bottom = document.createElement('div');
+      bottom.className = 'money-summary-bottom-row';
+
+      // Outstanding + Paid side-by-side
+      top.appendChild(children[0]);
+      top.appendChild(children[1]);
+
+      // Money left section full width underneath
+      bottom.appendChild(children[2]);
+
+      // Remove existing nodes safely.
+      children.forEach(ch => {
+        if (ch.parentNode === canonical) {
+          canonical.removeChild(ch);
+        }
+      });
+
+      canonical.appendChild(top);
+      canonical.appendChild(bottom);
+    }
+  }
+}
+
+function moneySummaryLayoutFixWire() {
+  moneyPinSingleSummaryToTop();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+
+  if (root && !root.dataset.summaryLayoutFixObserver) {
+    root.dataset.summaryLayoutFixObserver = '1';
+
+    new MutationObserver(() => {
+      clearTimeout(window.__moneySummaryLayoutTimer);
+      window.__moneySummaryLayoutTimer = setTimeout(moneyPinSingleSummaryToTop, 120);
+    }).observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneySummaryLayoutFixWire();
+  setTimeout(moneySummaryLayoutFixWire, 500);
+  setTimeout(moneySummaryLayoutFixWire, 1400);
+  setTimeout(moneySummaryLayoutFixWire, 2400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#reloadBarBtn, #monthPicker, .paid-toggle, [data-paid-row], #moneyBillsSectionHeader')) {
+    setTimeout(moneySummaryLayoutFixWire, 250);
+    setTimeout(moneySummaryLayoutFixWire, 900);
+  }
+}, true);
+
+
 
 // Section visibility repair:
 // Keeps summary/analytics/dashboard outside Bills and prevents Bills collapse from hiding them.
