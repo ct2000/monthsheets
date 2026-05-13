@@ -1373,6 +1373,39 @@ body::after{
   letter-spacing:-.01em;
 }
 
+
+/* === Orb logo refresh === */
+
+.brand-icon,
+.splash-logo{
+  background-image:url('icon-192.png') !important;
+  background-size:cover !important;
+  background-position:center !important;
+  background-repeat:no-repeat !important;
+  color:transparent !important;
+  font-size:0 !important;
+  overflow:hidden !important;
+}
+
+.brand-icon::before,
+.brand-icon::after,
+.splash-logo::before,
+.splash-logo::after{
+  display:none !important;
+}
+
+.brand-icon{
+  box-shadow:
+    0 16px 38px rgba(0,122,255,.22),
+    0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+.splash-logo{
+  box-shadow:
+    0 22px 52px rgba(0,122,255,.28),
+    0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
 </style>
 </head>
 
@@ -1465,6 +1498,23 @@ body::after{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Orb logo refresh
+window.MONEY_PWA_VERSION = "v3-logo-refresh-20260513-150427";
+
+function moneyApplyOrbLogo() {
+  document.querySelectorAll('.brand-icon, .splash-logo').forEach(el => {
+    el.textContent = '';
+    el.setAttribute('aria-label', 'Calm Finance');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyApplyOrbLogo();
+  setTimeout(moneyApplyOrbLogo, 600);
+});
+
+
 
 // Calm Finance polish
 window.MONEY_PWA_VERSION = "v3-calm-finance-20260513-145323";
@@ -1668,7 +1718,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "v3-orb-icon-20260513-145947";
+const VERSION = "v3-logo-refresh-20260513-150427";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2293,7 +2343,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-145947").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-150427").catch(()=>{}));
 }
 
 wireStatic();

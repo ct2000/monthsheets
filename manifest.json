@@ -2,7 +2,7 @@
   "name": "Money",
   "short_name": "Money",
   "description": "Calm Finance \u2014 premium iOS-style budgeting PWA",
-  "start_url": "./index.html?v=20260513-145947",
+  "start_url": "./index.html?v=20260513-150427",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
