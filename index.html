@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Fixed summary top and search in Bills build: 2026-05-13 09:16:31 -->
+<!-- Simplified Bills and card icons build: 2026-05-13 09:40:26 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3275,6 +3275,191 @@ body.dark .money-bills-section-chevron,
 
 #moneyBillsSection .tabs {
   margin-top: 0 !important;
+}
+
+
+/* === simplified Bills + card icons 2026-05-13 09:40:26 === */
+
+/* Remove search completely */
+#searchBills,
+#moneyBillsSectionSearch,
+.money-bills-section-search,
+.search-row,
+.search-wrap,
+.searchbar input[type="search"],
+input[type="search"] {
+  display: none !important;
+}
+
+/* Remove paid/unpaid/due sort controls completely */
+.tabs,
+#moneyBillsSectionControls,
+.money-bills-section-controls,
+.sort-row,
+.sort-controls,
+button[data-sort],
+[data-sort="unpaid"],
+[data-sort="paid"],
+[data-sort="dateAsc"],
+[data-sort="dateDesc"] {
+  display: none !important;
+}
+
+/* Clean Bills section spacing after controls removal */
+.money-bills-section-body {
+  padding-top: 0 !important;
+}
+
+.money-bills-section-list {
+  padding-top: 0 !important;
+}
+
+/* Card icon badge shared style */
+.money-card-title-icon {
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 12px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text,#111827) !important;
+  border: 1px solid rgba(15,23,42,.065) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+.money-card-title-with-icon {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.money-card-title-with-icon .money-section-title,
+.money-card-title-with-icon h2,
+.money-card-title-with-icon h3 {
+  margin: 0 !important;
+}
+
+/* Injected icon positioning for existing card title rows */
+.money-insights-card > .money-section-title,
+.money-chart-card > .money-section-title,
+.money-upcoming-card > .money-section-title,
+.money-mini-analytics-head,
+.summary-card h2,
+.summary-card h3,
+.card.summary h2,
+.card.summary h3 {
+  position: relative !important;
+}
+
+.money-insights-card > .money-section-title::before,
+.money-chart-card > .money-section-title::before,
+.money-upcoming-card > .money-section-title::before {
+  content: attr(data-card-icon) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 12px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  margin-right: 8px !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text,#111827) !important;
+  border: 1px solid rgba(15,23,42,.065) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+/* mini analytics icon */
+.money-mini-analytics-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.money-mini-analytics-title::before {
+  content: "⌁" !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 12px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text,#111827) !important;
+  border: 1px solid rgba(15,23,42,.065) !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+/* summary card icon */
+.money-top-summary-anchor::before,
+.money-summary-under-search::before {
+  content: "£" !important;
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 13px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text,#111827) !important;
+  border: 1px solid rgba(15,23,42,.065) !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+  margin-bottom: 8px !important;
+}
+
+/* Bills header icon */
+.money-bills-section-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.money-bills-section-title::before {
+  content: "☰" !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 12px !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  background: rgba(17,24,39,.06) !important;
+  color: var(--ios-text,#111827) !important;
+  border: 1px solid rgba(15,23,42,.065) !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.72) !important;
+}
+
+/* dark mode icons */
+body.dark .money-card-title-icon,
+body.dark .money-insights-card > .money-section-title::before,
+body.dark .money-chart-card > .money-section-title::before,
+body.dark .money-upcoming-card > .money-section-title::before,
+body.dark .money-mini-analytics-title::before,
+body.dark .money-top-summary-anchor::before,
+body.dark .money-summary-under-search::before,
+body.dark .money-bills-section-title::before,
+[data-theme="dark"] .money-card-title-icon,
+[data-theme="dark"] .money-insights-card > .money-section-title::before,
+[data-theme="dark"] .money-chart-card > .money-section-title::before,
+[data-theme="dark"] .money-upcoming-card > .money-section-title::before,
+[data-theme="dark"] .money-mini-analytics-title::before,
+[data-theme="dark"] .money-top-summary-anchor::before,
+[data-theme="dark"] .money-summary-under-search::before,
+[data-theme="dark"] .money-bills-section-title::before {
+  background: rgba(255,255,255,.08) !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,.09) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
 }
 
 </style>
@@ -6833,7 +7018,79 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Simplified Bills section + card icon labels.
+function moneySimplifyBillsAndAddCardIcons() {
+  // Remove/hide search nodes.
+  document.querySelectorAll('#searchBills, #moneyBillsSectionSearch, .money-bills-section-search, input[type="search"]').forEach(el => {
+    const block = el.closest('.search-row, .filters, .toolbar, .controls, .search-wrap, .searchbar') || el;
+    block.style.display = 'none';
+  });
+
+  // Remove/hide sort controls.
+  document.querySelectorAll('.tabs, #moneyBillsSectionControls, .money-bills-section-controls, .sort-row, .sort-controls, button[data-sort], [data-sort]').forEach(el => {
+    if (!el.closest('.bill-card') && !el.closest('article[class*="bill"]')) {
+      el.style.display = 'none';
+    }
+  });
+
+  // Update Bills subtitle.
+  const sub = document.querySelector('.money-bills-section-sub');
+  if (sub) {
+    try {
+      const rows = (() => {
+        const picker = document.getElementById('monthPicker');
+        const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+        return table && Array.isArray(table.rows) ? table.rows : [];
+      })();
+      sub.textContent = rows.length ? `${rows.length} bills` : 'Tap to show or hide bills';
+    } catch(e) {
+      sub.textContent = 'Tap to show or hide bills';
+    }
+  }
+
+  // Add icon hints to dashboard card section titles.
+  const iconMap = [
+    ['.money-insights-card > .money-section-title', '✦'],
+    ['.money-chart-card > .money-section-title', '⌁'],
+    ['.money-upcoming-card > .money-section-title', '◷']
+  ];
+
+  iconMap.forEach(([selector, icon]) => {
+    document.querySelectorAll(selector).forEach(el => {
+      el.setAttribute('data-card-icon', icon);
+    });
+  });
+}
+
+function moneyWireSimplifiedBillsCards() {
+  moneySimplifyBillsAndAddCardIcons();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  if (root && !root.dataset.simplifiedBillsCardObserver) {
+    root.dataset.simplifiedBillsCardObserver = '1';
+    new MutationObserver(() => {
+      clearTimeout(window.__moneySimplifiedBillsTimer);
+      window.__moneySimplifiedBillsTimer = setTimeout(moneySimplifyBillsAndAddCardIcons, 120);
+    }).observe(root, { childList: true, subtree: true, characterData: true });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyWireSimplifiedBillsCards();
+  setTimeout(moneyWireSimplifiedBillsCards, 500);
+  setTimeout(moneyWireSimplifiedBillsCards, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#moneyBillsSectionHeader, .paid-toggle, [data-paid-row], #reloadBarBtn, #monthPicker')) {
+    setTimeout(moneySimplifyBillsAndAddCardIcons, 250);
+    setTimeout(moneySimplifyBillsAndAddCardIcons, 900);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireSimplifiedBillsCards, 1000);
 setTimeout(moneyWireFixedLayout, 1000);
 setTimeout(moneyWireBillsSectionSearch, 1000);
 setTimeout(moneyWireBillsSection, 900);

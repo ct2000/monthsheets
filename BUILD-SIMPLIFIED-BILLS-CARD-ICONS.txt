@@ -1,0 +1,5 @@
+Built: 2026-05-13 09:40:26
+Base: money-layout-top-summary-bills-search-20260513-091631.zip
+Change: removed search, removed Paid/Unpaid/Due sort controls, and added relevant monochrome-style icons to dashboard cards.
+JS syntax ok: True
+
