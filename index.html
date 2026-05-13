@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- searchBills compatibility shim build: 2026-05-13 09:53:41 -->
+<!-- Compact bill list build: 2026-05-13 09:57:50 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3499,6 +3499,153 @@ body.dark .money-bills-section-title::before,
   height: 1px !important;
   opacity: 0 !important;
   pointer-events: none !important;
+}
+
+
+/* === compact bill / due items list 2026-05-13 09:57:50 === */
+
+/* tighter list spacing */
+.money-bills-section-list,
+.bill-list,
+.items,
+.list {
+  display: grid !important;
+  gap: 8px !important;
+}
+
+.money-swipe-wrap {
+  margin-bottom: 8px !important;
+  border-radius: 18px !important;
+}
+
+/* compact cards */
+.bill-card,
+.item-card,
+.row-card,
+article[class*="bill"] {
+  min-height: 0 !important;
+  padding: 10px 12px !important;
+  margin-bottom: 0 !important;
+  border-radius: 18px !important;
+  gap: 10px !important;
+  align-items: center !important;
+  box-shadow:
+    0 8px 20px rgba(15,23,42,.055),
+    inset 0 1px 0 rgba(255,255,255,.64) !important;
+}
+
+/* smaller bill icons */
+.money-bill-logo,
+.bill-icon {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 13px !important;
+  font-size: 15px !important;
+}
+
+/* compact text */
+.bill-name,
+[class*="bill-name"],
+.item-name,
+.row-name,
+article[class*="bill"] strong,
+.bill-card strong {
+  font-size: 14px !important;
+  line-height: 1.15 !important;
+  font-weight: 850 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.bill-card small,
+.bill-card .meta,
+.bill-card [class*="meta"],
+.item-card small,
+.row-card small,
+article[class*="bill"] small,
+article[class*="bill"] [class*="meta"] {
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+  opacity: .72 !important;
+}
+
+/* compact amounts/status */
+.bill-card .amount,
+.bill-card [class*="amount"],
+.item-card .amount,
+.row-card .amount,
+article[class*="bill"] [class*="amount"] {
+  font-size: 14px !important;
+  line-height: 1.1 !important;
+  font-weight: 900 !important;
+  font-variant-numeric: tabular-nums !important;
+}
+
+.paid-toggle,
+[data-paid-row],
+.status-paid,
+.status-unpaid,
+.bill-status,
+.pill,
+.status-pill {
+  min-height: 28px !important;
+  height: 28px !important;
+  padding: 0 9px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 850 !important;
+}
+
+/* if card uses grid/flex, tighten children */
+.bill-card > div,
+.item-card > div,
+.row-card > div,
+article[class*="bill"] > div {
+  min-width: 0 !important;
+}
+
+.bill-card {
+  grid-template-columns: auto 1fr auto !important;
+}
+
+/* remove hover hint to save visual space */
+.bill-card::before,
+.item-card::before,
+.row-card::before,
+article[class*="bill"]::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* compact section body */
+.money-bills-section-body {
+  padding: 0 10px 10px !important;
+}
+
+.money-bills-section-header {
+  padding: 12px 13px !important;
+}
+
+.money-bills-section-title {
+  font-size: 14px !important;
+}
+
+.money-bills-section-sub {
+  font-size: 10.5px !important;
+}
+
+/* dark mode compact shadows */
+body.dark .bill-card,
+body.dark .item-card,
+body.dark .row-card,
+body.dark article[class*="bill"],
+[data-theme="dark"] .bill-card,
+[data-theme="dark"] .item-card,
+[data-theme="dark"] .row-card,
+[data-theme="dark"] article[class*="bill"] {
+  box-shadow:
+    0 8px 22px rgba(0,0,0,.28),
+    inset 0 1px 0 rgba(255,255,255,.055) !important;
 }
 
 </style>

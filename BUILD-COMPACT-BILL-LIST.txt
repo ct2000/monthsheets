@@ -1,0 +1,5 @@
+Built: 2026-05-13 09:57:50
+Base: money-search-shim-fix-20260513-095341.zip
+Change: made due items/bill list more compact with smaller card padding, tighter gaps, smaller icons, and reduced text/status sizing.
+JS syntax ok: True
+
