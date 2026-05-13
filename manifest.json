@@ -1,8 +1,8 @@
 {
   "name": "Money",
   "short_name": "Money",
-  "description": "Premium iOS-style Money PWA",
-  "start_url": "./index.html?v=20260513-144507",
+  "description": "Calm Finance \u2014 premium iOS-style budgeting PWA",
+  "start_url": "./index.html?v=20260513-145323",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

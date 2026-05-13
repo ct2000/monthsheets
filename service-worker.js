@@ -1,4 +1,4 @@
-const CACHE = 'money-v3-premium-top5-20260513-144507';
+const CACHE = 'money-v3-calm-finance-20260513-145323';
 const SHELL = [
   './',
   './index.html',

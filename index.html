@@ -1264,6 +1264,115 @@ body::after{
   margin-top:0;
 }
 
+
+/* === Calm Finance polish === */
+
+/* Proper centered floating dock */
+.bottom-dock{
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  right:auto !important;
+  margin:0 auto !important;
+}
+
+/* Calm finance identity */
+.brand-icon{
+  position:relative;
+  overflow:hidden;
+}
+
+.brand-icon::after{
+  content:"";
+  position:absolute;
+  inset:auto -18% -42% auto;
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  background:radial-gradient(circle, rgba(255,255,255,.55), transparent 68%);
+  pointer-events:none;
+}
+
+.available-hero{
+  background:
+    radial-gradient(circle at 88% 0%, rgba(52,199,89,.10), transparent 34%),
+    radial-gradient(circle at 12% 100%, rgba(0,122,255,.10), transparent 34%),
+    linear-gradient(145deg, rgba(255,255,255,.80), rgba(255,255,255,.60)) !important;
+}
+
+[data-theme="dark"] .available-hero{
+  background:
+    radial-gradient(circle at 88% 0%, rgba(52,199,89,.10), transparent 34%),
+    radial-gradient(circle at 12% 100%, rgba(0,122,255,.10), transparent 34%),
+    linear-gradient(145deg, rgba(23,31,45,.88), rgba(15,21,32,.74)) !important;
+}
+
+.available-label{
+  background:rgba(52,199,89,.11) !important;
+  color:var(--ios-green,#34c759) !important;
+}
+
+.available-sub{
+  max-width: 240px;
+}
+
+/* Softer calmer cards */
+.card{
+  backdrop-filter: blur(36px) saturate(1.18) !important;
+  -webkit-backdrop-filter: blur(36px) saturate(1.18) !important;
+}
+
+.bill-card{
+  transition:
+    transform .18s cubic-bezier(.2,.85,.2,1),
+    box-shadow .18s ease,
+    background .18s ease !important;
+}
+
+.bill-card:hover{
+  transform:translateY(-1px);
+}
+
+/* Calm insights styling */
+.insight{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.58), rgba(255,255,255,.44)) !important;
+}
+
+[data-theme="dark"] .insight{
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.06), rgba(255,255,255,.045)) !important;
+}
+
+.insight-icon{
+  box-shadow:
+    0 8px 18px rgba(0,122,255,.10),
+    inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+/* Calm breathing animation */
+.available-ring{
+  animation: calmPulse 4.5s ease-in-out infinite !important;
+}
+
+@keyframes calmPulse{
+  0%,100%{
+    transform:scale(1);
+    box-shadow:0 14px 34px rgba(0,122,255,.14);
+  }
+  50%{
+    transform:scale(1.025);
+    box-shadow:0 18px 42px rgba(0,122,255,.20);
+  }
+}
+
+/* Gentle text refinement */
+.available-sub,
+.meta,
+.insight-text,
+.bill-meta{
+  letter-spacing:-.01em;
+}
+
 </style>
 </head>
 
@@ -1357,6 +1466,70 @@ body::after{
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 
+// Calm Finance polish
+window.MONEY_PWA_VERSION = "v3-calm-finance-20260513-145323";
+
+function moneyFormatHeroAmountExact(text) {
+  const cleaned = String(text || '')
+    .replace(/,/g,'')
+    .replace(/£/g,'')
+    .replace(/[^\d.-]/g,'');
+
+  const n = parseFloat(cleaned);
+
+  if (!Number.isFinite(n)) return text || '£0.00';
+
+  const sign = n < 0 ? '-' : '';
+
+  return sign + '£' + Math.abs(n).toLocaleString('en-GB', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function moneyFixHeroAmount() {
+  const heroAmount = document.querySelector('#availableTodayHero .available-amount');
+  const summaryValues = document.querySelectorAll('#summaryCard .value');
+
+  if (!heroAmount || !summaryValues[2]) return;
+
+  heroAmount.textContent = moneyFormatHeroAmountExact(summaryValues[2].textContent);
+}
+
+function moneyAddCalmBranding() {
+  const subtitle = document.getElementById('subtitle');
+  if (!subtitle || subtitle.dataset.calmFinanceApplied) return;
+
+  subtitle.dataset.calmFinanceApplied = '1';
+
+  const original = subtitle.textContent.trim();
+
+  subtitle.textContent = 'Calm Finance · ' + original;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyFixHeroAmount();
+  moneyAddCalmBranding();
+
+  setTimeout(moneyFixHeroAmount, 400);
+  setTimeout(moneyFixHeroAmount, 1200);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave')) {
+    setTimeout(moneyFixHeroAmount, 200);
+    setTimeout(moneyFixHeroAmount, 900);
+  }
+}, true);
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyFixHeroAmount, 80);
+  }
+}, true);
+
+
+
 // Premium Top 5 UX Layer
 window.MONEY_PWA_VERSION = "v3-premium-top5-20260513-144507";
 
@@ -1369,7 +1542,7 @@ function moneyFormatHeroAmount(text) {
   const n = moneyParseAmountText(text);
   if (!Number.isFinite(n)) return text || '£0.00';
   const sign = n < 0 ? '-' : '';
-  return sign + '£' + Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return sign + '£' + Math.abs(n).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function moneyAddAvailableTodayHero() {
@@ -1495,7 +1668,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "v3-premium-top5-20260513-144507";
+const VERSION = "v3-calm-finance-20260513-145323";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2120,7 +2293,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-144507").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-145323").catch(()=>{}));
 }
 
 wireStatic();
