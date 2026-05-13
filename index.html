@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Money">
+<meta name="apple-mobile-web-app-title" content="Flow">
 <meta name="theme-color" content="#f4f7fb">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="favicon.png">
-<title>Money</title>
+<title>Flow</title>
 
 <style>
 :root{
@@ -1454,6 +1454,65 @@ body::after{
   font-size:19px !important;
 }
 
+
+/* === Flow brand header === */
+
+.title-wrap{
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  min-width:0 !important;
+}
+
+.title-wrap h1{
+  display:block !important;
+  margin:0 !important;
+  font-size:23px !important;
+  line-height:.95 !important;
+  font-weight:950 !important;
+  letter-spacing:-.065em !important;
+  background:linear-gradient(135deg,var(--ios-blue,#007aff),var(--ios-purple,#af52de)) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+}
+
+.title-wrap h1::after{
+  content:"";
+  display:inline-block;
+  width:6px;
+  height:6px;
+  margin-left:6px;
+  border-radius:999px;
+  background:var(--ios-green,#34c759);
+  box-shadow:0 0 14px rgba(52,199,89,.55);
+  vertical-align:middle;
+}
+
+.subtitle{
+  margin-top:7px !important;
+  max-width:190px !important;
+}
+
+.topbar{
+  grid-template-columns:auto 1fr auto !important;
+}
+
+.brand{
+  display:flex !important;
+  align-items:center !important;
+  gap:12px !important;
+}
+
+.brand-icon{
+  flex:0 0 auto !important;
+}
+
+/* Make the footer status even less dominant now the header has branding */
+.dock-status{
+  opacity:.72 !important;
+}
+
 </style>
 </head>
 
@@ -1461,7 +1520,7 @@ body::after{
 <div id="splash" class="splash">
   <div class="splash-inner">
     <div class="splash-logo">£</div>
-    <div class="splash-text">Syncing your month…</div>
+    <div class="splash-text">Flow is syncing…</div>
   </div>
 </div>
 
@@ -1488,7 +1547,7 @@ body::after{
   <section id="signin" class="signin" style="display:none">
     <div class="signin-card">
       <div class="brand-icon" style="margin:0 auto 14px">£</div>
-      <h2>Connect Money</h2>
+      <h2>Connect Flow</h2>
       <p>Sign in with Google to sync your spreadsheet-backed budget.</p>
       <button id="signinBtn" class="primary-btn" type="button">Sign in with Google</button>
       <button id="settingsBtnSignin" class="secondary-btn" type="button" style="margin-top:10px;width:100%">Settings</button>
@@ -1546,6 +1605,43 @@ body::after{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Flow brand update
+window.MONEY_PWA_VERSION = "flow-brand-20260513-151740";
+
+function flowBrandUpdate() {
+  document.title = 'Flow';
+
+  const h1 = document.querySelector('.title-wrap h1');
+  if (h1) h1.textContent = 'Flow';
+
+  const subtitle = document.getElementById('subtitle');
+  if (subtitle) {
+    const text = String(subtitle.textContent || '').replace(/^Calm Finance\s*·\s*/i, '').trim();
+    if (!subtitle.dataset.flowBrandApplied) {
+      subtitle.textContent = text && text !== 'Ready' ? 'Calm Finance · ' + text : 'Calm Finance';
+      subtitle.dataset.flowBrandApplied = '1';
+    }
+  }
+
+  document.querySelectorAll('.brand-icon, .splash-logo').forEach(el => {
+    el.setAttribute('aria-label', 'Flow');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowBrandUpdate();
+  setTimeout(flowBrandUpdate, 500);
+  setTimeout(flowBrandUpdate, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave')) {
+    setTimeout(flowBrandUpdate, 300);
+  }
+}, true);
+
+
 
 // Footer refresh/status relocation
 window.MONEY_PWA_VERSION = "v3-footer-status-20260513-151115";
@@ -1812,7 +1908,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "v3-footer-status-20260513-151115";
+const VERSION = "flow-brand-20260513-151740";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2437,7 +2533,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-151115").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-151740").catch(()=>{}));
 }
 
 wireStatic();

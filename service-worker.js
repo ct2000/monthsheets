@@ -1,4 +1,4 @@
-const CACHE = 'money-v3-footer-status-20260513-151115';
+const CACHE = 'flow-brand-20260513-151740';
 const SHELL = [
   './',
   './index.html',
