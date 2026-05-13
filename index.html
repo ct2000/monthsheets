@@ -972,7 +972,7 @@ function renderMonth(table){
           <input id="leftAmount" inputmode="decimal" autocomplete="off" value="${Number(c.stored.amount||0).toFixed(2)}" aria-label="Money left">
           <input id="leftUntil" type="date" value="${c.stored.endDate || defaultEndDate()}" aria-label="End date">
         </div>
-        <div id="leftSyncStatus" class="sync-status">Synced from Left!C4</div>
+        <div id="leftSyncStatus" class="sync-status">Budget synced</div>
       </div>
     </section>
 
@@ -1108,14 +1108,14 @@ function updateSummaryOnly(table){
 
 function scheduleLeftWrite(amount){
   const status = el("leftSyncStatus");
-  if(status) status.textContent = "Saving to Left!C4…";
+  if(status) status.textContent = "Saving changes…";
   clearTimeout(leftWriteTimer);
   leftWriteTimer = setTimeout(async()=>{
     try{
       await writeLeftC4(amount);
-      if(status) status.textContent = "Saved to Left!C4";
+      if(status) status.textContent = "Everything up to date";
     }catch(e){
-      if(status) status.textContent = "Could not save Left!C4";
+      if(status) status.textContent = "Could not save changes";
       console.warn(e);
     }
   },800);
