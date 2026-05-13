@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Unified summary card build: 2026-05-13 10:39:09 -->
+<!-- Top summary labels removed build: 2026-05-13 10:44:22 -->
 <!-- V2 layout polish build: 2026-05-13 10:33:45 -->
 <!-- Money PWA Version 2 | 2026-05-13 10:18:55 | v2-20260513-101855 -->
 <meta charset="utf-8">
@@ -4497,6 +4497,53 @@ body.dark .balance-card > * + *,
   border-top: 1px solid rgba(255,255,255,.06) !important;
 }
 
+
+/* === top summary label cleanup 2026-05-13 10:44:22 === */
+
+/* Hide only the unwanted label text if it appears as small/meta text */
+.money-top-summary-anchor small,
+.money-summary-under-search small,
+.summary-card small,
+.card.summary small,
+.balance-card small,
+.money-top-summary-anchor [class*="meta"],
+.money-summary-under-search [class*="meta"],
+.summary-card [class*="meta"],
+.card.summary [class*="meta"],
+.balance-card [class*="meta"] {
+  line-height: 1.1 !important;
+}
+
+/* Tighten the unified top card now labels are shorter/removed */
+.money-top-summary-anchor,
+.money-summary-under-search,
+.summary-card,
+.card.summary,
+.balance-card {
+  padding: 0 !important;
+}
+
+.money-top-summary-anchor > *,
+.money-summary-under-search > *,
+.summary-card > *,
+.card.summary > *,
+.balance-card > * {
+  padding: 11px 15px !important;
+}
+
+.money-top-summary-anchor [class*="amount"],
+.money-summary-under-search [class*="amount"],
+.summary-card [class*="amount"],
+.card.summary [class*="amount"],
+.balance-card [class*="amount"],
+.money-top-summary-anchor .big,
+.money-summary-under-search .big,
+.summary-card .big,
+.card.summary .big,
+.balance-card .big {
+  font-size: 28px !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -4532,6 +4579,58 @@ document.addEventListener('click', event => {
 
 </script>
 <script>
+
+// Remove unwanted labels from top summary card while keeping values.
+function moneyCleanTopSummaryLabels() {
+  const summary = Array.from(document.querySelectorAll('.money-top-summary-anchor, .money-summary-under-search, .summary-card, .card.summary, .balance-card, [class*="summary"]')).find(card => {
+    const t = String(card.textContent || '').toLowerCase();
+    return (
+      t.includes('outstanding') ||
+      t.includes('paid so far') ||
+      t.includes('money left') ||
+      t.includes('') ||
+      t.includes('')
+    );
+  });
+
+  if (!summary) return;
+
+  summary.classList.add('money-top-summary-anchor');
+
+  // Remove exact unwanted phrases wherever they appear, without touching numbers.
+  const walker = document.createTreeWalker(summary, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+
+  nodes.forEach(node => {
+    node.nodeValue = node.nodeValue
+      .replace(/\bStill to pay\b/gi, '')
+      .replace(/\bAlready covered\b/gi, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  });
+
+  // Hide empty label elements left behind.
+  summary.querySelectorAll('small, [class*="meta"], span, div').forEach(el => {
+    const text = String(el.textContent || '').trim();
+    if (!text && el.children.length === 0) {
+      el.style.display = 'none';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyCleanTopSummaryLabels();
+  setTimeout(moneyCleanTopSummaryLabels, 500);
+  setTimeout(moneyCleanTopSummaryLabels, 1500);
+});
+
+document.addEventListener('click', function() {
+  setTimeout(moneyCleanTopSummaryLabels, 300);
+}, true);
+
+
 
 // Force unified summary card styling.
 function moneyUnifySummaryCard() {
@@ -4774,7 +4873,7 @@ function showSignInError(msg){showSignIn();document.querySelector('#signin p').t
 function leftKey(table){return 'ms.left:'+table.label.toLowerCase().replace(/[^a-z0-9]/g,'')}function getLeft(table){try{return JSON.parse(localStorage.getItem(leftKey(table))||'null')||{amount:1096,endDate:defaultEndDate()}}catch(e){return{amount:1096,endDate:defaultEndDate()}}}function setLeft(table,data){localStorage.setItem(leftKey(table),JSON.stringify(data))}
 function render(){if(!CACHED_TABLES.length){content.innerHTML='<div class="empty">No month tables found in your spreadsheet.</div>';return}monthPicker.innerHTML='';CACHED_TABLES.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(t.label||'Month').slice(0,3);monthPicker.appendChild(o)});let initial=localStorage.getItem('ms.selected');if(initial===null||!CACHED_TABLES[initial])initial=pickBestTable(CACHED_TABLES);monthPicker.value=initial;monthPicker.style.display='block';monthPicker.onchange=()=>{localStorage.setItem('ms.selected',monthPicker.value);renderMonth(CACHED_TABLES[monthPicker.value])};renderMonth(CACHED_TABLES[initial])}
 function sortRows(rows){const arr=[...rows];if(CURRENT_SORT==='paid')arr.sort((a,b)=>(isRowPaid(b)?1:0)-(isRowPaid(a)?1:0));else if(CURRENT_SORT==='amount')arr.sort((a,b)=>(b.due||0)-(a.due||0));else if(CURRENT_SORT==='date')arr.sort((a,b)=>(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99));else arr.sort((a,b)=>{const ap=isRowPaid(a),bp=isRowPaid(b);if(ap!==bp)return ap?1:-1;return(parseInt(a.dueDate)||99)-(parseInt(b.dueDate)||99)});return arr}
-function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta">Still to pay</div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta">Already covered</div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input  value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" data-money="decimal" id="leftAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
+function renderMonth(table){const q=(searchBills.value||'').trim().toLowerCase();const rows=sortRows(table.rows).filter(r=>!q||r.name.toLowerCase().includes(q));const totalPaid=table.rows.reduce((s,r)=>s+effectivePaidAmount(r),0), outstanding=table.rows.reduce((s,r)=>s+outstandingAmount(r),0);const paidCount=table.rows.filter(isRowPaid).length, unpaidCount=table.rows.filter(r=>!isRowPaid(r)).length;const stored=getLeft(table);let days=daysBetween(todayISO(),stored.endDate||defaultEndDate());let spendable=(parseFloat(stored.amount)||0)-outstanding;let perDay=spendable/days;subtitle.textContent=`${table.label} · refreshed ${new Date().toLocaleString('en-GB',{hour:'2-digit',minute:'2-digit'})}`;content.innerHTML=`<div class="tabs"><button class="tab active" data-sort="unpaid">Unpaid <span class="badge">${unpaidCount}</span></button><button class="tab" data-sort="paid">Paid <span class="badge">${paidCount}</span></button></div><section class="summary-grid"><div class="summary-card"><div class="card-label">Outstanding</div><div class="card-value">${fmtMoney(outstanding)}</div><div class="card-meta"></div></div><div class="summary-card"><div class="card-label">Paid so far</div><div class="card-value">${fmtMoney(totalPaid)}</div><div class="card-meta"></div></div><div class="summary-card wide"><div class="card-label">Money left per day</div><div class="card-value">${fmtMoney(perDay)}</div><div class="card-meta">${days} day${days===1?'':'s'} left · ${fmtMoney(stored.amount)} − ${fmtMoney(outstanding)} = ${fmtMoney(spendable)}</div><div class="money-form"><input  value="${Number(stored.amount||0).toFixed(2)}" data-money="leftAmount" data-money="whole" data-money="decimal" id="leftAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00"><input id="leftUntil" type="date" value="${stored.endDate||defaultEndDate()}"></div></div></section><div class="sort-row"><div class="section-title">Bills</div><div class="sort-pill-row" id="sortBills">
       <button type="button" class="sort-pill unpaid-sort" data-sort="unpaid">Unpaid</button>
       <button type="button" class="sort-pill paid-sort" data-sort="paid">Paid</button>
       <button type="button" class="sort-pill date-sort" data-sort="dateAsc">Due ↑</button>
@@ -6073,7 +6172,7 @@ function moneyBuildDashboardHTML() {
       <div class="money-hero-top">
         <div class="money-hero-kicker">Safe to spend today</div>
         <div class="money-hero-amount"><span data-safe-spend-placeholder="1">—</span></div>
-        <div class="money-hero-sub">${moneyReadCorrectDaysText ? (moneyReadCorrectDaysText() || `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`) : `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`} · ${moneyFmt(m.unpaidTotal)} still to pay</div>
+        <div class="money-hero-sub">${moneyReadCorrectDaysText ? (moneyReadCorrectDaysText() || `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`) : `${m.daysLeft} day${m.daysLeft === 1 ? '' : 's'} left`} · ${moneyFmt(m.unpaidTotal)} </div>
       </div>
       <div class="money-hero-row">
         <div class="money-hero-stat"><strong>${m.unpaid.length}</strong><span>Unpaid</span></div>
@@ -6648,7 +6747,7 @@ function moneyPatchOptionBDayDisplays() {
   });
 
   document.querySelectorAll('.money-hero-sub').forEach(el => {
-    const stillToPayMatch = String(el.textContent || '').match(/·\s*(.*still to pay)/i);
+    const stillToPayMatch = String(el.textContent || '').match(/·\s*(.*)/i);
     const stillToPay = stillToPayMatch ? stillToPayMatch[1] : '';
     el.textContent = stillToPay ? `${text} · ${stillToPay}` : text;
   });
@@ -6714,7 +6813,7 @@ function moneyPatchSafeSpendDashboardBuilder() {
     );
 
     out = out.replace(
-      /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? still to pay<\/div>)/,
+      /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? <\/div>)/,
       `$1${daysText}$3`
     );
 
@@ -6951,7 +7050,7 @@ function moneyLeftPerDayRebuiltUpdate() {
   });
 
   document.querySelectorAll('.money-hero-sub').forEach(el => {
-    el.textContent = `${daysText} · ${moneyLeftRebuiltFmt(calc.unpaid)} still to pay`;
+    el.textContent = `${daysText} · ${moneyLeftRebuiltFmt(calc.unpaid)} `;
   });
 
   document.querySelectorAll('.money-insight').forEach(insight => {
@@ -6985,7 +7084,7 @@ function moneyLeftPerDayRebuiltPatchDashboard() {
 
     out = out.replace(
       /(<div class="money-hero-sub">)([\s\S]*?)(<\/div>)/,
-      `$1${daysText} · ${moneyLeftRebuiltFmt(calc.unpaid)} still to pay$3`
+      `$1${daysText} · ${moneyLeftRebuiltFmt(calc.unpaid)} $3`
     );
 
     out = out.replace(
@@ -7101,7 +7200,7 @@ function moneyMirrorSafeSpendFromPrimary() {
   if (meta) {
     document.querySelectorAll('.money-hero-sub').forEach(el => {
       const oldText = String(el.textContent || '');
-      const stillToPayMatch = oldText.match(/·\s*(.*still to pay)/i);
+      const stillToPayMatch = oldText.match(/·\s*(.*)/i);
       const stillToPay = stillToPayMatch ? stillToPayMatch[1] : '';
       el.textContent = stillToPay ? `${meta} · ${stillToPay}` : meta;
     });
@@ -7143,14 +7242,14 @@ function moneyPatchDashboardHeroMirror() {
 
     if (meta) {
       out = out.replace(
-        /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? still to pay<\/div>)/,
+        /(<div class="money-hero-sub">)([\s\S]*?)( · [\s\S]*? <\/div>)/,
         `$1${meta}$3`
       );
 
       out = out.replace(
         /(<div class="money-hero-sub">)([\s\S]*?)(<\/div>)/,
         (match, start, middle, end) => {
-          if (String(middle).includes('still to pay')) return match;
+          if (String(middle).includes('')) return match;
           return `${start}${meta}${end}`;
         }
       );
@@ -7261,7 +7360,7 @@ function moneyForceSafeSpendMatch() {
   if (meta) {
     document.querySelectorAll('.money-hero-sub').forEach(el => {
       const old = String(el.textContent || '');
-      const still = old.match(/·\s*(.*still to pay)/i);
+      const still = old.match(/·\s*(.*)/i);
       const suffix = still ? ` · ${still[1]}` : '';
       const next = `${meta}${suffix}`;
       if (el.textContent !== next) el.textContent = next;
@@ -8506,7 +8605,7 @@ wireBottomBarActions();
     setAll([".money-hero-amount"], calc.amountText);
 
     document.querySelectorAll(".money-hero-sub").forEach(el => {
-      const next = `${calc.daysText} · ${calc.unpaidText} still to pay`;
+      const next = `${calc.daysText} · ${calc.unpaidText} `;
       if (el.textContent !== next) el.textContent = next;
     });
 
@@ -8539,7 +8638,7 @@ wireBottomBarActions();
 
       out = out.replace(
         /(<div class="money-hero-sub">)([\s\S]*?)(<\/div>)/,
-        `$1${calc.daysText} · ${calc.unpaidText} still to pay$3`
+        `$1${calc.daysText} · ${calc.unpaidText} $3`
       );
 
       out = out.replace(
