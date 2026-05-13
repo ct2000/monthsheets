@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Bills section with controls build: 2026-05-13 08:59:10 -->
+<!-- Search moved into Bills section build: 2026-05-13 09:09:17 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3230,6 +3230,27 @@ body.dark .money-bills-section-chevron,
 [data-theme="dark"] .money-bills-section-chevron {
   background: rgba(255,255,255,.08) !important;
   color: #f8fafc !important;
+}
+
+
+/* === Bills section includes search 2026-05-13 09:09:17 === */
+.money-bills-section-search {
+  margin: 0 0 10px !important;
+}
+
+.money-bills-section-search input,
+.money-bills-section-search .search-input,
+.money-bills-section-search input[type="search"] {
+  width: 100% !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  font-size: 14px !important;
+  border-radius: 14px !important;
+}
+
+.money-bills-section-body .money-bills-section-controls {
+  margin-top: 0 !important;
 }
 
 </style>
@@ -6517,7 +6538,74 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Move Search Bills into Bills section body.
+function moneyBillsSectionMoveSearch() {
+  const section = document.getElementById('moneyBillsSection');
+  const body = document.getElementById('moneyBillsSectionBody');
+  const controls = document.getElementById('moneyBillsSectionControls');
+
+  if (!section || !body || !controls) return;
+
+  let searchWrap = document.getElementById('moneyBillsSectionSearch');
+
+  if (!searchWrap) {
+    searchWrap = document.createElement('div');
+    searchWrap.id = 'moneyBillsSectionSearch';
+    searchWrap.className = 'money-bills-section-search';
+    body.insertBefore(searchWrap, controls);
+  }
+
+  const search =
+    document.getElementById('searchBills') ||
+    document.querySelector('input[type="search"]') ||
+    document.querySelector('.search-input');
+
+  if (!search) return;
+
+  const block =
+    search.closest('.search-row, .filters, .toolbar, .controls, .search-wrap, .searchbar') ||
+    search.parentElement ||
+    search;
+
+  if (block && block !== searchWrap && !block.closest('#moneyBillsSectionSearch')) {
+    searchWrap.appendChild(block);
+  }
+}
+
+function moneyWireBillsSectionSearch() {
+  if (typeof moneyBuildBillsSection === 'function') {
+    try { moneyBuildBillsSection(); } catch(e) {}
+  }
+
+  moneyBillsSectionMoveSearch();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  if (root && !root.dataset.billsSectionSearchObserver) {
+    root.dataset.billsSectionSearchObserver = '1';
+    new MutationObserver(() => {
+      clearTimeout(window.__moneyBillsSearchMoveTimer);
+      window.__moneyBillsSearchMoveTimer = setTimeout(moneyBillsSectionMoveSearch, 120);
+    }).observe(root, { childList: true, subtree: true });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyWireBillsSectionSearch();
+  setTimeout(moneyWireBillsSectionSearch, 500);
+  setTimeout(moneyWireBillsSectionSearch, 1400);
+  setTimeout(moneyWireBillsSectionSearch, 2600);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker, [data-sort], #moneyBillsSectionHeader')) {
+    setTimeout(moneyBillsSectionMoveSearch, 200);
+    setTimeout(moneyBillsSectionMoveSearch, 800);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireBillsSectionSearch, 1000);
 setTimeout(moneyWireBillsSection, 900);
 setTimeout(function(){}, 900);
 setTimeout(function(){}, 800);

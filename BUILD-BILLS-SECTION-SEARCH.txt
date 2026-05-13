@@ -1,0 +1,5 @@
+Built: 2026-05-13 09:09:17
+Base: money-bills-section-controls-20260513-085910.zip
+Change: moved Search Bills into the collapsible Bills section above the sort controls.
+JS syntax ok: True
+
