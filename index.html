@@ -2035,6 +2035,66 @@ header,
   margin-top:4px !important;
 }
 
+
+/* === Header spacing fixes === */
+
+/* Shift Flow slightly left and give clean spacing */
+.title-wrap{
+  margin-left:-2px !important;
+}
+
+.title-wrap h1{
+  padding-left:1px !important;
+  overflow:visible !important;
+}
+
+/* Calendar/month picker spacing */
+.top-actions{
+  padding-right:4px !important;
+}
+
+.month-select,
+#monthPicker{
+  min-width:128px !important;
+  padding-right:18px !important;
+  text-align:center !important;
+}
+
+/* Prevent clipping/overlap */
+.topbar{
+  overflow:visible !important;
+}
+
+.brand,
+.top-actions{
+  min-width:0 !important;
+}
+
+
+/* === Visible app version styling === */
+
+.flow-version-chip{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:6px !important;
+  margin-left:10px !important;
+  padding:4px 8px !important;
+  border-radius:999px !important;
+  background:rgba(255,255,255,.52) !important;
+  border:1px solid rgba(255,255,255,.6) !important;
+  color:var(--muted) !important;
+  font-size:10px !important;
+  font-weight:850 !important;
+  line-height:1 !important;
+  vertical-align:middle !important;
+  backdrop-filter:blur(14px) saturate(1.1) !important;
+}
+
+[data-theme="dark"] .flow-version-chip{
+  background:rgba(255,255,255,.06) !important;
+  border-color:rgba(255,255,255,.08) !important;
+}
+
 </style>
 </head>
 
@@ -2127,6 +2187,45 @@ header,
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+window.MONEY_PWA_VERSION = "Flow v2.0.0513";
+
+function flowApplyVisibleVersion() {
+  document.title = "Flow";
+
+  const title = document.querySelector('.title-wrap h1');
+  if (title) {
+    let chip = document.getElementById('flowVersionChip');
+
+    if (!chip) {
+      chip = document.createElement('span');
+      chip.id = 'flowVersionChip';
+      chip.className = 'flow-version-chip';
+      title.insertAdjacentElement('afterend', chip);
+    }
+
+    chip.textContent = 'Flow v2.0.0513';
+  }
+
+  const aboutRows = document.querySelectorAll('.flow-about-row strong');
+  aboutRows.forEach(el => {
+    if (/flow-smart|flow-|v\d/i.test(el.textContent || '')) {
+      el.textContent = 'Flow v2.0.0513';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowApplyVisibleVersion();
+  setTimeout(flowApplyVisibleVersion, 500);
+  setTimeout(flowApplyVisibleVersion, 1400);
+});
+
+
+
+window.MONEY_PWA_VERSION = "flow-header-spacing-fix-20260513-161532";
+
+
 
 window.MONEY_PWA_VERSION = "flow-apple-minimal-header-20260513-161223";
 
@@ -3004,7 +3103,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-apple-minimal-header-20260513-161223";
+const VERSION = "Flow v2.0.0513";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";

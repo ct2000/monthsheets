@@ -1,4 +1,4 @@
-const CACHE = 'flow-apple-minimal-header-20260513-161223';
+const CACHE = 'flow-version-visible-20260513-161612';
 const SHELL = [
   './',
   './index.html',
