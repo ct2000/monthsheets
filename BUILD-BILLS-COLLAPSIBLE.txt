@@ -1,0 +1,5 @@
+Built: 2026-05-13 08:51:06
+Base: money-mini-analytics-graph-20260513-084438.zip
+Added collapsible/expandable Bills section with saved collapsed state.
+JS syntax ok: True
+

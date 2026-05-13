@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Mini analytics graph build: 2026-05-13 08:44:38 -->
+<!-- Collapsible bills section build: 2026-05-13 08:51:06 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2914,6 +2914,106 @@ body.dark .money-mini-legend-item span,
   color: #a3a9b4 !important;
 }
 
+
+/* === collapsible bills section 2026-05-13 08:51:06 === */
+.money-bills-toggle {
+  width: 100% !important;
+  margin: 14px 0 10px !important;
+  padding: 12px 14px !important;
+  border: 1px solid rgba(15,23,42,.07) !important;
+  border-radius: 20px !important;
+  background: rgba(255,255,255,.72) !important;
+  color: var(--ios-text,#111827) !important;
+  box-shadow:
+    0 10px 26px rgba(15,23,42,.07),
+    inset 0 1px 0 rgba(255,255,255,.72) !important;
+  backdrop-filter: blur(22px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.25) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  cursor: pointer !important;
+}
+
+.money-bills-toggle-left {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+}
+
+.money-bills-toggle-title {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.025em !important;
+}
+
+.money-bills-toggle-sub {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: var(--ios-muted,#6b7280) !important;
+}
+
+.money-bills-toggle-icon {
+  width: 30px !important;
+  height: 30px !important;
+  border-radius: 999px !important;
+  display: grid !important;
+  place-items: center !important;
+  background: rgba(17,24,39,.06) !important;
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  transition: transform .22s ease !important;
+}
+
+body.money-bills-collapsed .money-bills-toggle-icon {
+  transform: rotate(-90deg) !important;
+}
+
+.money-bills-collapsible-target {
+  transition:
+    max-height .28s cubic-bezier(.2,.85,.2,1),
+    opacity .22s ease,
+    transform .22s ease !important;
+  overflow: hidden !important;
+}
+
+body.money-bills-collapsed .money-bills-collapsible-target {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  transform: translateY(-6px) !important;
+  pointer-events: none !important;
+  margin-top: 0 !important;
+}
+
+body:not(.money-bills-collapsed) .money-bills-collapsible-target {
+  max-height: 6000px !important;
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+body.dark .money-bills-toggle,
+[data-theme="dark"] .money-bills-toggle {
+  background: rgba(22,27,36,.72) !important;
+  border-color: rgba(255,255,255,.09) !important;
+  color: #f8fafc !important;
+  box-shadow:
+    0 12px 34px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+body.dark .money-bills-toggle-sub,
+[data-theme="dark"] .money-bills-toggle-sub {
+  color: #a3a9b4 !important;
+}
+
+body.dark .money-bills-toggle-icon,
+[data-theme="dark"] .money-bills-toggle-icon {
+  background: rgba(255,255,255,.08) !important;
+  color: #f8fafc !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -5810,7 +5910,101 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Collapsible Bills section.
+function moneyBillsFindList() {
+  return (
+    document.querySelector('.bill-list') ||
+    document.querySelector('[class*="bill-list"]') ||
+    document.querySelector('.items') ||
+    document.querySelector('.list')
+  );
+}
+
+function moneyBillsCountsText() {
+  try {
+    const rows = (() => {
+      const picker = document.getElementById('monthPicker');
+      const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
+      return table && Array.isArray(table.rows) ? table.rows : [];
+    })();
+
+    const unpaid = rows.filter(r => !(typeof isRowPaid === 'function' ? isRowPaid(r) : false)).length;
+    const paid = rows.filter(r => typeof isRowPaid === 'function' ? isRowPaid(r) : false).length;
+
+    return `${unpaid} unpaid · ${paid} paid`;
+  } catch (e) {
+    return 'Tap to show or hide';
+  }
+}
+
+function moneyWireBillsCollapsible() {
+  const list = moneyBillsFindList();
+  if (!list) return;
+
+  list.classList.add('money-bills-collapsible-target');
+
+  let toggle = document.getElementById('moneyBillsToggle');
+
+  if (!toggle) {
+    toggle = document.createElement('button');
+    toggle.id = 'moneyBillsToggle';
+    toggle.type = 'button';
+    toggle.className = 'money-bills-toggle';
+    toggle.setAttribute('aria-expanded', document.body.classList.contains('money-bills-collapsed') ? 'false' : 'true');
+
+    const tabs = document.querySelector('.tabs');
+    const insertBefore = tabs || list;
+
+    insertBefore.parentNode.insertBefore(toggle, insertBefore.nextSibling || list);
+  }
+
+  toggle.innerHTML = `
+    <span class="money-bills-toggle-left">
+      <span class="money-bills-toggle-title">Bills</span>
+      <span class="money-bills-toggle-sub">${moneyBillsCountsText()}</span>
+    </span>
+    <span class="money-bills-toggle-icon">⌄</span>
+  `;
+
+  if (!toggle.dataset.billsCollapseWired) {
+    toggle.dataset.billsCollapseWired = '1';
+
+    const saved = localStorage.getItem('money.bills.collapsed');
+    if (saved === '1') {
+      document.body.classList.add('money-bills-collapsed');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+
+    toggle.addEventListener('click', function() {
+      const collapsed = document.body.classList.toggle('money-bills-collapsed');
+      localStorage.setItem('money.bills.collapsed', collapsed ? '1' : '0');
+      toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyWireBillsCollapsible();
+  setTimeout(moneyWireBillsCollapsible, 500);
+  setTimeout(moneyWireBillsCollapsible, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker')) {
+    setTimeout(moneyWireBillsCollapsible, 250);
+    setTimeout(moneyWireBillsCollapsible, 900);
+  }
+}, true);
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(moneyWireBillsCollapsible, 200);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireBillsCollapsible, 800);
 setTimeout(moneyWireMiniAnalytics, 900);
 setTimeout(moneyWireMoveSummaryUnderSearch, 700);
 setTimeout(moneyStartSafeSpendForceMatch, 800);
