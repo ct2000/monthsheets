@@ -1406,6 +1406,54 @@ body::after{
     0 0 0 1px rgba(255,255,255,.08) !important;
 }
 
+
+/* === Compact footer refresh status === */
+
+/* Hide the status from the top header visually */
+.title-wrap{
+  display:none !important;
+}
+
+/* Give the dock room for a tiny status line */
+.bottom-dock{
+  grid-template-columns:1fr 1fr 1fr !important;
+  grid-template-rows:auto auto !important;
+  min-height:76px !important;
+  padding:7px 8px 6px !important;
+}
+
+/* Footer status line inside bottom dock */
+.dock-status{
+  grid-column:1 / -1 !important;
+  text-align:center !important;
+  font-size:10px !important;
+  line-height:1 !important;
+  color:var(--muted) !important;
+  font-weight:750 !important;
+  opacity:.82 !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  padding-top:2px !important;
+}
+
+.dock-status::before{
+  content:"●";
+  color:var(--ios-green,#34c759);
+  font-size:6px;
+  margin-right:5px;
+  vertical-align:middle;
+}
+
+/* Keep dock buttons slightly tighter */
+.dock-btn{
+  gap:1px !important;
+}
+
+.dock-btn b{
+  font-size:19px !important;
+}
+
 </style>
 </head>
 
@@ -1498,6 +1546,52 @@ body::after{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Footer refresh/status relocation
+window.MONEY_PWA_VERSION = "v3-footer-status-20260513-151115";
+
+function moneyMoveRefreshStatusToFooter() {
+  const dock = document.getElementById('bottomDock');
+  const subtitle = document.getElementById('subtitle');
+  if (!dock || !subtitle) return;
+
+  let status = document.getElementById('dockStatus');
+  if (!status) {
+    status = document.createElement('div');
+    status.id = 'dockStatus';
+    status.className = 'dock-status';
+    dock.appendChild(status);
+  }
+
+  let text = String(subtitle.textContent || '').trim();
+
+  text = text
+    .replace(/^Calm Finance\s*·\s*/i, '')
+    .replace(/^Ready$/i, 'Ready')
+    .replace(/refreshed\s*/i, 'Updated ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Make it shorter if it includes month + updated time.
+  text = text.replace(/^(.+?)\s*·\s*Updated\s*/i, 'Updated ');
+
+  status.textContent = text || 'Ready';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyMoveRefreshStatusToFooter();
+  setTimeout(moneyMoveRefreshStatusToFooter, 500);
+  setTimeout(moneyMoveRefreshStatusToFooter, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave')) {
+    setTimeout(moneyMoveRefreshStatusToFooter, 250);
+    setTimeout(moneyMoveRefreshStatusToFooter, 900);
+  }
+}, true);
+
+
 
 // Orb logo refresh
 window.MONEY_PWA_VERSION = "v3-logo-refresh-20260513-150427";
@@ -1718,7 +1812,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "v3-logo-refresh-20260513-150427";
+const VERSION = "v3-footer-status-20260513-151115";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2343,7 +2437,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-150427").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-151115").catch(()=>{}));
 }
 
 wireStatic();

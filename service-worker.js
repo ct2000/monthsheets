@@ -1,4 +1,4 @@
-const CACHE = 'money-v3-logo-refresh-20260513-150427';
+const CACHE = 'money-v3-footer-status-20260513-151115';
 const SHELL = [
   './',
   './index.html',
