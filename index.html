@@ -4544,6 +4544,60 @@ body.dark .balance-card > * + *,
   font-size: 28px !important;
 }
 
+
+/* === section visibility fix 2026-05-13 10:50:29 === */
+
+/* Dashboard/summary sections must never be hidden by Bills collapse */
+.money-top-summary-anchor,
+.money-summary-under-search,
+.summary-card,
+.card.summary,
+.balance-card,
+#moneyMiniAnalytics,
+.money-mini-analytics,
+#moneySmartDashboard,
+.money-insights-card,
+.money-chart-card,
+.money-upcoming-card {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  max-height: none !important;
+  transform: none !important;
+  pointer-events: auto !important;
+}
+
+/* Only the Bills list body should collapse, not global sections */
+body.money-bills-section-collapsed #moneyBillsSectionBody,
+body.money-bills-collapsed-v2 #moneyBillsListWrapV2,
+body.money-bills-collapsed .money-bills-collapsible-target {
+  max-height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  overflow: hidden !important;
+}
+
+/* Force dashboard cards to stay outside Bills section visually */
+#moneySmartDashboard,
+#moneyMiniAnalytics {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* Prevent accidental global hiding of card sections */
+body.money-bills-section-collapsed #moneySmartDashboard,
+body.money-bills-section-collapsed #moneyMiniAnalytics,
+body.money-bills-section-collapsed .money-insights-card,
+body.money-bills-section-collapsed .money-chart-card,
+body.money-bills-section-collapsed .money-upcoming-card,
+body.money-bills-section-collapsed .summary-card,
+body.money-bills-section-collapsed .balance-card {
+  display: block !important;
+  max-height: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -4579,6 +4633,110 @@ document.addEventListener('click', event => {
 
 </script>
 <script>
+
+// Section visibility repair:
+// Keeps summary/analytics/dashboard outside Bills and prevents Bills collapse from hiding them.
+function moneyProtectDashboardSections() {
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  const bills = document.getElementById('moneyBillsSection');
+
+  if (!root) return;
+
+  const protectedNodes = Array.from(document.querySelectorAll(
+    '.money-top-summary-anchor, .money-summary-under-search, .summary-card, .card.summary, .balance-card, #moneyMiniAnalytics, .money-mini-analytics, #moneySmartDashboard, .money-insights-card, .money-chart-card, .money-upcoming-card'
+  ));
+
+  protectedNodes.forEach(node => {
+    if (!node) return;
+
+    node.classList.add('money-protected-section');
+
+    // If a protected section somehow got moved inside Bills, move it back above Bills.
+    if (bills && node.closest('#moneyBillsSection')) {
+      bills.parentNode.insertBefore(node, bills);
+    }
+
+    node.style.display = '';
+    node.style.visibility = '';
+    node.style.opacity = '';
+    node.style.maxHeight = '';
+    node.style.pointerEvents = '';
+    node.style.transform = '';
+  });
+}
+
+function moneyRestoreDashboardIfMissing() {
+  if (typeof moneyWireSmartFeatures === 'function') {
+    try { moneyWireSmartFeatures(); } catch(e) {}
+  }
+
+  if (typeof moneyInsertDashboard === 'function') {
+    try { moneyInsertDashboard(); } catch(e) {}
+  }
+
+  if (typeof moneyWireMiniAnalytics === 'function') {
+    try { moneyWireMiniAnalytics(); } catch(e) {}
+  }
+
+  if (typeof moneyRenderMiniAnalytics === 'function') {
+    try { moneyRenderMiniAnalytics(); } catch(e) {}
+  }
+
+  moneyProtectDashboardSections();
+}
+
+function moneySafeBillsLayoutOnly() {
+  const bills = document.getElementById('moneyBillsSection');
+  const list = document.getElementById('moneyBillsSectionList');
+
+  if (!bills || !list) return;
+
+  // Only move bill cards/wrappers into Bills list. Do not move generic cards.
+  const cards = Array.from(document.querySelectorAll('.money-swipe-wrap')).length
+    ? Array.from(document.querySelectorAll('.money-swipe-wrap'))
+    : Array.from(document.querySelectorAll('.bill-card, article[class*="bill"]'));
+
+  cards.forEach(card => {
+    if (!card || card.closest('#moneyBillsSectionList')) return;
+    if (card.closest('#moneySmartDashboard') || card.closest('#moneyMiniAnalytics')) return;
+    if (card.classList.contains('summary-card') || card.classList.contains('balance-card')) return;
+    list.appendChild(card);
+  });
+}
+
+function moneySectionVisibilityFixWire() {
+  moneyRestoreDashboardIfMissing();
+  moneySafeBillsLayoutOnly();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  if (root && !root.dataset.sectionVisibilityFixObserver) {
+    root.dataset.sectionVisibilityFixObserver = '1';
+
+    new MutationObserver(() => {
+      clearTimeout(window.__moneySectionVisibilityFixTimer);
+      window.__moneySectionVisibilityFixTimer = setTimeout(() => {
+        moneyRestoreDashboardIfMissing();
+        moneySafeBillsLayoutOnly();
+      }, 120);
+    }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneySectionVisibilityFixWire();
+  setTimeout(moneySectionVisibilityFixWire, 400);
+  setTimeout(moneySectionVisibilityFixWire, 1200);
+  setTimeout(moneySectionVisibilityFixWire, 2500);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#moneyBillsSectionHeader, #reloadBarBtn, #monthPicker, .paid-toggle, [data-paid-row]')) {
+    setTimeout(moneySectionVisibilityFixWire, 250);
+    setTimeout(moneySectionVisibilityFixWire, 900);
+  }
+}, true);
+
+
 
 // Remove unwanted labels from top summary card while keeping values.
 function moneyCleanTopSummaryLabels() {
