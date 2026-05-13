@@ -1,4 +1,4 @@
-const CACHE = 'flow-progress-fix-20260513-154044';
+const CACHE = 'flow-toggle-unpaid-20260513-154857';
 const SHELL = [
   './',
   './index.html',

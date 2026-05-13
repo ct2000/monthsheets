@@ -1758,6 +1758,82 @@ body.flow-caution .available-ring{
   }
 }
 
+
+/* === Hard visible month progress inside Today's Flow === */
+
+.flow-month-progress{
+  display:block !important;
+  width:100% !important;
+  margin-top:14px !important;
+  padding:10px 11px !important;
+  border-radius:18px !important;
+  background:rgba(255,255,255,.42) !important;
+  border:1px solid rgba(255,255,255,.48) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.62) !important;
+}
+
+[data-theme="dark"] .flow-month-progress{
+  background:rgba(255,255,255,.055) !important;
+  border-color:rgba(255,255,255,.08) !important;
+}
+
+.flow-month-progress-head{
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:10px !important;
+  margin-bottom:8px !important;
+  font-size:11px !important;
+  font-weight:850 !important;
+  color:var(--muted) !important;
+}
+
+.flow-month-progress-track{
+  width:100% !important;
+  height:8px !important;
+  border-radius:999px !important;
+  background:rgba(15,23,42,.09) !important;
+  overflow:hidden !important;
+}
+
+[data-theme="dark"] .flow-month-progress-track{
+  background:rgba(255,255,255,.09) !important;
+}
+
+.flow-month-progress-fill{
+  display:block !important;
+  height:100% !important;
+  width:var(--flow-month-progress,50%) !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg,#007aff,#af52de) !important;
+  box-shadow:0 0 18px rgba(0,122,255,.25) !important;
+  animation:flowMonthProgressGrow .9s cubic-bezier(.2,.85,.2,1) both !important;
+}
+
+@keyframes flowMonthProgressGrow{
+  from{ width:0; opacity:.45; }
+}
+
+
+/* === Reversible paid/unpaid bill toggle === */
+
+.bill-card.paid .status-pill{
+  color:var(--ios-blue,#007aff) !important;
+  background:rgba(0,122,255,.11) !important;
+  border-color:rgba(0,122,255,.18) !important;
+}
+
+.bill-card.unpaid .status-pill{
+  color:var(--ios-orange,#ff9f0a) !important;
+  background:rgba(255,159,10,.13) !important;
+  border-color:rgba(255,159,10,.20) !important;
+}
+
+.status-pill{
+  min-width:86px !important;
+  white-space:nowrap !important;
+}
+
 </style>
 </head>
 
@@ -1850,6 +1926,140 @@ body.flow-caution .available-ring{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Reversible paid/unpaid toggle polish
+window.MONEY_PWA_VERSION = "flow-toggle-unpaid-20260513-154857";
+
+function flowRelabelPaidButtons() {
+  document.querySelectorAll('.bill-card').forEach(card => {
+    const btn = card.querySelector('.status-pill');
+    if (!btn) return;
+
+    if (card.classList.contains('paid')) {
+      btn.textContent = 'Mark unpaid';
+      btn.setAttribute('aria-label', 'Mark this bill as unpaid');
+      btn.title = 'Mark as unpaid';
+    } else {
+      btn.textContent = 'Mark paid';
+      btn.setAttribute('aria-label', 'Mark this bill as paid');
+      btn.title = 'Mark as paid';
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowRelabelPaidButtons();
+  setTimeout(flowRelabelPaidButtons, 500);
+  setTimeout(flowRelabelPaidButtons, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.status-pill, #refreshBtn, #monthPicker, #billsHeader')) {
+    setTimeout(flowRelabelPaidButtons, 250);
+    setTimeout(flowRelabelPaidButtons, 900);
+  }
+}, true);
+
+
+
+// Robust month progress observer
+window.MONEY_PWA_VERSION = "flow-progress-observer-20260513-154558";
+
+function flowMonthProgressData() {
+  const now = new Date();
+  const total = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const current = now.getDate();
+  const progress = Math.max(3, Math.min(100, Math.round((current / total) * 100)));
+
+  return { current, total, progress };
+}
+
+function flowInsertMonthProgress() {
+  const hero =
+    document.getElementById('availableTodayHero') ||
+    document.querySelector('.available-hero');
+
+  if (!hero) return false;
+
+  const data = flowMonthProgressData();
+
+  let progress = hero.querySelector('#flowMonthProgress');
+
+  if (!progress) {
+    progress = document.createElement('div');
+    progress.id = 'flowMonthProgress';
+    progress.className = 'flow-month-progress';
+
+    progress.innerHTML = `
+      <div class="flow-month-progress-head">
+        <span>Month progress</span>
+        <span class="flow-month-progress-text"></span>
+      </div>
+      <div class="flow-month-progress-track">
+        <div class="flow-month-progress-fill"></div>
+      </div>
+    `;
+
+    const inner = hero.querySelector('.available-hero-inner');
+    if (inner && inner.parentNode) {
+      inner.insertAdjacentElement('afterend', progress);
+    } else {
+      hero.appendChild(progress);
+    }
+  }
+
+  progress.style.setProperty('--flow-month-progress', data.progress + '%');
+
+  const fill = progress.querySelector('.flow-month-progress-fill');
+  if (fill) fill.style.width = data.progress + '%';
+
+  const text = progress.querySelector('.flow-month-progress-text');
+  if (text) text.textContent = data.current + ' of ' + data.total + ' days';
+
+  return true;
+}
+
+function flowWireMonthProgressObserver() {
+  flowInsertMonthProgress();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+
+  if (root && !root.dataset.flowMonthProgressObserver) {
+    root.dataset.flowMonthProgressObserver = '1';
+
+    new MutationObserver(function() {
+      clearTimeout(window.__flowMonthProgressTimer);
+      window.__flowMonthProgressTimer = setTimeout(flowInsertMonthProgress, 80);
+    }).observe(root, {
+      childList:true,
+      subtree:true
+    });
+  }
+
+  // Extra safety passes for async render timing.
+  [200, 500, 1000, 1800, 2800].forEach(function(ms) {
+    setTimeout(flowInsertMonthProgress, ms);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', flowWireMonthProgressObserver);
+window.addEventListener('load', flowWireMonthProgressObserver);
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave, #billsHeader')) {
+    setTimeout(flowInsertMonthProgress, 150);
+    setTimeout(flowInsertMonthProgress, 650);
+    setTimeout(flowInsertMonthProgress, 1400);
+  }
+}, true);
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(flowInsertMonthProgress, 100);
+  }
+}, true);
+
+
 
 // Visible month progress line fix
 window.MONEY_PWA_VERSION = "flow-progress-fix-20260513-154044";
@@ -2422,7 +2632,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-progress-fix-20260513-154044";
+const VERSION = "flow-toggle-unpaid-20260513-154857";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2819,7 +3029,7 @@ function renderMonth(table){
               </div>
               <div class="bill-right">
                 <div class="bill-amount">${fmtMoney(r.due)}</div>
-                <button class="status-pill" data-paid-row="${r.sheetRow}" type="button">${paid?"Paid":"Outstanding"}</button>
+                <button class="status-pill" data-paid-row="${r.sheetRow}" type="button">${paid?"Mark unpaid":"Mark paid"}</button>
               </div>
             </article>`;
           }).join("")}
@@ -2916,7 +3126,7 @@ async function togglePaid(sheetRow){
   const row = table?.rows.find(r=>String(r.sheetRow)===String(sheetRow));
   if(!row) return;
   try{
-    const nextOutstanding = isRowPaid(row) ? row.due : 0;
+    const nextOutstanding = isRowPaid(row) ? (row.due || row.paid || 0) : 0;
     await updateValues(`${colLetter(row.paidCol)}${row.sheetRow}`,[[nextOutstanding]]);
     toast("Updated");
     await loadSpreadsheet();
@@ -3047,7 +3257,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-154044").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-154857").catch(()=>{}));
 }
 
 wireStatic();
