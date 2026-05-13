@@ -2,7 +2,7 @@
   "name": "Money v2",
   "short_name": "Money",
   "description": "Money PWA Version 2",
-  "start_url": "./index.html?v=20260513-102732",
+  "start_url": "./index.html?v=20260513-103345",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

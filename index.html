@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- V2 layout polish build: 2026-05-13 10:33:45 -->
 <!-- Money PWA Version 2 | 2026-05-13 10:18:55 | v2-20260513-101855 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -4243,6 +4244,137 @@ button[data-sort] {
   display: none !important;
 }
 
+
+/* === V2 layout polish: centered bottom dock + matching top card 2026-05-13 10:33:45 === */
+
+/* Centre bottom menu/dock */
+.bottom-nav,
+.bottom-dock,
+nav.bottom-nav,
+nav.bottom-dock {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: calc(100vw - 32px) !important;
+  max-width: 430px !important;
+  margin: 0 auto !important;
+  justify-content: center !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+}
+
+.bottom-nav > *,
+.bottom-dock > * {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+.bottom-nav button,
+.bottom-nav .nav-btn,
+.bottom-dock button,
+.bottom-dock .nav-btn {
+  flex: 1 1 0 !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+}
+
+/* Make the top summary card match Smart Insights styling */
+.money-top-summary-anchor,
+.money-summary-under-search,
+.summary-card,
+.card.summary,
+.balance-card {
+  background: rgba(255,255,255,.72) !important;
+  border: 1px solid rgba(15,23,42,.07) !important;
+  border-radius: 26px !important;
+  box-shadow: 0 12px 34px rgba(15,23,42,.08) !important;
+  backdrop-filter: blur(24px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.25) !important;
+  padding: 14px !important;
+  margin: 12px 0 !important;
+}
+
+/* Remove heavier V2 override from top summary only */
+.money-top-summary-anchor,
+.money-summary-under-search {
+  background-image: none !important;
+}
+
+/* Inner mini panels inside top summary to feel like Smart Insights rows */
+.money-top-summary-anchor > div,
+.money-summary-under-search > div,
+.summary-card > div,
+.card.summary > div,
+.balance-card > div {
+  border-radius: 18px !important;
+}
+
+/* Dark mode: match Smart Insights card */
+body.dark .money-top-summary-anchor,
+body.dark .money-summary-under-search,
+body.dark .summary-card,
+body.dark .card.summary,
+body.dark .balance-card,
+[data-theme="dark"] .money-top-summary-anchor,
+[data-theme="dark"] .money-summary-under-search,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .card.summary,
+[data-theme="dark"] .balance-card {
+  background: rgba(22,27,36,.76) !important;
+  border-color: rgba(255,255,255,.10) !important;
+  box-shadow:
+    0 16px 44px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+  color: #f8fafc !important;
+}
+
+/* Keep summary typography neat */
+.money-top-summary-anchor,
+.money-summary-under-search,
+.summary-card,
+.card.summary,
+.balance-card {
+  color: var(--ios-text, #111827) !important;
+}
+
+.money-top-summary-anchor small,
+.money-summary-under-search small,
+.summary-card small,
+.card.summary small,
+.balance-card small,
+.money-top-summary-anchor [class*="meta"],
+.money-summary-under-search [class*="meta"],
+.summary-card [class*="meta"],
+.card.summary [class*="meta"],
+.balance-card [class*="meta"] {
+  color: var(--ios-muted, #6b7280) !important;
+  opacity: .85 !important;
+}
+
+body.dark .money-top-summary-anchor small,
+body.dark .money-summary-under-search small,
+body.dark .summary-card small,
+body.dark .card.summary small,
+body.dark .balance-card small,
+body.dark .money-top-summary-anchor [class*="meta"],
+body.dark .money-summary-under-search [class*="meta"],
+body.dark .summary-card [class*="meta"],
+body.dark .card.summary [class*="meta"],
+body.dark .balance-card [class*="meta"],
+[data-theme="dark"] .money-top-summary-anchor small,
+[data-theme="dark"] .money-summary-under-search small,
+[data-theme="dark"] .summary-card small,
+[data-theme="dark"] .card.summary small,
+[data-theme="dark"] .balance-card small,
+[data-theme="dark"] .money-top-summary-anchor [class*="meta"],
+[data-theme="dark"] .money-summary-under-search [class*="meta"],
+[data-theme="dark"] .summary-card [class*="meta"],
+[data-theme="dark"] .card.summary [class*="meta"],
+[data-theme="dark"] .balance-card [class*="meta"] {
+  color: #a3a9b4 !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -4278,6 +4410,39 @@ document.addEventListener('click', event => {
 
 </script>
 <script>
+
+// V2 layout polish helper.
+function moneyV2PolishLayout() {
+  const dock = document.querySelector('.bottom-nav, .bottom-dock, nav');
+  if (dock) {
+    dock.style.left = '50%';
+    dock.style.right = 'auto';
+    dock.style.transform = 'translateX(-50%)';
+    dock.style.width = 'calc(100vw - 32px)';
+    dock.style.maxWidth = '430px';
+  }
+
+  const summary = Array.from(document.querySelectorAll('.summary-card, .card.summary, .balance-card, [class*="summary"]')).find(card => {
+    const t = String(card.textContent || '').toLowerCase();
+    return t.includes('outstanding') || t.includes('paid so far') || t.includes('money left') || t.includes('left per day');
+  });
+
+  if (summary) {
+    summary.classList.add('money-top-summary-anchor');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyV2PolishLayout();
+  setTimeout(moneyV2PolishLayout, 500);
+  setTimeout(moneyV2PolishLayout, 1500);
+});
+
+document.addEventListener('click', function() {
+  setTimeout(moneyV2PolishLayout, 300);
+}, true);
+
+
 
 (function(){
   try {
