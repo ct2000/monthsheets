@@ -1,4 +1,4 @@
-const CACHE = 'money-v3-ios-finance-20260513-142819';
+const CACHE = 'money-v3-ios-header-polish-20260513-143734';
 const SHELL = [
   './',
   './index.html',

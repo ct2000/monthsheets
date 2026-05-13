@@ -977,6 +977,70 @@ body::before {
   color:white !important;
 }
 
+
+/* === Header + Bills alignment polish === */
+
+/* Top header: logo only, status aligned with controls */
+.topbar {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.brand {
+  display: contents !important;
+}
+
+.title-wrap {
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.title-wrap h1 {
+  display: none !important;
+}
+
+.subtitle {
+  margin-top: 0 !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.top-actions {
+  justify-self: end !important;
+}
+
+/* Bills header: count centered between title and chevron */
+.bills-header {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.bills-header > span:first-child {
+  display: contents !important;
+}
+
+.bills-title {
+  justify-self: start !important;
+}
+
+.bills-sub {
+  justify-self: center !important;
+  margin-top: 0 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
+
+.chevron {
+  justify-self: end !important;
+}
+
 </style>
 </head>
 
@@ -1069,7 +1133,28 @@ body::before {
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
-const VERSION = "v3-ios-finance-20260513-142819";
+
+// Header polish version marker
+window.MONEY_PWA_VERSION = "v3-ios-header-polish-20260513-143734";
+
+function moneyHeaderPolish() {
+  const title = document.querySelector('.title-wrap h1');
+  if (title) title.style.display = 'none';
+
+  const subtitle = document.getElementById('subtitle');
+  if (subtitle) {
+    subtitle.style.marginTop = '0';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyHeaderPolish();
+  setTimeout(moneyHeaderPolish, 600);
+  setTimeout(moneyHeaderPolish, 1500);
+});
+
+
+const VERSION = "v3-ios-header-polish-20260513-143734";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -1694,7 +1779,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-142819").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-143734").catch(()=>{}));
 }
 
 wireStatic();
