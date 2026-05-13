@@ -1834,6 +1834,92 @@ body.flow-caution .available-ring{
   white-space:nowrap !important;
 }
 
+
+/* === Smaller Flow refresh indicator === */
+
+.flow-refreshing::before{
+  content:"Updating…" !important;
+  position:fixed !important;
+  left:50% !important;
+  top:max(10px, env(safe-area-inset-top)) !important;
+  transform:translateX(-50%) !important;
+  z-index:999 !important;
+
+  padding:6px 10px 6px 9px !important;
+  border-radius:999px !important;
+
+  background:rgba(255,255,255,.72) !important;
+  color:var(--text,#111827) !important;
+  border:1px solid rgba(255,255,255,.68) !important;
+
+  font-size:11px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+  letter-spacing:-.01em !important;
+
+  box-shadow:
+    0 10px 28px rgba(31,45,71,.12),
+    inset 0 1px 0 rgba(255,255,255,.78) !important;
+
+  backdrop-filter:blur(22px) saturate(1.2) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(1.2) !important;
+
+  animation:flowRefreshMini .8s ease infinite alternate !important;
+}
+
+.flow-refreshing::after{
+  content:"" !important;
+  position:fixed !important;
+  left:calc(50% - 35px) !important;
+  top:max(15px, calc(env(safe-area-inset-top) + 5px)) !important;
+  z-index:1000 !important;
+
+  width:6px !important;
+  height:6px !important;
+  border-radius:999px !important;
+  background:var(--ios-green,#34c759) !important;
+  box-shadow:0 0 10px rgba(52,199,89,.55) !important;
+
+  animation:flowRefreshDot .8s ease infinite alternate !important;
+}
+
+[data-theme="dark"] .flow-refreshing::before{
+  background:rgba(18,24,36,.78) !important;
+  color:#f8fafc !important;
+  border-color:rgba(255,255,255,.09) !important;
+  box-shadow:
+    0 12px 32px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+@keyframes flowRefreshMini{
+  from{
+    opacity:.76;
+    transform:translateX(-50%) translateY(-1px) scale(.98);
+  }
+  to{
+    opacity:1;
+    transform:translateX(-50%) translateY(1px) scale(1);
+  }
+}
+
+@keyframes flowRefreshDot{
+  from{ opacity:.55; transform:scale(.82); }
+  to{ opacity:1; transform:scale(1); }
+}
+
+
+/* === Smart Insights label cleanup === */
+
+.insight-text{
+  line-height:1.4 !important;
+}
+
+.insight-text strong{
+  display:inline-block !important;
+  margin-right:4px !important;
+}
+
 </style>
 </head>
 
@@ -1926,6 +2012,59 @@ body.flow-caution .available-ring{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Smart Insights cleanup
+window.MONEY_PWA_VERSION = "flow-insights-cleanup-20260513-155838";
+
+function flowCleanInsightText(text) {
+  return String(text || '')
+    .replace(/Heads up:\s*/gi, '')
+    .replace(/Biggest pressure point:\s*/gi, '')
+    .replace(/Watch point:\s*/gi, '')
+    .replace(/Daily rhythm:\s*/gi, '')
+    .replace(/Daily pace:\s*/gi, '')
+    .replace(/This week:\s*/gi, '')
+    .replace(/Largest unpaid bill:\s*/gi, '')
+    .trim();
+}
+
+function flowFixInsights() {
+  const insights = document.querySelectorAll('.insight-text');
+
+  insights.forEach((el, i) => {
+    const clean = flowCleanInsightText(el.textContent);
+
+    if (!clean) return;
+
+    if (i === 0) {
+      el.innerHTML = '<strong>This week:</strong> ' + clean;
+    } else if (i === 1) {
+      el.innerHTML = '<strong>Watch point:</strong> ' + clean;
+    } else if (i === 2) {
+      el.innerHTML = '<strong>Daily pace:</strong> ' + clean;
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowFixInsights();
+  setTimeout(flowFixInsights, 400);
+  setTimeout(flowFixInsights, 1200);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave')) {
+    setTimeout(flowFixInsights, 250);
+    setTimeout(flowFixInsights, 900);
+  }
+}, true);
+
+
+
+// Smaller refresh indicator version marker
+window.MONEY_PWA_VERSION = "flow-small-refresh-20260513-155418";
+
+
 
 // Reversible paid/unpaid toggle polish
 window.MONEY_PWA_VERSION = "flow-toggle-unpaid-20260513-154857";
@@ -2632,7 +2771,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-toggle-unpaid-20260513-154857";
+const VERSION = "flow-insights-cleanup-20260513-155838";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -3257,7 +3396,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-154857").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-155838").catch(()=>{}));
 }
 
 wireStatic();

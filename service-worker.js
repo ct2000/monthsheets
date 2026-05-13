@@ -1,4 +1,4 @@
-const CACHE = 'flow-toggle-unpaid-20260513-154857';
+const CACHE = 'flow-insights-cleanup-20260513-155838';
 const SHELL = [
   './',
   './index.html',
