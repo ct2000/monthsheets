@@ -1951,6 +1951,90 @@ body.flow-caution .available-ring{
   color:var(--text) !important;
 }
 
+
+/* === Apple Minimal Header === */
+
+.topbar{
+  display:grid !important;
+  grid-template-columns:1fr auto !important;
+  align-items:center !important;
+  gap:16px !important;
+  padding-top:8px !important;
+  padding-bottom:14px !important;
+}
+
+.brand{
+  display:flex !important;
+  align-items:center !important;
+  gap:14px !important;
+  min-width:0 !important;
+}
+
+.brand-icon{
+  width:46px !important;
+  height:46px !important;
+  border-radius:16px !important;
+  flex:0 0 auto !important;
+  box-shadow:
+    0 18px 42px rgba(0,122,255,.18),
+    0 0 0 1px rgba(255,255,255,.08) !important;
+}
+
+.title-wrap{
+  display:flex !important;
+  align-items:center !important;
+  min-width:0 !important;
+}
+
+.title-wrap h1{
+  margin:0 !important;
+  font-size:28px !important;
+  line-height:1 !important;
+  font-weight:980 !important;
+  letter-spacing:-.08em !important;
+  white-space:nowrap !important;
+}
+
+.title-wrap h1::after{
+  display:none !important;
+}
+
+/* Remove greeting completely from header */
+.flow-greeting{
+  display:none !important;
+}
+
+/* Cleaner month selector area */
+.top-actions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-end !important;
+  gap:10px !important;
+}
+
+.month-select,
+#monthPicker{
+  min-height:40px !important;
+  padding:0 14px !important;
+  border-radius:14px !important;
+  font-size:13px !important;
+  font-weight:850 !important;
+  backdrop-filter:blur(18px) saturate(1.1) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.1) !important;
+}
+
+/* Add breathing room below header */
+header,
+.app-header,
+.top-header{
+  margin-bottom:10px !important;
+}
+
+/* Hero now becomes emotional anchor */
+#availableTodayHero{
+  margin-top:4px !important;
+}
+
 </style>
 </head>
 
@@ -2043,6 +2127,26 @@ body.flow-caution .available-ring{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+window.MONEY_PWA_VERSION = "flow-apple-minimal-header-20260513-161223";
+
+function flowApplyAppleMinimalHeader() {
+  const greeting = document.getElementById('flowGreeting');
+  if (greeting) greeting.remove();
+
+  const title = document.querySelector('.title-wrap h1');
+  if (title) {
+    title.textContent = 'Flow';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowApplyAppleMinimalHeader();
+  setTimeout(flowApplyAppleMinimalHeader, 500);
+  setTimeout(flowApplyAppleMinimalHeader, 1400);
+});
+
+
 
 // Full Smart Insights rebuild
 window.MONEY_PWA_VERSION = "flow-smart-insights-rebuild-20260513-160634";
@@ -2900,7 +3004,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-smart-insights-rebuild-20260513-160634";
+const VERSION = "flow-apple-minimal-header-20260513-161223";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -3525,7 +3629,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-160634").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-161223").catch(()=>{}));
 }
 
 wireStatic();

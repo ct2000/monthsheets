@@ -1,4 +1,4 @@
-const CACHE = 'flow-smart-insights-rebuild-20260513-160634';
+const CACHE = 'flow-apple-minimal-header-20260513-161223';
 const SHELL = [
   './',
   './index.html',
