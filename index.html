@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Safe to Spend CSS-only hide build: 2026-05-13 08:28:21 -->
+<!-- Move summary card under search build: 2026-05-13 08:33:10 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2752,6 +2752,13 @@ body.dark .bill-icon::after,
   display: none !important;
 }
 
+
+/* === summary under search 2026-05-13 08:33:10 === */
+.money-summary-under-search {
+  margin: 12px 0 14px !important;
+  order: 2 !important;
+}
+
 </style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="glass-cards-icon-32.png?v=20260512-191532">
@@ -5421,7 +5428,73 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Move the main summary card under the search bar, where Safe to Spend used to be.
+function moneyMoveSummaryUnderSearch() {
+  const content = document.getElementById('content') || document.getElementById('app') || document.body;
+
+  const search =
+    document.getElementById('searchBills') ||
+    document.querySelector('input[type="search"]') ||
+    document.querySelector('.search-input');
+
+  if (!content || !search) return;
+
+  const searchBlock =
+    search.closest('.search-row, .filters, .toolbar, .controls, .search-wrap, .searchbar') ||
+    search.parentElement;
+
+  if (!searchBlock || !searchBlock.parentNode) return;
+
+  const cards = Array.from(document.querySelectorAll('.summary-card, .card.summary, .balance-card, [class*="summary"]'));
+
+  // Pick the card that contains the real summary labels.
+  const summary = cards.find(card => {
+    const text = String(card.textContent || '').toLowerCase();
+    return (
+      text.includes('outstanding') ||
+      text.includes('paid so far') ||
+      text.includes('money left') ||
+      text.includes('left amount')
+    );
+  });
+
+  if (!summary || summary.dataset.movedUnderSearch === '1') return;
+
+  summary.dataset.movedUnderSearch = '1';
+  summary.classList.add('money-summary-under-search');
+
+  searchBlock.parentNode.insertBefore(summary, searchBlock.nextSibling);
+}
+
+function moneyWireMoveSummaryUnderSearch() {
+  moneyMoveSummaryUnderSearch();
+
+  const root = document.getElementById('content') || document.getElementById('app') || document.body;
+  if (root && !root.dataset.summaryMoveObserver) {
+    root.dataset.summaryMoveObserver = '1';
+    new MutationObserver(() => {
+      clearTimeout(window.__moneyMoveSummaryTimer);
+      window.__moneyMoveSummaryTimer = setTimeout(moneyMoveSummaryUnderSearch, 80);
+    }).observe(root, { childList: true, subtree: true });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyWireMoveSummaryUnderSearch();
+  setTimeout(moneyWireMoveSummaryUnderSearch, 400);
+  setTimeout(moneyWireMoveSummaryUnderSearch, 1200);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker')) {
+    setTimeout(moneyMoveSummaryUnderSearch, 250);
+    setTimeout(moneyMoveSummaryUnderSearch, 800);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireMoveSummaryUnderSearch, 700);
 setTimeout(moneyStartSafeSpendForceMatch, 800);
 setTimeout(moneyWireSafeSpendMirror, 800);
 setTimeout(moneyLeftPerDayRebuiltWire, 800);

@@ -1,0 +1,5 @@
+Built: 2026-05-13 08:33:10
+Base: money-safe-spend-css-hide-20260513-082821.zip
+Change: moves the Outstanding / Paid so far / Money left summary card under the search bar, where Safe to Spend used to be.
+JS syntax ok: True
+
