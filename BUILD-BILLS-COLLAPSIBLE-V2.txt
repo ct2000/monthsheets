@@ -1,0 +1,5 @@
+Built: 2026-05-13 08:57:23
+Base: money-bills-collapsible-20260513-085106.zip
+Fix: v2 collapsible Bills wraps actual bill-card/swipe-wrapper nodes instead of relying on a guessed bill-list container.
+JS syntax ok: True
+

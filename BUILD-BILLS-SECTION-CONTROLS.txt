@@ -1,0 +1,5 @@
+Built: 2026-05-13 08:59:10
+Base: money-bills-collapsible-v2-20260513-085723.zip
+Change: Bills section now contains the Unpaid/Paid tabs and Due sort controls inside the collapsible body with the bill list.
+JS syntax ok: True
+
