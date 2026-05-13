@@ -1,0 +1,5 @@
+Built: 2026-05-13 09:48:01
+Base: money-simplified-bills-card-icons-20260513-094026.zip
+Change: removed failed dashboard/card icons while preserving simplified Bills section/search/sort removal.
+JS syntax ok: True
+

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Simplified Bills and card icons build: 2026-05-13 09:40:26 -->
+<!-- Remove failed card icons build: 2026-05-13 09:48:01 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3460,6 +3460,32 @@ body.dark .money-bills-section-title::before,
   color: #f8fafc !important;
   border-color: rgba(255,255,255,.09) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+
+/* === remove failed card icons 2026-05-13 09:48:01 === */
+.money-card-title-icon,
+.money-insights-card > .money-section-title::before,
+.money-chart-card > .money-section-title::before,
+.money-upcoming-card > .money-section-title::before,
+.money-mini-analytics-title::before,
+.money-top-summary-anchor::before,
+.money-summary-under-search::before,
+.money-bills-section-title::before {
+  content: none !important;
+  display: none !important;
+}
+
+.money-card-title-with-icon {
+  display: block !important;
+}
+
+.money-mini-analytics-title {
+  display: block !important;
+}
+
+.money-bills-section-title {
+  display: inline !important;
 }
 
 </style>
@@ -7021,45 +7047,13 @@ document.addEventListener('click', function(event) {
 
 // Simplified Bills section + card icon labels.
 function moneySimplifyBillsAndAddCardIcons() {
-  // Remove/hide search nodes.
+  document.querySelectorAll('[data-card-icon]').forEach(el => el.removeAttribute('data-card-icon'));
   document.querySelectorAll('#searchBills, #moneyBillsSectionSearch, .money-bills-section-search, input[type="search"]').forEach(el => {
     const block = el.closest('.search-row, .filters, .toolbar, .controls, .search-wrap, .searchbar') || el;
     block.style.display = 'none';
   });
-
-  // Remove/hide sort controls.
   document.querySelectorAll('.tabs, #moneyBillsSectionControls, .money-bills-section-controls, .sort-row, .sort-controls, button[data-sort], [data-sort]').forEach(el => {
-    if (!el.closest('.bill-card') && !el.closest('article[class*="bill"]')) {
-      el.style.display = 'none';
-    }
-  });
-
-  // Update Bills subtitle.
-  const sub = document.querySelector('.money-bills-section-sub');
-  if (sub) {
-    try {
-      const rows = (() => {
-        const picker = document.getElementById('monthPicker');
-        const table = CACHED_TABLES[picker && picker.value !== '' ? picker.value : 0] || CACHED_TABLES[0];
-        return table && Array.isArray(table.rows) ? table.rows : [];
-      })();
-      sub.textContent = rows.length ? `${rows.length} bills` : 'Tap to show or hide bills';
-    } catch(e) {
-      sub.textContent = 'Tap to show or hide bills';
-    }
-  }
-
-  // Add icon hints to dashboard card section titles.
-  const iconMap = [
-    ['.money-insights-card > .money-section-title', '✦'],
-    ['.money-chart-card > .money-section-title', '⌁'],
-    ['.money-upcoming-card > .money-section-title', '◷']
-  ];
-
-  iconMap.forEach(([selector, icon]) => {
-    document.querySelectorAll(selector).forEach(el => {
-      el.setAttribute('data-card-icon', icon);
-    });
+    if (!el.closest('.bill-card') && !el.closest('article[class*="bill"]')) el.style.display = 'none';
   });
 }
 
