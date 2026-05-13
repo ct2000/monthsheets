@@ -1535,6 +1535,187 @@ body::after{
   display:block !important;
 }
 
+
+/* === Flow polish pack: 10 refinements === */
+
+/* 1. Today’s Flow naming + stronger hero feel */
+.available-label{
+  letter-spacing:.045em !important;
+}
+
+/* 2. Cleaner dock SVG icons */
+.dock-btn svg{
+  width:21px;
+  height:21px;
+  stroke:currentColor;
+  stroke-width:2.25;
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.dock-btn b{
+  display:none !important;
+}
+
+/* 3. Month progress line */
+.month-progress-wrap{
+  margin-top:12px;
+  height:7px;
+  border-radius:999px;
+  background:rgba(15,23,42,.075);
+  overflow:hidden;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.05);
+}
+
+[data-theme="dark"] .month-progress-wrap{
+  background:rgba(255,255,255,.08);
+}
+
+.month-progress-bar{
+  height:100%;
+  width:var(--month-progress, 50%);
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--ios-blue,#007aff),var(--ios-purple,#af52de));
+  box-shadow:0 0 18px rgba(0,122,255,.24);
+}
+
+/* 4. Paid bills state */
+.bill-card.paid{
+  opacity:.58 !important;
+  filter:saturate(.75);
+}
+
+.bill-card.paid .bill-icon{
+  color:var(--ios-green,#34c759) !important;
+  background:rgba(52,199,89,.12) !important;
+}
+
+.bill-card.paid .bill-icon::after{
+  content:"✓";
+  position:absolute;
+  font-size:11px;
+  font-weight:950;
+}
+
+.bill-icon{
+  position:relative;
+}
+
+/* 5. Calm warning state */
+body.flow-caution .available-amount,
+body.flow-caution .summary-bottom .value{
+  background:linear-gradient(135deg,var(--ios-orange,#ff9f0a),var(--ios-red,#ff453a)) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+}
+
+body.flow-caution .available-label{
+  background:rgba(255,159,10,.13) !important;
+  color:var(--ios-orange,#ff9f0a) !important;
+}
+
+body.flow-caution .available-ring{
+  background:
+    conic-gradient(var(--ios-orange,#ff9f0a) var(--ring-progress, 62%), rgba(15,23,42,.08) 0) !important;
+}
+
+/* 6. Pull/refresh shimmer */
+.flow-refreshing::before{
+  content:"Refreshing Flow…";
+  position:fixed;
+  left:50%;
+  top:max(14px, env(safe-area-inset-top));
+  transform:translateX(-50%);
+  z-index:999;
+  padding:8px 12px;
+  border-radius:999px;
+  background:rgba(17,24,39,.86);
+  color:white;
+  font-size:12px;
+  font-weight:850;
+  box-shadow:0 12px 34px rgba(0,0,0,.22);
+  animation:flowRefreshPill .9s ease infinite alternate;
+}
+
+@keyframes flowRefreshPill{
+  from{ opacity:.76; transform:translateX(-50%) translateY(-2px); }
+  to{ opacity:1; transform:translateX(-50%) translateY(2px); }
+}
+
+/* 7. Swipe affordance */
+.bill-card{
+  touch-action:pan-y;
+}
+
+.bill-card.swiping{
+  transition:none !important;
+}
+
+.bill-card.swipe-hint{
+  box-shadow:
+    0 12px 34px rgba(52,199,89,.16),
+    inset 0 1px 0 rgba(255,255,255,.68) !important;
+}
+
+/* 8. Greeting */
+.flow-greeting{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin-left:2px;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.58);
+  border:1px solid rgba(255,255,255,.68);
+  color:var(--muted);
+  font-size:12px;
+  font-weight:850;
+  white-space:nowrap;
+}
+
+[data-theme="dark"] .flow-greeting{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(255,255,255,.09);
+}
+
+/* 9. Conversational insights */
+.insight-text strong{
+  font-weight:950;
+}
+
+/* 10. Settings/about screen polish */
+.flow-about{
+  margin-top:14px;
+  padding:12px;
+  border-radius:20px;
+  background:rgba(255,255,255,.52);
+  border:1px solid var(--line);
+}
+
+[data-theme="dark"] .flow-about{
+  background:rgba(255,255,255,.055);
+}
+
+.flow-about-row{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 0;
+  font-size:12px;
+  font-weight:800;
+  color:var(--muted);
+}
+
+.flow-about-row + .flow-about-row{
+  border-top:1px solid var(--line);
+}
+
+.flow-about-row strong{
+  color:var(--text);
+}
+
 </style>
 </head>
 
@@ -1627,6 +1808,189 @@ body::after{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Flow polish pack: 10 refinements
+window.MONEY_PWA_VERSION = "flow-polish-10-20260513-153208";
+
+function flowMoneyNumber(text) {
+  const n = parseFloat(String(text || '').replace(/,/g,'').replace(/£/g,'').replace(/[^\d.-]/g,''));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function flowAddGreeting() {
+  const topbar = document.querySelector('.topbar');
+  const titleWrap = document.querySelector('.title-wrap');
+  if (!topbar || !titleWrap || document.getElementById('flowGreeting')) return;
+
+  const h = new Date().getHours();
+  const word = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+
+  const greeting = document.createElement('div');
+  greeting.id = 'flowGreeting';
+  greeting.className = 'flow-greeting';
+  greeting.textContent = word;
+  titleWrap.appendChild(greeting);
+}
+
+function flowRenameHero() {
+  document.querySelectorAll('.available-label').forEach(el => {
+    el.textContent = "Today's Flow";
+  });
+}
+
+function flowAddMonthProgress() {
+  const hero = document.getElementById('availableTodayHero');
+  if (!hero || hero.querySelector('.month-progress-wrap')) return;
+
+  const now = new Date();
+  const total = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const progress = Math.max(3, Math.min(100, Math.round((now.getDate()/total)*100)));
+
+  const wrap = document.createElement('div');
+  wrap.className = 'month-progress-wrap';
+  wrap.style.setProperty('--month-progress', progress + '%');
+  wrap.innerHTML = '<div class="month-progress-bar"></div>';
+
+  const sub = hero.querySelector('.available-sub');
+  if (sub) sub.after(wrap);
+}
+
+function flowSetCautionState() {
+  const heroAmount = document.querySelector('#availableTodayHero .available-amount');
+  const n = flowMoneyNumber(heroAmount ? heroAmount.textContent : '');
+  document.body.classList.toggle('flow-caution', n > 0 && n < 10);
+}
+
+function flowDockIcons() {
+  const add = document.getElementById('addBtn');
+  const refresh = document.getElementById('refreshBtn');
+  const settings = document.getElementById('settingsNav');
+
+  if (add && !add.querySelector('svg')) {
+    add.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Add</span>';
+  }
+
+  if (refresh && !refresh.querySelector('svg')) {
+    refresh.innerHTML = '<svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-4M4 7V3m0 4h4"/><path d="M4 13a8 8 0 0 0 14.9 4M20 17v4m0-4h-4"/></svg><span>Refresh</span>';
+  }
+
+  if (settings && !settings.querySelector('svg')) {
+    settings.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.05.05a2 2 0 1 1-2.83 2.83l-.05-.05A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.07A1.7 1.7 0 0 0 8 19.4a1.7 1.7 0 0 0-1.88.34l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.07A1.7 1.7 0 0 0 4.6 8a1.7 1.7 0 0 0-.34-1.88l-.05-.05a2 2 0 1 1 2.83-2.83l.05.05A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.07A1.7 1.7 0 0 0 16 4.6a1.7 1.7 0 0 0 1.88-.34l.05-.05a2 2 0 1 1 2.83 2.83l-.05.05A1.7 1.7 0 0 0 19.4 9c.2.37.6.6 1 .6h.6a2 2 0 1 1 0 4h-.07a1.7 1.7 0 0 0-1.53 1.4Z"/></svg><span>Settings</span>';
+  }
+}
+
+function flowConversationalInsights() {
+  const insights = document.querySelectorAll('.insight-text');
+  insights.forEach((el, i) => {
+    if (el.dataset.flowConversational) return;
+    const text = el.textContent.trim();
+
+    if (i === 0) el.innerHTML = '<strong>This week:</strong> ' + text.replace(/^Heads up:\s*/i,'');
+    if (i === 1) el.innerHTML = '<strong>Watch point:</strong> ' + text.replace(/^Biggest pressure point:\s*/i,'');
+    if (i === 2) el.innerHTML = '<strong>Daily pace:</strong> ' + text.replace(/^Daily rhythm:\s*/i,'');
+
+    el.dataset.flowConversational = '1';
+  });
+}
+
+function flowRefreshFeedback() {
+  document.body.classList.add('flow-refreshing');
+  setTimeout(() => document.body.classList.remove('flow-refreshing'), 950);
+}
+
+function flowSwipeBills() {
+  document.querySelectorAll('.bill-card').forEach(card => {
+    if (card.dataset.flowSwipe) return;
+    card.dataset.flowSwipe = '1';
+
+    let startX = 0;
+    let currentX = 0;
+
+    card.addEventListener('pointerdown', e => {
+      startX = e.clientX;
+      currentX = 0;
+      card.classList.add('swiping');
+    });
+
+    card.addEventListener('pointermove', e => {
+      if (!startX) return;
+      currentX = e.clientX - startX;
+      if (Math.abs(currentX) > 8) {
+        card.style.transform = `translateX(${Math.max(-44, Math.min(64, currentX))}px)`;
+        card.classList.toggle('swipe-hint', currentX > 36);
+      }
+    });
+
+    card.addEventListener('pointerup', () => {
+      card.classList.remove('swiping');
+      if (currentX > 58) {
+        const btn = card.querySelector('.status-pill');
+        if (btn && !card.classList.contains('paid')) btn.click();
+      }
+      card.style.transform = '';
+      card.classList.remove('swipe-hint');
+      startX = 0;
+      currentX = 0;
+    });
+
+    card.addEventListener('pointercancel', () => {
+      card.style.transform = '';
+      card.classList.remove('swiping','swipe-hint');
+      startX = 0;
+      currentX = 0;
+    });
+  });
+}
+
+function flowAddAboutSettings() {
+  const sheet = document.querySelector('#configModal .sheet');
+  if (!sheet || document.getElementById('flowAbout')) return;
+
+  const about = document.createElement('div');
+  about.id = 'flowAbout';
+  about.className = 'flow-about';
+  about.innerHTML = `
+    <div class="flow-about-row"><span>App</span><strong>Flow</strong></div>
+    <div class="flow-about-row"><span>Version</span><strong>flow-polish-10-20260513-153208</strong></div>
+    <div class="flow-about-row"><span>Status</span><strong>Calm Finance</strong></div>
+  `;
+
+  sheet.appendChild(about);
+}
+
+function flowPolishApply() {
+  flowAddGreeting();
+  flowRenameHero();
+  flowAddMonthProgress();
+  flowSetCautionState();
+  flowDockIcons();
+  flowConversationalInsights();
+  flowSwipeBills();
+  flowAddAboutSettings();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowPolishApply();
+  setTimeout(flowPolishApply, 500);
+  setTimeout(flowPolishApply, 1400);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn')) flowRefreshFeedback();
+
+  if (event.target.closest('#refreshBtn, #monthPicker, .status-pill, #addSave, #settingsNav, #settingsBtn')) {
+    setTimeout(flowPolishApply, 250);
+    setTimeout(flowPolishApply, 900);
+  }
+}, true);
+
+document.addEventListener('input', function(event) {
+  if (event.target && event.target.id === 'leftAmount') {
+    setTimeout(flowPolishApply, 100);
+  }
+}, true);
+
+
 
 // Flow top status removal
 window.MONEY_PWA_VERSION = "flow-status-fix-20260513-152200";
@@ -1964,7 +2328,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-status-fix-20260513-152200";
+const VERSION = "flow-polish-10-20260513-153208";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2589,7 +2953,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-152200").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-153208").catch(()=>{}));
 }
 
 wireStatic();

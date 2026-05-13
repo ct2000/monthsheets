@@ -1,8 +1,8 @@
 {
   "name": "Flow",
   "short_name": "Flow",
-  "description": "Flow \u2014 calm finance for everyday budgeting",
-  "start_url": "./index.html?v=20260513-152200",
+  "description": "Flow \u2014 calm finance with premium polish",
+  "start_url": "./index.html?v=20260513-153208",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
