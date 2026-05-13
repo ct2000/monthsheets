@@ -2095,6 +2095,163 @@ header,
   border-color:rgba(255,255,255,.08) !important;
 }
 
+
+/* === HARD FIX: tiny refresh indicator, overrides older large pill rules === */
+
+html body.flow-refreshing::before{
+  content:"Updating" !important;
+  position:fixed !important;
+  left:50% !important;
+  top:max(10px, env(safe-area-inset-top)) !important;
+  right:auto !important;
+  bottom:auto !important;
+  transform:translateX(-50%) !important;
+  z-index:999999 !important;
+
+  width:auto !important;
+  min-width:0 !important;
+  max-width:120px !important;
+  height:auto !important;
+  min-height:0 !important;
+
+  padding:5px 9px 5px 20px !important;
+  border-radius:999px !important;
+
+  background:rgba(255,255,255,.78) !important;
+  color:var(--text,#111827) !important;
+  border:1px solid rgba(255,255,255,.68) !important;
+
+  font-size:10px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+  letter-spacing:-.01em !important;
+  text-align:center !important;
+  white-space:nowrap !important;
+
+  box-shadow:
+    0 8px 22px rgba(31,45,71,.12),
+    inset 0 1px 0 rgba(255,255,255,.82) !important;
+
+  backdrop-filter:blur(18px) saturate(1.15) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.15) !important;
+
+  animation:flowRefreshTinyPulse .7s ease-in-out infinite alternate !important;
+}
+
+html body.flow-refreshing::after{
+  content:"" !important;
+  position:fixed !important;
+  left:calc(50% - 42px) !important;
+  top:max(15px, calc(env(safe-area-inset-top) + 5px)) !important;
+  right:auto !important;
+  bottom:auto !important;
+  z-index:1000000 !important;
+
+  width:6px !important;
+  height:6px !important;
+  min-width:6px !important;
+  min-height:6px !important;
+  max-width:6px !important;
+  max-height:6px !important;
+
+  border-radius:999px !important;
+  background:var(--ios-green,#34c759) !important;
+  box-shadow:0 0 8px rgba(52,199,89,.55) !important;
+
+  animation:flowRefreshTinyDot .7s ease-in-out infinite alternate !important;
+}
+
+[data-theme="dark"] body.flow-refreshing::before,
+html[data-theme="dark"] body.flow-refreshing::before{
+  background:rgba(18,24,36,.82) !important;
+  color:#f8fafc !important;
+  border-color:rgba(255,255,255,.09) !important;
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.38),
+    inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+@keyframes flowRefreshTinyPulse{
+  from{
+    opacity:.78;
+    transform:translateX(-50%) translateY(-1px) scale(.98);
+  }
+  to{
+    opacity:1;
+    transform:translateX(-50%) translateY(1px) scale(1);
+  }
+}
+
+@keyframes flowRefreshTinyDot{
+  from{ opacity:.55; transform:scale(.82); }
+  to{ opacity:1; transform:scale(1); }
+}
+
+
+/* === Final header spacing + remove visible version === */
+
+/* Remove visible version chip from header */
+#flowVersionChip,
+.flow-version-chip{
+  display:none !important;
+}
+
+/* Keep the title area unclipped and shift Flow left */
+.brand{
+  gap:10px !important;
+  overflow:visible !important;
+}
+
+.title-wrap{
+  margin-left:-7px !important;
+  padding-left:0 !important;
+  overflow:visible !important;
+  min-width:92px !important;
+}
+
+.title-wrap h1{
+  padding-left:0 !important;
+  padding-right:8px !important;
+  overflow:visible !important;
+  white-space:nowrap !important;
+  min-width:max-content !important;
+  line-height:1.05 !important;
+}
+
+/* Keep the logo stable */
+.brand-icon{
+  flex:0 0 44px !important;
+}
+
+/* Give the month picker enough room for 2026 and its native arrow */
+.top-actions{
+  padding-right:0 !important;
+  flex:0 0 auto !important;
+  min-width:138px !important;
+}
+
+.month-select,
+#monthPicker{
+  min-width:138px !important;
+  width:138px !important;
+  max-width:138px !important;
+  padding-left:14px !important;
+  padding-right:34px !important;
+  text-align:center !important;
+  text-align-last:center !important;
+  overflow:visible !important;
+  box-sizing:border-box !important;
+  appearance:auto !important;
+  -webkit-appearance:menulist !important;
+}
+
+/* More room between title and picker */
+.topbar{
+  grid-template-columns:minmax(0, 1fr) auto !important;
+  column-gap:18px !important;
+  overflow:visible !important;
+}
+
 </style>
 </head>
 
@@ -2188,6 +2345,59 @@ header,
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 
+// Final header fix
+window.MONEY_PWA_VERSION = "Flow v2.0.0513-headerfix";
+
+function flowFinalHeaderFix() {
+  const chip = document.getElementById('flowVersionChip');
+  if (chip) chip.remove();
+
+  document.querySelectorAll('.flow-version-chip').forEach(el => el.remove());
+
+  const title = document.querySelector('.title-wrap h1');
+  if (title) {
+    title.textContent = 'Flow';
+    title.style.overflow = 'visible';
+  }
+
+  const picker = document.getElementById('monthPicker');
+  if (picker) {
+    picker.style.minWidth = '138px';
+    picker.style.width = '138px';
+    picker.style.paddingRight = '34px';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowFinalHeaderFix();
+  setTimeout(flowFinalHeaderFix, 300);
+  setTimeout(flowFinalHeaderFix, 1000);
+  setTimeout(flowFinalHeaderFix, 1800);
+});
+
+
+
+window.MONEY_PWA_VERSION = "Flow v2.0.0513-refreshfix";
+
+// Make sure refresh state clears quickly even if an older script leaves it on.
+function flowTinyRefreshState() {
+  if (document.body.classList.contains('flow-refreshing')) {
+    clearTimeout(window.__flowRefreshHardClear);
+    window.__flowRefreshHardClear = setTimeout(function() {
+      document.body.classList.remove('flow-refreshing');
+    }, 900);
+  }
+}
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('#refreshBtn')) {
+    document.body.classList.add('flow-refreshing');
+    flowTinyRefreshState();
+  }
+}, true);
+
+
+
 window.MONEY_PWA_VERSION = "Flow v2.0.0513";
 
 function flowApplyVisibleVersion() {
@@ -2195,16 +2405,7 @@ function flowApplyVisibleVersion() {
 
   const title = document.querySelector('.title-wrap h1');
   if (title) {
-    let chip = document.getElementById('flowVersionChip');
-
-    if (!chip) {
-      chip = document.createElement('span');
-      chip.id = 'flowVersionChip';
-      chip.className = 'flow-version-chip';
-      title.insertAdjacentElement('afterend', chip);
-    }
-
-    chip.textContent = 'Flow v2.0.0513';
+    let chip = document.getElementById('flowVersionChip'); if (chip) chip.remove();
   }
 
   const aboutRows = document.querySelectorAll('.flow-about-row strong');
@@ -3103,7 +3304,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "Flow v2.0.0513";
+const VERSION = "Flow v2.0.0513-headerfix";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -3728,7 +3929,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-161223").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-162004").catch(()=>{}));
 }
 
 wireStatic();
