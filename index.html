@@ -1716,6 +1716,48 @@ body.flow-caution .available-ring{
   color:var(--text);
 }
 
+
+/* === Visible month progress line fix === */
+
+.month-progress-wrap{
+  display:block !important;
+  width:100% !important;
+  margin-top:14px !important;
+  height:8px !important;
+  border-radius:999px !important;
+  background:rgba(15,23,42,.08) !important;
+  overflow:hidden !important;
+  position:relative !important;
+}
+
+[data-theme="dark"] .month-progress-wrap{
+  background:rgba(255,255,255,.09) !important;
+}
+
+.month-progress-bar{
+  display:block !important;
+  height:100% !important;
+  width:var(--month-progress,50%) !important;
+  border-radius:999px !important;
+  background:linear-gradient(90deg,#007aff,#af52de) !important;
+  box-shadow:0 0 18px rgba(0,122,255,.24) !important;
+  animation:flowProgressGrow .9s cubic-bezier(.2,.85,.2,1) both !important;
+}
+
+.month-progress-text{
+  margin-top:8px !important;
+  font-size:11px !important;
+  font-weight:800 !important;
+  color:var(--muted) !important;
+}
+
+@keyframes flowProgressGrow{
+  from{
+    width:0 !important;
+    opacity:.4;
+  }
+}
+
 </style>
 </head>
 
@@ -1808,6 +1850,58 @@ body.flow-caution .available-ring{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Visible month progress line fix
+window.MONEY_PWA_VERSION = "flow-progress-fix-20260513-154044";
+
+function flowEnsureMonthProgressVisible() {
+  const hero = document.getElementById('availableTodayHero');
+  if (!hero) return;
+
+  let wrap = hero.querySelector('.month-progress-wrap');
+  let text = hero.querySelector('.month-progress-text');
+
+  const now = new Date();
+  const total = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const current = now.getDate();
+  const progress = Math.max(3, Math.min(100, Math.round((current / total) * 100)));
+
+  if (!wrap) {
+    wrap = document.createElement('div');
+    wrap.className = 'month-progress-wrap';
+    wrap.innerHTML = '<div class="month-progress-bar"></div>';
+
+    const sub = hero.querySelector('.available-sub');
+    if (sub) {
+      sub.insertAdjacentElement('afterend', wrap);
+    } else {
+      hero.appendChild(wrap);
+    }
+  }
+
+  wrap.style.setProperty('--month-progress', progress + '%');
+
+  const bar = wrap.querySelector('.month-progress-bar');
+  if (bar) {
+    bar.style.width = progress + '%';
+  }
+
+  if (!text) {
+    text = document.createElement('div');
+    text.className = 'month-progress-text';
+    wrap.insertAdjacentElement('afterend', text);
+  }
+
+  text.textContent = current + ' of ' + total + ' days through this month';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowEnsureMonthProgressVisible();
+  setTimeout(flowEnsureMonthProgressVisible, 400);
+  setTimeout(flowEnsureMonthProgressVisible, 1200);
+});
+
+
 
 // Flow polish pack: 10 refinements
 window.MONEY_PWA_VERSION = "flow-polish-10-20260513-153208";
@@ -2328,7 +2422,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "flow-polish-10-20260513-153208";
+const VERSION = "flow-progress-fix-20260513-154044";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -2953,7 +3047,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-153208").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-154044").catch(()=>{}));
 }
 
 wireStatic();
