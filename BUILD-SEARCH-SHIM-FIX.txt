@@ -1,0 +1,5 @@
+Built: 2026-05-13 09:53:41
+Base: money-remove-card-icons-20260513-094801.zip
+Fix: added hidden searchBills compatibility shim so old code can reference searchBills without crashing. Search remains visually removed.
+JS syntax ok: True
+
