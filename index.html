@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Search moved into Bills section build: 2026-05-13 09:09:17 -->
+<!-- Fixed summary top and search in Bills build: 2026-05-13 09:16:31 -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -3250,6 +3250,30 @@ body.dark .money-bills-section-chevron,
 }
 
 .money-bills-section-body .money-bills-section-controls {
+  margin-top: 0 !important;
+}
+
+
+/* === fixed top summary + bills search layout 2026-05-13 09:16:31 === */
+.money-top-summary-anchor {
+  margin: 10px 0 14px !important;
+}
+
+.money-bills-section-search {
+  margin: 0 0 12px !important;
+}
+
+.money-bills-section-search input,
+.money-bills-section-search input[type="search"],
+.money-bills-section-search .search-input {
+  width: 100% !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  max-height: 38px !important;
+  box-sizing: border-box !important;
+}
+
+#moneyBillsSection .tabs {
   margin-top: 0 !important;
 }
 
@@ -6604,7 +6628,213 @@ document.addEventListener('click', function(event) {
   }
 }, true);
 
+
+// Strong layout repair:
+// 1. Summary card goes to the top.
+// 2. Search goes inside Bills section.
+// 3. Sort controls and bill cards remain inside Bills section.
+function moneyLayoutRoot() {
+  return document.getElementById('content') || document.getElementById('app') || document.body;
+}
+
+function moneyFindSummaryCard() {
+  const cards = Array.from(document.querySelectorAll('.summary-card, .card.summary, .balance-card, [class*="summary"]'));
+  return cards.find(card => {
+    if (card.closest('#moneyBillsSection')) return false;
+    const text = String(card.textContent || '').toLowerCase();
+    return (
+      text.includes('outstanding') ||
+      text.includes('paid so far') ||
+      text.includes('money left') ||
+      text.includes('money left per day') ||
+      text.includes('left per day')
+    );
+  });
+}
+
+function moneyMoveSummaryToTop() {
+  const root = moneyLayoutRoot();
+  const summary = moneyFindSummaryCard();
+  if (!root || !summary) return;
+
+  summary.classList.add('money-top-summary-anchor');
+
+  const firstGoodAnchor =
+    document.getElementById('moneyMiniAnalytics') ||
+    document.getElementById('moneySmartDashboard') ||
+    document.getElementById('moneyBillsSection') ||
+    root.firstElementChild;
+
+  // Prefer just after top title/header controls, but before analytics/bills.
+  if (firstGoodAnchor && firstGoodAnchor.parentNode) {
+    firstGoodAnchor.parentNode.insertBefore(summary, firstGoodAnchor);
+  } else {
+    root.prepend(summary);
+  }
+}
+
+function moneyEnsureBillsSectionExists() {
+  if (typeof moneyBuildBillsSection === 'function') {
+    try { moneyBuildBillsSection(); } catch(e) {}
+  }
+
+  let section = document.getElementById('moneyBillsSection');
+  if (section) return section;
+
+  section = document.createElement('section');
+  section.id = 'moneyBillsSection';
+  section.className = 'money-bills-section';
+  section.innerHTML = `
+    <button id="moneyBillsSectionHeader" type="button" class="money-bills-section-header" aria-expanded="true">
+      <span class="money-bills-section-header-text">
+        <span class="money-bills-section-title">Bills</span>
+        <span class="money-bills-section-sub">Search · Sort · Bills</span>
+      </span>
+      <span class="money-bills-section-chevron">⌄</span>
+    </button>
+    <div id="moneyBillsSectionBody" class="money-bills-section-body">
+      <div id="moneyBillsSectionSearch" class="money-bills-section-search"></div>
+      <div id="moneyBillsSectionControls" class="money-bills-section-controls"></div>
+      <div id="moneyBillsSectionList" class="money-bills-section-list"></div>
+    </div>
+  `;
+
+  const root = moneyLayoutRoot();
+  root.appendChild(section);
+  return section;
+}
+
+function moneyMoveSearchIntoBills() {
+  const section = moneyEnsureBillsSectionExists();
+  let body = document.getElementById('moneyBillsSectionBody');
+  let searchSlot = document.getElementById('moneyBillsSectionSearch');
+
+  if (!body) {
+    body = document.createElement('div');
+    body.id = 'moneyBillsSectionBody';
+    body.className = 'money-bills-section-body';
+    section.appendChild(body);
+  }
+
+  if (!searchSlot) {
+    searchSlot = document.createElement('div');
+    searchSlot.id = 'moneyBillsSectionSearch';
+    searchSlot.className = 'money-bills-section-search';
+    body.prepend(searchSlot);
+  }
+
+  const search =
+    document.getElementById('searchBills') ||
+    document.querySelector('input[type="search"]') ||
+    document.querySelector('.search-input');
+
+  if (!search) return;
+
+  const searchBlock =
+    search.closest('.search-row, .filters, .toolbar, .controls, .search-wrap, .searchbar') ||
+    search.parentElement ||
+    search;
+
+  if (searchBlock && !searchBlock.closest('#moneyBillsSectionSearch')) {
+    searchSlot.appendChild(searchBlock);
+  }
+}
+
+function moneyMoveControlsAndCardsIntoBills() {
+  const section = moneyEnsureBillsSectionExists();
+  const body = document.getElementById('moneyBillsSectionBody');
+  let controls = document.getElementById('moneyBillsSectionControls');
+  let list = document.getElementById('moneyBillsSectionList');
+
+  if (!controls) {
+    controls = document.createElement('div');
+    controls.id = 'moneyBillsSectionControls';
+    controls.className = 'money-bills-section-controls';
+    body.appendChild(controls);
+  }
+
+  if (!list) {
+    list = document.createElement('div');
+    list.id = 'moneyBillsSectionList';
+    list.className = 'money-bills-section-list';
+    body.appendChild(list);
+  }
+
+  const tabs = document.querySelector('.tabs');
+  if (tabs && !tabs.closest('#moneyBillsSectionControls')) {
+    controls.appendChild(tabs);
+  }
+
+  Array.from(document.querySelectorAll('button, .sort-row, .sort-controls, [data-sort]')).forEach(el => {
+    if (el.closest('#moneyBillsSection')) return;
+    if (el.closest('#moneySmartDashboard') || el.closest('#moneyMiniAnalytics')) return;
+
+    const text = String(el.textContent || '').trim().toLowerCase();
+    const sort = String(el.dataset && el.dataset.sort || '').toLowerCase();
+
+    if (
+      text.includes('due ↑') ||
+      text.includes('due ↓') ||
+      sort === 'dateasc' ||
+      sort === 'datedesc'
+    ) {
+      const parent = el.closest('.sort-row, .sort-controls') || el;
+      if (!parent.closest('#moneyBillsSectionControls')) controls.appendChild(parent);
+    }
+  });
+
+  const cards = Array.from(document.querySelectorAll('.money-swipe-wrap')).length
+    ? Array.from(document.querySelectorAll('.money-swipe-wrap'))
+    : Array.from(document.querySelectorAll('.bill-card, article[class*="bill"], .item-card, .row-card'));
+
+  cards.forEach(card => {
+    if (card.closest('#moneyBillsSectionList')) return;
+    if (card.closest('#moneySmartDashboard') || card.closest('#moneyMiniAnalytics')) return;
+    list.appendChild(card);
+  });
+}
+
+function moneyFixLayoutNow() {
+  moneyMoveSummaryToTop();
+  moneyEnsureBillsSectionExists();
+  moneyMoveSearchIntoBills();
+  moneyMoveControlsAndCardsIntoBills();
+
+  // Hide old duplicated standalone Bills headers.
+  document.querySelectorAll('#moneyBillsToggle, #moneyBillsHeaderV2').forEach(el => {
+    el.style.display = 'none';
+  });
+}
+
+function moneyWireFixedLayout() {
+  moneyFixLayoutNow();
+
+  const root = moneyLayoutRoot();
+  if (root && !root.dataset.fixedLayoutObserver) {
+    root.dataset.fixedLayoutObserver = '1';
+    new MutationObserver(() => {
+      clearTimeout(window.__moneyFixedLayoutTimer);
+      window.__moneyFixedLayoutTimer = setTimeout(moneyFixLayoutNow, 120);
+    }).observe(root, { childList: true, subtree: true });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  moneyWireFixedLayout();
+  setTimeout(moneyWireFixedLayout, 500);
+  setTimeout(moneyWireFixedLayout, 1400);
+  setTimeout(moneyWireFixedLayout, 2600);
+});
+
+document.addEventListener('click', function(event) {
+  if (event.target.closest('.tabs, .paid-toggle, [data-paid-row], #reloadBarBtn, .sort-pill, #monthPicker, [data-sort], #moneyBillsSectionHeader')) {
+    setTimeout(moneyFixLayoutNow, 200);
+    setTimeout(moneyFixLayoutNow, 800);
+  }
+}, true);
+
 start();
+setTimeout(moneyWireFixedLayout, 1000);
 setTimeout(moneyWireBillsSectionSearch, 1000);
 setTimeout(moneyWireBillsSection, 900);
 setTimeout(function(){}, 900);

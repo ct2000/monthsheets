@@ -1,0 +1,5 @@
+Built: 2026-05-13 09:16:31
+Base: money-bills-section-search-20260513-090917.zip
+Fix: summary card moved to top; Search Bills forced inside Bills section above controls/list.
+JS syntax ok: True
+
