@@ -2367,6 +2367,25 @@ body.flow-mood-warning #availableTodayHero::before{
   animation:flowPaidPulse .45s cubic-bezier(.2,.9,.2,1);
 }
 
+
+/* === Dark icon edge cleanup === */
+
+.brand-icon,
+.splash-logo{
+  background-color:transparent !important;
+  box-shadow:
+    0 14px 34px rgba(0,122,255,.16),
+    0 0 0 1px rgba(255,255,255,.03) !important;
+  isolation:isolate !important;
+}
+
+[data-theme="dark"] .brand-icon,
+[data-theme="dark"] .splash-logo{
+  box-shadow:
+    0 18px 40px rgba(0,122,255,.18),
+    0 0 0 1px rgba(255,255,255,.02) !important;
+}
+
 </style>
 </head>
 
@@ -2459,6 +2478,8 @@ body.flow-mood-warning #availableTodayHero::before{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+window.MONEY_PWA_VERSION="Flow v2.1 Dark Icon Fix";
+
 
 window.MONEY_PWA_VERSION = "Flow v2.1 Tier1";
 
@@ -3613,7 +3634,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "Flow v2.1 Tier1";
+const VERSION = "Flow v2.1 Icon Pack Fix";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -4238,7 +4259,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260513-162754").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260514-153053").catch(()=>{}));
 }
 
 wireStatic();
