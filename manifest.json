@@ -2,7 +2,7 @@
   "name": "Flow",
   "short_name": "Flow",
   "description": "Flow \u2014 calm finance with premium polish",
-  "start_url": "./index.html?v=20260514-153053",
+  "start_url": "./index.html?v=20260702-110419",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -40,5 +40,5 @@
       "purpose": "any"
     }
   ],
-  "version": "Flow v2.1 Icon Pack Fix"
+  "version": "Flow v2.1 Login Restore"
 }

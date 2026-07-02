@@ -2386,6 +2386,53 @@ body.flow-mood-warning #availableTodayHero::before{
     0 0 0 1px rgba(255,255,255,.02) !important;
 }
 
+
+/* === Login/session restore polish === */
+
+.session-restore{
+  display:grid;
+  place-items:center;
+  min-height:calc(100dvh - 170px);
+}
+
+.session-restore-card{
+  width:100%;
+  max-width:340px;
+  text-align:center;
+  padding:20px;
+  border-radius:30px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow),var(--inner);
+  backdrop-filter:blur(26px) saturate(1.2);
+}
+
+.session-restore-card .mini-orb{
+  width:54px;
+  height:54px;
+  border-radius:20px;
+  margin:0 auto 12px;
+  background-image:url('icon-192.png');
+  background-size:cover;
+  background-position:center;
+  box-shadow:0 16px 34px rgba(0,122,255,.20);
+}
+
+.session-restore-card strong{
+  display:block;
+  font-size:17px;
+  letter-spacing:-.035em;
+  margin-bottom:5px;
+}
+
+.session-restore-card span{
+  display:block;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:750;
+  line-height:1.4;
+}
+
 </style>
 </head>
 
@@ -2478,6 +2525,158 @@ body.flow-mood-warning #availableTodayHero::before{
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
+
+// Login/session restore improvement
+window.MONEY_PWA_VERSION = "Flow v2.1 Login Restore";
+
+function flowConnectedBefore() {
+  return localStorage.getItem('flow.connected') === '1' || localStorage.getItem('money.connected') === '1';
+}
+
+function flowSetConnected() {
+  localStorage.setItem('flow.connected', '1');
+  localStorage.setItem('money.connected', '1');
+}
+
+function flowShowReconnecting() {
+  const signin = document.getElementById('signin');
+  const app = document.getElementById('app');
+  const dock = document.getElementById('bottomDock');
+  const content = document.getElementById('content');
+
+  if (signin) signin.style.display = 'none';
+  if (app) app.style.display = '';
+  if (dock) dock.style.display = 'none';
+
+  if (content) {
+    content.innerHTML = `
+      <section class="session-restore">
+        <div class="session-restore-card">
+          <div class="mini-orb"></div>
+          <strong>Reconnecting Flow</strong>
+          <span>Checking your Google session quietly…</span>
+        </div>
+      </section>
+    `;
+  }
+}
+
+function flowPatchSetToken() {
+  if (typeof setToken !== 'function' || setToken.__flowPatched) return;
+
+  const oldSetToken = setToken;
+
+  window.setToken = function(token, expiresInSec) {
+    flowSetConnected();
+    return oldSetToken(token, expiresInSec);
+  };
+
+  window.setToken.__flowPatched = true;
+}
+
+function flowPatchRequestSignIn() {
+  if (typeof requestSignIn !== 'function' || requestSignIn.__flowPatched) return;
+
+  const oldRequestSignIn = requestSignIn;
+
+  window.requestSignIn = function(silent=false) {
+    if (!silent) flowSetConnected();
+    return oldRequestSignIn(silent);
+  };
+
+  window.requestSignIn.__flowPatched = true;
+}
+
+function flowInstallBetterStart() {
+  if (
+    typeof getConfig !== 'function' ||
+    typeof getToken !== 'function' ||
+    typeof showSignIn !== 'function' ||
+    typeof showApp !== 'function' ||
+    typeof loadSpreadsheet !== 'function' ||
+    typeof waitForGoogle !== 'function' ||
+    typeof initTokenClient !== 'function'
+  ) return false;
+
+  flowPatchSetToken();
+  flowPatchRequestSignIn();
+
+  window.start = function() {
+    const c = getConfig();
+
+    if (!c.clientId || !c.fileId) {
+      showSignIn();
+      return;
+    }
+
+    if (getToken()) {
+      flowSetConnected();
+      showApp();
+      loadSpreadsheet();
+      return;
+    }
+
+    if (flowConnectedBefore()) {
+      flowShowReconnecting();
+
+      waitForGoogle()
+        .then(function() {
+          initTokenClient();
+
+          if (!TOKEN_CLIENT) throw new Error('Google client not available');
+
+          TOKEN_CLIENT.callback = function(response) {
+            if (response && response.access_token) {
+              setToken(response.access_token, response.expires_in);
+              flowSetConnected();
+              showApp();
+              loadSpreadsheet();
+            } else {
+              showSignIn('Please reconnect Google to continue syncing Flow.');
+            }
+          };
+
+          TOKEN_CLIENT.requestAccessToken({ prompt: '' });
+
+          setTimeout(function() {
+            if (!getToken()) {
+              showSignIn('Tap sign in to reconnect Google and continue syncing Flow.');
+            }
+          }, 3500);
+        })
+        .catch(function() {
+          showSignIn('Tap sign in to reconnect Google and continue syncing Flow.');
+        });
+
+      return;
+    }
+
+    waitForGoogle()
+      .then(function() {
+        initTokenClient();
+        showSignIn();
+      })
+      .catch(function() {
+        showSignIn('Google sign-in script failed to load. Check connection or Settings.');
+      });
+  };
+
+  start();
+  return true;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  flowPatchSetToken();
+  flowPatchRequestSignIn();
+
+  let attempts = 0;
+  const timer = setInterval(function() {
+    attempts++;
+    if (flowInstallBetterStart() || attempts > 20) clearInterval(timer);
+  }, 100);
+});
+
+
 window.MONEY_PWA_VERSION="Flow v2.1 Dark Icon Fix";
 
 
@@ -3634,7 +3833,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-const VERSION = "Flow v2.1 Icon Pack Fix";
+const VERSION = "Flow v2.1 Login Restore";
 const DEFAULT_CLIENT_ID = "493978666690-351guk042764k40or99hppe1ehcb13aq.apps.googleusercontent.com";
 const DEFAULT_FILE_ID = "1kMyQoPLnKHq6nTMpVjpM5RbyHlt495DIWmIk1wpnUXw";
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
@@ -4259,7 +4458,7 @@ window.addEventListener("load",()=>{
 });
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260514-153053").catch(()=>{}));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("service-worker.js?v=20260702-110419").catch(()=>{}));
 }
 
 wireStatic();
